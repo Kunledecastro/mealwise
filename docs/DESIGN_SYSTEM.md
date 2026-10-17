@@ -58,6 +58,13 @@ Plates are drawn as off-white ceramic (#F4F0E7 / #E8E3D7) with a soft drop shado
 ## Components
 Button / ButtonLink (primary glow, secondary, ghost, danger), Chip, Segmented, Field, Panel, EmptyState (floating empty plate), ErrorState, SkeletonRows, SampleTag, PageTitle, PlateArt (`animate` = assemble), MealRow, MealFacts, NotForMe, AppShell (floating bottom bar on phones, rail on desktop, toast), RevealRoot, SpotlightGroup, HeroCycler, ScrollStory.
 
+## Photography
+- Real photos for 10 of the 17 sample dishes (Pexels and Unsplash; both licences allow free commercial use). Credited on the meal page ("Photo: Name on Pexels") and listed in Settings → Photo credits.
+- Shapes: circle with a ceramic rim (landing hero, marquee, closing plates), rounded card 4:3 (home suggestion, meal page, phone mockup), rounded square thumbnail (lists).
+- Motion: photos settle in with a slight rotate-and-scale and a slow zoom; the landing hero crossfades between six dishes.
+- Dishes without a verified photo show the plate illustration with the caption "Illustration. A real photo of this dish is coming." No photo is ever labelled as a dish it does not show.
+- Images are resized and cached by Next.js on Vercel (AVIF/WebP); a list thumbnail is ~2–3 KB.
+
 ## Performance notes
 - Thumbnails under 60 px skip texture marks (the landing marquee shows 68 small plates).
 - The hero headline slides in without starting transparent, so it counts as painted immediately.

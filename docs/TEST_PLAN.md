@@ -67,6 +67,7 @@ All checks re-run after the redesign: unit 34/34, E2E 72/72, axe zero serious is
 | R-02 | Review | Hero headline read as "What can Ieat next?" to screen readers (line break without a space) | Space added before the break |
 | R-03 | Visual review | On phones the scroll story showed only one phone screen | Each step shows its own phone screen on small screens |
 | R-04 | Lighthouse | Landing performance 68: grain overlay was the slowest-painting element; ~4,000 page elements | Removed grain; tiny plates skip textures (DOM 4,085 → 2,415); headline no longer starts transparent. Now 85–88 |
+| R-06 | E2E (flaky 1 in 3) | Contrast check sometimes ran mid fade-in on the landing page | Accessibility checks now run with reduced motion (final state); suite passed twice in a row (148/148) |
 | R-05 | E2E | Tests matched text in the previous page, which Next.js 16 keeps hidden in memory | Tests scoped to the visible page (not an app defect) |
 
 ---
@@ -79,6 +80,7 @@ Run the app (README → "Run it on your computer"), or use the preview link once
 |---|---|---|---|
 | M1-01 | Landing hero | Open `/` | Dark page; big "What can I eat next?"; a dish name in amber glow and a plate that assembles, changing every few seconds; pause button stops it. Prototype banner at top. |
 | M1-01b | Landing motion | Scroll the whole landing page on phone and desktop | Two drifting rows of dishes; "How it works" steps (desktop: phone on the left changes screen per step); feature cards glow under the mouse (desktop); sections fade in once; closing plates float. Nothing jumps or overlaps. |
+| M1-01d | Real photos | Open the landing page, Home, and these meals: jollof rice with chicken, akara and pap, yam and egg sauce, egusi, efo riro, roasted corn, rice and beans with plantain, fried plantain with groundnuts, fruit bowl, chicken salad | Each shows a real photo that matches the dish name, with "Photo: … on Pexels/Unsplash" under it on the meal page. Tell me any that look wrong. |
 | M1-01c | Reduced motion | Turn on "Remove animations" (Android: Settings → Accessibility) or "Reduce motion" (iPhone/Mac), reload `/` | No slideshow, no drifting rows, everything visible immediately. |
 | M1-02 | Onboarding: goal | Get started → press Continue without choosing | "Choose a goal to continue." Choose any goal → Continue works. |
 | M1-03 | Onboarding: age gate | On "About you", enter a birth year making you 16 | Message that Mealwise is for adults; Continue disabled. |

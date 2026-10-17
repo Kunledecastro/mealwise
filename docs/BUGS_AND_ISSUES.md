@@ -22,6 +22,8 @@ P1-01 to P1-06 — see TEST_PLAN.md "Defects found and fixed during Phase 1 test
 | I1 | ~~Preview deployment blocked by invalid GitHub token~~ | — | **Resolved 2026-10-17**: you created the repo; code pushed; Vercel project deployed behind login |
 | I2 | Lighthouse mobile shows 240–510 ms total blocking time on throttled CPU (mostly React start-up); landing LCP ~3 s on throttled 4G | Minor; scores 83–92 | Re-measure in Phase 6 performance audit; consider lighter hydration once real data is server-rendered |
 | I3 | 5 "high" npm audit findings in dev-only lint tooling (`braces` via `fast-glob` in `eslint-config-next`); 0 in production dependencies | None at runtime | Re-check on next Next.js upgrade |
+| I5 | 7 sample dishes have no real photo yet (moi moi, amala, pepper soup, plantain frittata, beans porridge, jollof spaghetti, oats, groundnuts) — shown as illustrations | Visual only | Product owner supplies photos, or Phase 3 sources them |
+| I6 | Photos are loaded from Pexels/Unsplash servers via Vercel; if a photographer deletes a photo it would disappear | Low | Before launch, copy final photos into our own storage (Supabase Storage, Phase 2+) |
 | I4 | Playwright pinned to 1.56.1 to match the workspace's pre-installed Chromium | None for the product | Unpin when the workspace allows browser downloads |
 
 ## Risk register (from Phase 0)
@@ -36,7 +38,7 @@ P1-01 to P1-06 — see TEST_PLAN.md "Defects found and fixed during Phase 1 test
 | R6 | Cross-user data exposure | Low | High | RLS everywhere, automated RLS tests | Claude |
 | R7 | Nigeria Data Protection Act 2023; EU hosting region | Medium | High | Minimisation, consent, export/delete; assessment before public launch; no compliance claims | You |
 | R8 | Free-tier limits (Supabase pausing; Vercel Hobby non-commercial) | High | Medium | Fine for dev/testing; upgrade before commercial launch | You |
-| R9 | Food image rights | Low (was Medium) | Medium | Generated plate illustrations remove the need for photos in MVP | Claude |
+| R9 | Food image rights and accuracy | Low | Medium | Only Pexels/Unsplash photos (free commercial licences), credited; matched to dishes from the source descriptions; product owner to confirm each looks right. Phase 3 catalogue to use own or commissioned photos where possible | Claude + you |
 | R10 | Slow networks / low-end devices | Medium | Medium | Static pre-rendering, bundled fonts, JS budget (186/200 KB) | Claude |
 | R11 | Catalogue curation effort underestimated | High | Medium | 60–80 meals first; batch review | Both |
 | R12 | Scope creep | Medium | Medium | Phase gates | You |
