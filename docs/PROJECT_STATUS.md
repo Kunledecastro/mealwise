@@ -38,8 +38,8 @@ No paid service will be introduced without your approval.
 | ID | Decision | My recommendation | Needed before |
 |---|---|---|---|
 | D1 | PWA vs native app | Installable PWA | Phase 1 |
-| D2 | Accept $0 during development; plan ≈ $45–50/month at public launch | Yes | Phase 6 |
-| D3 | Create a new free Supabase project "mealwise-dev" in your existing org, region London | Yes | Phase 2 |
+| D2 | ~~Accept $0 during development~~ **DECIDED 2026-10-17:** use the same free Supabase org and Vercel Hobby team as Educore. Launch-time upgrade (≈ $45–50/month) to be revisited in Phase 6 | — | Done |
+| D3 | Separate free Supabase project "mealwise-dev" in the same org (uses the 2nd free active slot alongside educore-greenfield) **or** share the educore-greenfield database | Separate project | Phase 2 |
 | D4 | Nutrition data sources: confirm WAFCT licence suitability; use USDA FDC as public-domain base | Use both, with licence check; I draft, you (ideally a dietitian) review | Phase 3 |
 | D5 | Who maintains ₦ price ranges, and how often | You or a helper, quarterly; I build the update template | Phase 3 |
 | D6 | Meal images: illustrations, own photos, or licensed stock | Simple illustrations in MVP; real photos later | Phase 3 |
