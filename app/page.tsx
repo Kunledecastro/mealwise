@@ -4,9 +4,9 @@ import { Logo, PrototypeBanner } from "@/components/app-shell";
 import { HeroCycler } from "@/components/landing/hero-cycler";
 import { ScrollStory } from "@/components/landing/scroll-story";
 import { RevealRoot, SpotlightGroup } from "@/components/motion";
-import { PlateArt } from "@/components/plate-art";
 import { ButtonLink } from "@/components/ui";
 import { SAMPLE_MEALS } from "@/lib/sample-data";
+import { MealVisual } from "@/components/meal-visual";
 
 const FEATURES = [
   {
@@ -33,7 +33,7 @@ function DishMarquee({ reverse = false }: { reverse?: boolean }) {
     meals.map((m) => (
       <li key={`${m.slug}-${hidden}`} aria-hidden={hidden || undefined}
         className="mx-2 flex shrink-0 items-center gap-3 rounded-full border border-line bg-surface py-2 pl-2 pr-5">
-        <PlateArt parts={m.plate} seed={m.slug} size={40} title={m.name} />
+        <MealVisual meal={m} size={40} shape="circle" decorative />
         <span className="whitespace-nowrap font-semibold">{m.name}</span>
       </li>
     ));
@@ -127,11 +127,11 @@ export default function LandingPage() {
             <div className="aura" aria-hidden="true" />
             <div className="relative mx-auto flex w-full max-w-4xl flex-col items-center gap-8 px-5 py-24 text-center lg:py-32">
               <div data-reveal className="flex -space-x-6" aria-hidden="true">
-                {["moi-moi-pap", "jollof-rice-chicken", "fish-pepper-soup"].map((s, i) => {
+                {["akara-and-pap", "jollof-rice-chicken", "egusi-pounded-yam"].map((s, i) => {
                   const m = SAMPLE_MEALS.find((x) => x.slug === s)!;
                   return (
                     <div key={s} className="float" style={{ "--delay": `${i * 700}ms` } as React.CSSProperties}>
-                      <PlateArt parts={m.plate} seed={m.slug} size={i === 1 ? 140 : 110} title={m.name} />
+                      <MealVisual meal={m} size={i === 1 ? 150 : 116} shape="circle" decorative />
                     </div>
                   );
                 })}

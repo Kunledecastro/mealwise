@@ -6,7 +6,7 @@
  * real nutrition or price data. The real catalogue, with sourced values,
  * arrives in Phase 3.
  */
-import type { Meal, MealLog, Profile, WeightEntry } from "./types";
+import type { Meal, MealLog, MealPhoto, Profile, WeightEntry } from "./types";
 
 const C = {
   jollof: "#E0763A",
@@ -189,32 +189,33 @@ export const SAMPLE_MEALS: Meal[] = [
     ],
   },
   {
-    slug: "rice-and-beans-fish-stew",
-    name: "Rice and beans with fish stew",
-    description: "Comforting rice and beans with a peppery tomato fish stew.",
+    slug: "rice-beans-plantain",
+    name: "Rice and beans with fried plantain",
+    description: "Comforting rice and beans with a little stew and sweet fried plantain.",
     mealTypes: ["lunch", "dinner"],
     cuisine: "Nigerian",
-    serving: "1 plate + 1 piece fish",
+    serving: "1 plate (about 1½ cups) + ½ plantain",
     prepMinutes: 70,
-    kcal: 640, protein: 32, carbs: 86, fat: 17,
-    costLow: 1500, costHigh: 2400,
-    tags: ["High protein", "Pescatarian"],
-    allergens: ["Fish"],
+    kcal: 640, protein: 21, carbs: 104, fat: 15,
+    costLow: 1200, costHigh: 1900,
+    tags: ["Vegetarian", "High fibre"],
+    allergens: [],
     ingredients: [
       { name: "Rice", quantity: "½ cup uncooked" },
       { name: "Brown beans", quantity: "⅓ cup uncooked" },
-      { name: "Mackerel (titus)", quantity: "1 piece" },
-      { name: "Tomato stew", quantity: "½ cup" },
+      { name: "Tomato stew", quantity: "¼ cup" },
+      { name: "Ripe plantain", quantity: "½" },
+      { name: "Vegetable oil (for frying)", quantity: "1 tbsp absorbed" },
     ],
     steps: [
       "Cook beans until soft, then add rice and cook together.",
-      "Simmer fried or grilled fish in tomato stew.",
-      "Serve the stew and fish over the rice and beans.",
+      "Fry sliced ripe plantain until golden and drain.",
+      "Serve the rice and beans with a spoon of stew and the plantain.",
     ],
     plate: [
-      { label: "Rice and beans", color: C.beans, share: 0.5, texture: "grains" },
-      { label: "Stew", color: C.stew, share: 0.25, texture: "smooth" },
-      { label: "Fish", color: C.fish, share: 0.25, texture: "chunks" },
+      { label: "Rice and beans", color: C.beans, share: 0.55, texture: "grains" },
+      { label: "Stew", color: C.stew, share: 0.2, texture: "smooth" },
+      { label: "Plantain", color: C.plantain, share: 0.25, texture: "slices" },
     ],
   },
   {
@@ -438,25 +439,31 @@ export const SAMPLE_MEALS: Meal[] = [
     ],
   },
   {
-    slug: "groundnuts-banana",
-    name: "Groundnuts and banana",
-    description: "A quick, filling snack you can carry anywhere.",
+    slug: "plantain-groundnuts",
+    name: "Fried plantain with groundnuts",
+    description: "Spiced fried plantain cubes with a handful of roasted groundnuts.",
     mealTypes: ["snack"],
-    cuisine: "Nigerian",
-    serving: "1 banana + 1 small handful groundnuts",
-    prepMinutes: 1,
-    kcal: 270, protein: 8, carbs: 30, fat: 14,
-    costLow: 300, costHigh: 500,
-    tags: ["Vegan", "Quick"],
+    cuisine: "West African",
+    serving: "1 small bowl",
+    prepMinutes: 15,
+    kcal: 320, protein: 7, carbs: 40, fat: 16,
+    costLow: 500, costHigh: 800,
+    tags: ["Vegan"],
     allergens: ["Peanuts"],
     ingredients: [
-      { name: "Banana", quantity: "1 medium" },
+      { name: "Ripe plantain", quantity: "1 small" },
+      { name: "Ginger and pepper", quantity: "a pinch" },
+      { name: "Vegetable oil (for frying)", quantity: "1 tbsp absorbed" },
       { name: "Roasted groundnuts", quantity: "1 small handful" },
     ],
-    steps: ["Peel and enjoy."],
+    steps: [
+      "Cube the plantain and toss with ginger, pepper and a little salt.",
+      "Fry until golden and drain.",
+      "Serve with roasted groundnuts.",
+    ],
     plate: [
-      { label: "Banana", color: C.banana, share: 0.6, texture: "slices" },
-      { label: "Groundnuts", color: C.groundnut, share: 0.4, texture: "balls" },
+      { label: "Plantain", color: C.plantain, share: 0.65, texture: "chunks" },
+      { label: "Groundnuts", color: C.groundnut, share: 0.35, texture: "balls" },
     ],
   },
   {
@@ -512,6 +519,79 @@ export const SAMPLE_MEALS: Meal[] = [
     ],
   },
 ];
+
+/**
+ * Real photos, hot-linked from Pexels and Unsplash (both free for commercial use; credit given anyway).
+ * Each was matched to its dish from the source's own description. Dishes not listed here have no
+ * verified photo yet and fall back to the plate illustration.
+ */
+const PHOTOS: Record<string, MealPhoto> = {
+  "jollof-rice-chicken": {
+    src: "https://images.pexels.com/photos/40262791/pexels-photo-40262791.jpeg?auto=compress&cs=tinysrgb&w=1600",
+    alt: "Grilled chicken with jollof rice and sautéed vegetables on a white plate",
+    credit: "Mohammad Fahim", source: "Pexels",
+    page: "https://www.pexels.com/photo/grilled-chicken-with-jollof-rice-and-vegetables-40262791/",
+  },
+  "akara-and-pap": {
+    src: "https://images.pexels.com/photos/37624176/pexels-photo-37624176.jpeg?auto=compress&cs=tinysrgb&w=1600",
+    alt: "Akara, pap, bread and egg in a takeaway box",
+    credit: "Tochukwu Ekeh", source: "Pexels",
+    page: "https://www.pexels.com/photo/delicious-nigerian-breakfast-with-akara-and-pap-37624176/",
+  },
+  "yam-and-egg-sauce": {
+    src: "https://images.pexels.com/photos/32634871/pexels-photo-32634871.jpeg?auto=compress&cs=tinysrgb&w=1600",
+    alt: "Nigerian breakfast of yam with egg sauce",
+    credit: "mk_photoz", source: "Pexels",
+    page: "https://www.pexels.com/photo/nigerian-breakfast-with-yam-and-egg-dish-32634871/",
+  },
+  "egusi-pounded-yam": {
+    src: "https://images.pexels.com/photos/35490114/pexels-photo-35490114.jpeg?auto=compress&cs=tinysrgb&w=1600",
+    alt: "Egusi soup with red peppers and herbs in a red bowl",
+    credit: "Tim Yisa", source: "Pexels",
+    page: "https://www.pexels.com/photo/spicy-nigerian-egusi-soup-in-red-bowl-35490114/",
+  },
+  "efo-riro-eba": {
+    src: "https://images.pexels.com/photos/37648017/pexels-photo-37648017.jpeg?auto=compress&cs=tinysrgb&w=1600",
+    alt: "Spinach stew with meat in a red pepper sauce, served in a white bowl",
+    credit: "Tochukwu Ekeh", source: "Pexels",
+    page: "https://www.pexels.com/photo/authentic-african-stew-with-spinach-and-meat-37648017/",
+  },
+  "roasted-corn-coconut": {
+    src: "https://images.pexels.com/photos/11572454/pexels-photo-11572454.jpeg?auto=compress&cs=tinysrgb&w=1600",
+    alt: "Charred corn being roasted by a street vendor in Lagos",
+    credit: "Kayode Balogun", source: "Pexels",
+    page: "https://www.pexels.com/photo/a-person-holding-a-corn-11572454/",
+  },
+  "rice-beans-plantain": {
+    src: "https://images.pexels.com/photos/27556972/pexels-photo-27556972.jpeg?auto=compress&cs=tinysrgb&w=1600",
+    alt: "Rice and beans with fried plantain on a white plate",
+    credit: "Snappr", source: "Pexels",
+    page: "https://www.pexels.com/photo/traditional-caribbean-cuisine-27556972/",
+  },
+  "plantain-groundnuts": {
+    src: "https://images.pexels.com/photos/35136066/pexels-photo-35136066.jpeg?auto=compress&cs=tinysrgb&w=1600",
+    alt: "Fried plantain cubes with peanuts in a white bowl",
+    credit: "ghanawithophelia", source: "Pexels",
+    page: "https://www.pexels.com/photo/fried-plantains-with-peanuts-in-a-bowl-35136066/",
+  },
+  "fruit-bowl": {
+    src: "https://images.unsplash.com/photo-1564093497595-593b96d80180?auto=format&fit=crop&w=1600&q=75",
+    alt: "Fresh fruit salad on a white plate",
+    credit: "Rebecca Hansen", source: "Unsplash",
+    page: "https://unsplash.com/photos/fruit-salad-on-white-plate-_WpB9l8_Kn4",
+  },
+  "chicken-salad": {
+    src: "https://images.unsplash.com/photo-1761315600943-d8a5bb0c499f?auto=format&fit=crop&w=1600&q=75",
+    alt: "Grilled chicken salad with avocado and tomatoes",
+    credit: "Ani Augustine", source: "Unsplash",
+    page: "https://unsplash.com/photos/grilled-chicken-salad-with-avocado-and-tomatoes-9TogNg01qzI",
+  },
+};
+
+for (const m of SAMPLE_MEALS) if (PHOTOS[m.slug]) m.photo = PHOTOS[m.slug];
+
+/** Every photo used, for the credits list. */
+export const PHOTO_CREDITS = SAMPLE_MEALS.filter((m) => m.photo).map((m) => ({ meal: m.name, ...m.photo! }));
 
 export const SAMPLE_PROFILE: Profile = {
   displayName: "Amaka",

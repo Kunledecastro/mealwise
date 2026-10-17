@@ -221,6 +221,30 @@ h3 {
   animation: plate-in 600ms var(--ease-out-soft) both;
 }
 
+/* Real photos: settle into place (no fade, so a hero photo still counts as painted at once) */
+@keyframes photo-in {
+  from {
+    transform: scale(1.08) rotate(-3deg);
+  }
+  to {
+    transform: none;
+  }
+}
+.photo-in {
+  animation: photo-in 900ms var(--ease-out-soft) both;
+}
+.photo-in img {
+  animation: photo-zoom 6s ease-out both;
+}
+@keyframes photo-zoom {
+  from {
+    transform: scale(1.06);
+  }
+  to {
+    transform: scale(1);
+  }
+}
+
 @keyframes slow-spin {
   to {
     transform: rotate(360deg);

@@ -4,11 +4,11 @@ import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { Bookmark, BookmarkCheck, Clock, Flame, Wallet, X } from "lucide-react";
 import { useState } from "react";
-import { PlateArt } from "./plate-art";
 import { Button, ErrorState, SkeletonRows } from "./ui";
 import { formatMinutes, formatNairaRange } from "@/lib/domain/meals";
 import { useStore, type RejectReason } from "@/lib/prototype-store";
 import type { Meal, Profile } from "@/lib/types";
+import { MealVisual } from "./meal-visual";
 
 export type DemoState = "loading" | "empty" | "error" | null;
 
@@ -84,7 +84,7 @@ export function MealRow({ meal, actions = true }: { meal: Meal; actions?: boolea
   const isSaved = saved.includes(meal.slug);
   return (
     <li className="flex items-center gap-4 py-4">
-      <PlateArt parts={meal.plate} seed={meal.slug} size={84} className="shrink-0" title={meal.name} />
+      <MealVisual meal={meal} size={84} decorative />
       <div className="flex min-w-0 flex-1 flex-col gap-1">
         <Link href={`/meals/${meal.slug}`} className="font-display text-lg font-semibold leading-tight hover:text-accent hover:underline">
           {meal.name}

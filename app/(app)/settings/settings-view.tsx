@@ -4,6 +4,7 @@ import Link from "next/link";
 import { ArrowLeft } from "lucide-react";
 import { Button, PageTitle, Segmented } from "@/components/ui";
 import { useStore } from "@/lib/prototype-store";
+import { PHOTO_CREDITS } from "@/lib/sample-data";
 import type { Units } from "@/lib/types";
 
 const STATE_LINKS = [
@@ -80,6 +81,24 @@ export function SettingsView() {
           or registered dietitian. Nutrition figures and prices are estimates.
         </p>
         <p className="text-sm text-muted">Version 0.1, Phase 1 prototype</p>
+      </section>
+
+      <section aria-labelledby="credits-title" className="flex flex-col gap-3">
+        <h2 id="credits-title" className="text-xl">Photo credits</h2>
+        <p className="max-w-prose text-sm text-muted">
+          Meal photos come from Pexels and Unsplash, whose licences allow free use. Thank you to the photographers.
+          Dishes without a photo show an illustration for now.
+        </p>
+        <ul className="divide-y divide-line rounded-[var(--radius-md)] border border-line bg-surface text-sm">
+          {PHOTO_CREDITS.map((c) => (
+            <li key={c.meal} className="flex flex-wrap justify-between gap-x-4 gap-y-1 px-4 py-3">
+              <span className="font-semibold">{c.meal}</span>
+              <a href={c.page} target="_blank" rel="noopener noreferrer" className="text-muted underline underline-offset-2 hover:text-ink">
+                {c.credit} on {c.source}
+              </a>
+            </li>
+          ))}
+        </ul>
       </section>
     </div>
   );

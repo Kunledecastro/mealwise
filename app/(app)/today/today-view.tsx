@@ -3,11 +3,11 @@
 import Link from "next/link";
 import { Trash2 } from "lucide-react";
 import { DemoStateView, useDemoState } from "@/components/meal-bits";
-import { PlateArt } from "@/components/plate-art";
 import { ButtonLink, EmptyState, PageTitle, SampleTag, SkeletonRows } from "@/components/ui";
 import { useStore } from "@/lib/prototype-store";
 import { SAMPLE_DAILY_TARGET, SAMPLE_MEALS, fromISODate } from "@/lib/sample-data";
 import { MEAL_TYPES, MEAL_TYPE_LABEL } from "@/lib/types";
+import { MealVisual } from "@/components/meal-visual";
 
 export function TodayView() {
   const demo = useDemoState();
@@ -78,7 +78,7 @@ export function TodayView() {
                       <ul className="divide-y divide-line">
                         {group.map(({ log, meal }) => (
                           <li key={log.id} className="flex items-center gap-3 py-3">
-                            <PlateArt parts={meal.plate} seed={meal.slug} size={52} title={meal.name} />
+                            <MealVisual meal={meal} size={52} decorative />
                             <div className="flex min-w-0 flex-1 flex-col">
                               <Link href={`/meals/${meal.slug}`} className="font-semibold hover:underline">{meal.name}</Link>
                               <span className="text-sm text-muted">

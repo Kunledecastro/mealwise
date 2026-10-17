@@ -1,5 +1,5 @@
 import AxeBuilder from "@axe-core/playwright";
-import { expect, test } from "@playwright/test";
+import { expect, test } from "./fixtures";
 
 const ROUTES = [
   "/", "/sign-in", "/sign-up", "/reset-password", "/onboarding",
@@ -12,6 +12,8 @@ for (const route of ROUTES) {
     const errors: string[] = [];
     page.on("console", (m) => m.type() === "error" && errors.push(m.text()));
     page.on("pageerror", (e) => errors.push(e.message));
+    // Measure contrast in the final state, not halfway through a fade-in animation.
+    await page.emulateMedia({ reducedMotion: "reduce" });
     const res = await page.goto(route);
     expect(res?.status()).toBe(200);
     await expect(page.getByTestId("prototype-banner")).toBeVisible();

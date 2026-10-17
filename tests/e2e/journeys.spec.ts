@@ -1,4 +1,4 @@
-import { expect, test, type Page } from "@playwright/test";
+import { expect, test, type Page } from "./fixtures";
 
 const nav = (page: Page) => page.locator('nav[aria-label="Main"]:visible');
 
@@ -57,7 +57,7 @@ test("J1: onboarding blocks under-18s, validates input, and personalises the hom
   await page.getByRole("searchbox").fill("groundnuts");
   await expect(page.getByRole("heading", { name: "No meals match" })).toBeVisible();
   await page.getByLabel(/Hide meals with my allergies/).uncheck();
-  await expect(page.getByRole("link", { name: "Groundnuts and banana" })).toBeVisible();
+  await expect(page.getByRole("link", { name: "Fried plantain with groundnuts" })).toBeVisible();
 });
 
 test("J2: pick a meal, log half a portion, and see it on Today", async ({ page }) => {
@@ -194,4 +194,19 @@ test("PWA manifest and icons are served", async ({ request }) => {
   expect(m.name).toBe("Mealwise");
   expect(m.display).toBe("standalone");
   for (const icon of m.icons) expect((await request.get(icon.src)).status()).toBe(200);
+});
+
+test("real photos show a credit; dishes without one say they are illustrations", async ({ page }) => {
+  await page.goto("/meals/jollof-rice-chicken");
+  const credit = page.getByRole("link", { name: "Mohammad Fahim on Pexels" });
+  await expect(credit).toBeVisible();
+  await expect(credit).toHaveAttribute("href", /pexels\.com\/photo\//);
+  await expect(page.locator("main img").first()).toBeVisible();
+
+  await page.goto("/meals/fish-pepper-soup");
+  await expect(page.getByText("Illustration. A real photo of this dish is coming.")).toBeVisible();
+
+  await page.goto("/settings");
+  await expect(page.getByRole("heading", { name: "Photo credits" })).toBeVisible();
+  await expect(page.getByRole("link", { name: /on (Pexels|Unsplash)$/ })).toHaveCount(10);
 });

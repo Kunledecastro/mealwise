@@ -6,6 +6,8 @@ const errors = [];
 for (const [name, vp] of [["m", { width: 390, height: 844 }], ["d", { width: 1280, height: 860 }]]) {
   const ctx = await b.newContext({ viewport: vp, deviceScaleFactor: 1, timezoneId: "Africa/Lagos" });
   const p = await ctx.newPage();
+  // Photo hosts are unreachable from the build machine: show a stand-in so layout can be reviewed.
+  await p.route("**/_next/image**", (r) => r.fulfill({ path: "tests/e2e/fixtures/photo.jpg", contentType: "image/jpeg" }));
   p.on("console", (m) => m.type() === "error" && errors.push(`${name} ${p.url()}: ${m.text()}`));
   p.on("pageerror", (e) => errors.push(`${name} ${p.url()}: ${e.message}`));
   for (const r of routes) {

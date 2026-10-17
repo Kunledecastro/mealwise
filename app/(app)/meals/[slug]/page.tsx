@@ -1,12 +1,12 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ArrowLeft } from "lucide-react";
-import { PlateArt } from "@/components/plate-art";
 import { SampleTag } from "@/components/ui";
 import { formatMinutes, formatNairaRange } from "@/lib/domain/meals";
 import { SAMPLE_MEALS } from "@/lib/sample-data";
 import { MEAL_TYPE_LABEL } from "@/lib/types";
 import { MealActions, WhyThisSuits } from "./meal-actions";
+import { MealVisual, PhotoCredit } from "@/components/meal-visual";
 
 export function generateStaticParams() {
   return SAMPLE_MEALS.map((m) => ({ slug: m.slug }));
@@ -38,7 +38,8 @@ export default async function MealPage(props: PageProps<"/meals/[slug]">) {
       <header className="grid items-center gap-6 sm:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)]">
         <div className="relative mx-auto w-full max-w-80">
           <div className="aura" aria-hidden="true" />
-          <PlateArt parts={meal.plate} seed={meal.slug} size={320} animate className="relative h-auto w-full" title={meal.name} />
+          <MealVisual meal={meal} size={320} shape="card" animate priority sizes="(max-width: 640px) 92vw, 320px" className="relative w-full" />
+          <PhotoCredit meal={meal} className="relative mt-3" />
         </div>
         <div className="flex flex-col gap-3">
           <p className="text-sm font-semibold text-accent">

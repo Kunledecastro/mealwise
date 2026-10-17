@@ -25,6 +25,16 @@ export interface Ingredient {
   quantity: string;
 }
 
+export interface MealPhoto {
+  src: string;
+  alt: string;
+  /** Photographer name or handle as shown on the source site. */
+  credit: string;
+  source: "Pexels" | "Unsplash";
+  /** Photo page on the source site (licence and photographer details). */
+  page: string;
+}
+
 export interface Meal {
   slug: string;
   name: string;
@@ -46,6 +56,8 @@ export interface Meal {
   ingredients: Ingredient[];
   steps: string[];
   plate: PlatePart[];
+  /** Real photo, when a verified licensed match exists. Otherwise the plate illustration is shown. */
+  photo?: MealPhoto;
 }
 
 export type Goal = "lose" | "gain" | "maintain";

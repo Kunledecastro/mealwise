@@ -4,13 +4,13 @@ import Link from "next/link";
 import { useMemo, useState } from "react";
 import { RefreshCw } from "lucide-react";
 import { MealFacts, MealRow, NotForMe, sampleReasons, suitsProfile } from "@/components/meal-bits";
-import { PlateArt } from "@/components/plate-art";
 import { Button, ButtonLink, Chip, EmptyState, SampleTag } from "@/components/ui";
 import { slotForHour } from "@/lib/domain/meals";
 import { useStore } from "@/lib/prototype-store";
 import { SAMPLE_DAILY_TARGET, SAMPLE_MEALS } from "@/lib/sample-data";
 import { useHour } from "@/lib/use-today";
 import { MEAL_TYPES, MEAL_TYPE_LABEL, type MealType } from "@/lib/types";
+import { MealVisual } from "@/components/meal-visual";
 
 function greeting(hour: number) {
   if (hour < 12) return "Good morning";
@@ -57,7 +57,7 @@ export function HomeView() {
           <div className="relative grid items-center gap-6 overflow-hidden rounded-[var(--radius-lg)] border border-line bg-surface p-5 sm:grid-cols-[minmax(0,1fr)_minmax(0,1.1fr)] sm:p-7">
             <Link href={`/meals/${hero.slug}`} className="relative mx-auto block w-full max-w-72" tabIndex={-1} aria-hidden="true">
               <div className="aura" />
-              <PlateArt key={hero.slug} parts={hero.plate} seed={hero.slug} size={300} animate className="relative h-auto w-full" />
+              <MealVisual key={hero.slug} meal={hero} size={300} shape="card" animate priority sizes="(max-width: 640px) 88vw, 300px" className="relative w-full" decorative />
             </Link>
             <div key={hero.slug} className="swap-in relative flex flex-col gap-3">
               <p className="text-sm font-semibold text-accent">{MEAL_TYPE_LABEL[slot]} idea</p>

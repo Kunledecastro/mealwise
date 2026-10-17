@@ -1,8 +1,8 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { PlateArt } from "@/components/plate-art";
 import { SAMPLE_MEALS } from "@/lib/sample-data";
+import { MealVisual } from "@/components/meal-visual";
 
 const STEPS = [
   {
@@ -44,7 +44,7 @@ function PhoneScreen({ step, id = "a" }: { step: number; id?: string }) {
           {step === 1 && (
             <>
               <p className="text-xs text-muted">Lunch idea</p>
-              <PlateArt parts={jollof.plate} seed={`phone-jollof-${id}`} size={200} animate className="mx-auto h-auto w-[85%]" title={jollof.name} />
+              <MealVisual meal={jollof} size={200} shape="card" animate sizes="220px" className="w-full" decorative />
               <p className="font-display text-lg font-semibold leading-tight">{jollof.name}</p>
               <div className="flex flex-wrap gap-1.5">
                 <span className="rounded-full bg-fresh-soft px-2.5 py-1 text-[11px] font-semibold text-fresh">High protein</span>

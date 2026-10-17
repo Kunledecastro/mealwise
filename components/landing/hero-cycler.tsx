@@ -2,21 +2,22 @@
 
 import { useEffect, useState } from "react";
 import { Clock, Flame, Pause, Play, Wallet } from "lucide-react";
-import { PlateArt } from "@/components/plate-art";
+import { MealVisual, PhotoCredit } from "@/components/meal-visual";
 import { formatMinutes, formatNairaRange } from "@/lib/domain/meals";
 import { SAMPLE_MEALS } from "@/lib/sample-data";
 
 const SEQUENCE = [
   { slug: "jollof-rice-chicken", when: "Lunch" },
   { slug: "akara-and-pap", when: "Breakfast" },
+  { slug: "egusi-pounded-yam", when: "Dinner" },
+  { slug: "yam-and-egg-sauce", when: "Breakfast" },
+  { slug: "plantain-groundnuts", when: "Snack" },
   { slug: "efo-riro-eba", when: "Dinner" },
-  { slug: "fruit-bowl", when: "Snack" },
-  { slug: "beans-and-plantain", when: "Dinner" },
 ].map((s) => ({ ...s, meal: SAMPLE_MEALS.find((m) => m.slug === s.slug)! }));
 
 const INTERVAL = 3800;
 
-/** Hero answer that cycles through dishes; the plate re-assembles on each change. */
+/** Hero answer that cycles through dishes; real photos crossfade inside the glowing orbit. */
 export function HeroCycler() {
   const [i, setI] = useState(0);
   const [playing, setPlaying] = useState(true);
@@ -47,7 +48,10 @@ export function HeroCycler() {
             <span className="inline-flex items-center gap-1.5"><Clock size={15} aria-hidden="true" />{formatMinutes(meal.prepMinutes)}</span>
             <span className="inline-flex items-center gap-1.5"><Wallet size={15} aria-hidden="true" />{formatNairaRange(meal.costLow, meal.costHigh)}</span>
           </p>
-          <p className="text-xs text-muted/80">Sample meals and figures.</p>
+          <div className="flex flex-wrap gap-x-3 text-xs text-muted/80">
+            <span>Sample meals and figures.</span>
+            <PhotoCredit key={`${meal.slug}-credit`} meal={meal} className="swap-in !text-muted/80" />
+          </div>
         </div>
       </div>
 
@@ -64,8 +68,18 @@ export function HeroCycler() {
             );
           })}
         </svg>
-        <div className="absolute inset-[11%]">
-          <PlateArt key={meal.slug} parts={meal.plate} seed={meal.slug} size={400} animate className="h-full w-full" title={meal.name} />
+        <div className="absolute inset-[11%]" aria-live="off">
+          {SEQUENCE.map((s, k) => (
+            <div
+              key={s.slug}
+              aria-hidden={k !== i}
+              className={`absolute inset-0 transition-[opacity,transform] duration-[900ms] ease-[var(--ease-out-soft)] ${
+                k === i ? "scale-100 rotate-0 opacity-100" : "scale-[1.06] -rotate-3 opacity-0"
+              }`}
+            >
+              <MealVisual meal={s.meal} size={400} shape="circle" priority={k === 0} sizes="(max-width: 1024px) 78vw, 400px" className="w-full" decorative={k !== i} />
+            </div>
+          ))}
         </div>
         <button
           type="button"
