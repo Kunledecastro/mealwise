@@ -18,4 +18,5 @@
 | 014 | 2026-10-17 | Next.js 16.4.2 with its defaults (Turbopack, Cache Components). Fonts bundled from npm rather than fetched from Google at runtime | Implemented | Current stable; works offline-first and on restricted networks |
 | 015 | 2026-10-17 | Prototype state kept in browser memory only, with a banner on every screen saying nothing is saved | Implemented | Brief forbids pretending persistence works |
 | 016 | 2026-10-17 | Exact dependency versions pinned in package.json | Implemented | Reproducible builds, including on Vercel |
-| 017 | 2026-10-17 | Preview deploy deferred until GitHub is reconnected, rather than hand-uploading source to Vercel | Proposed | Git-linked previews update automatically each phase and are less error-prone |
+| 017 | 2026-10-17 | Preview via GitHub-linked Vercel project (repo `Kunledecastro/mealwise`) rather than hand-uploaded files | **Implemented** | Automatic deploys each phase |
+| 018 | 2026-10-17 | Vercel Authentication on **all** deployments, including the production address, Node 22 | **Implemented** | Vercel treats `main` as production, whose address would otherwise be public; brief forbids public deployment without approval. Verified: anonymous visit redirects to Vercel login |

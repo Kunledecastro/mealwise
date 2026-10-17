@@ -4,6 +4,10 @@ Meal recommendations and weight tracking, Nigeria-first. Built in approval-gated
 
 **Current state: Phase 1 prototype.** All screens work with clearly labelled sample data. Nothing is saved: accounts, the database, real nutrition data and target calculations arrive in later phases.
 
+## Test link
+
+https://mealwise-flame.vercel.app (sign in with your Vercel account). It updates automatically about a minute after each push to `main`.
+
 ## Run it on your computer
 
 You need Node.js 22 or newer (`node -v` to check). No accounts, keys or environment variables are needed for Phase 1.

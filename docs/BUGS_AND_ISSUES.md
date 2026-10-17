@@ -19,7 +19,7 @@ P1-01 to P1-06 — see TEST_PLAN.md "Defects found and fixed during Phase 1 test
 ## Open issues
 | ID | Issue | Impact | Plan |
 |---|---|---|---|
-| I1 | Preview deployment blocked: the GitHub token in the build workspace is invalid, so the private repo + Vercel link couldn't be created | You can't yet test on your phone via a link | Needs your action (PROJECT_STATUS D10) |
+| I1 | ~~Preview deployment blocked by invalid GitHub token~~ | — | **Resolved 2026-10-17**: you created the repo; code pushed; Vercel project deployed behind login |
 | I2 | Lighthouse mobile shows 150–660 ms total blocking time on throttled CPU (mostly React start-up) | Minor; scores 83–96 | Re-measure in Phase 6 performance audit; consider lighter hydration once real data is server-rendered |
 | I3 | 5 "high" npm audit findings in dev-only lint tooling (`braces` via `fast-glob` in `eslint-config-next`); 0 in production dependencies | None at runtime | Re-check on next Next.js upgrade |
 | I4 | Playwright pinned to 1.56.1 to match the workspace's pre-installed Chromium | None for the product | Unpin when the workspace allows browser downloads |

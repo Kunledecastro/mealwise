@@ -17,7 +17,7 @@
 - Data export and account deletion (buttons present but disabled with explanation).
 
 ## Known defects / limitations
-See BUGS_AND_ISSUES.md. Summary: no open defects; prototype state resets on page reload (expected); preview deployment pending GitHub access (D10).
+See BUGS_AND_ISSUES.md. Summary: no open defects; prototype state resets on page reload (expected).
 
 ## Latest test results (2026-10-17)
 - TypeScript: pass. ESLint: pass. Production build: pass (36 routes).
@@ -28,9 +28,13 @@ See BUGS_AND_ISSUES.md. Summary: no open defects; prototype state resets on page
 ## Decisions requiring your input
 | ID | Decision | Recommendation |
 |---|---|---|
-| D10 | Preview on your phone needs a private GitHub repo linked to Vercel. The GitHub token in this workspace is invalid, so I couldn't create it. | Reconnect GitHub for Claude (claude.ai Settings → Connectors), then I'll create the private repo `mealwise` and a Vercel project with protected preview links. Alternative: run locally (README). |
 | D9 | Brand direction (ugu green, plantain yellow, Bricolage Grotesque + Figtree, plate illustrations) | Approve, or tell me what to change |
 | D3 | Separate free Supabase project for Phase 2 | Approved with Phase 0; will be created at the start of Phase 2 |
+
+## Where things live
+- Code: private GitHub repo `Kunledecastro/mealwise`, branch `main`.
+- Hosting: Vercel project `mealwise` in team "Adekunle Oludele's projects" (Hobby, free). Every push to `main` deploys automatically.
+- Test link: https://mealwise-flame.vercel.app — **Vercel login required on every deployment** (protection set to "all"), so it is not public.
 
 ## Exact next step
 You test the prototype using the checklist in TEST_PLAN.md (section "Phase 1 manual tests") and reply **"Phase 1 approved"**, or list changes. Phase 2 (accounts and saved profiles) starts only after approval.
