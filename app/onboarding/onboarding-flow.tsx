@@ -17,7 +17,7 @@ function ChoiceCard({ selected, title, body, onClick }: { selected: boolean; tit
   return (
     <button type="button" role="radio" aria-checked={selected} onClick={onClick}
       className={`flex w-full flex-col items-start gap-1 rounded-[var(--radius-md)] border-2 p-4 text-left transition-colors ${
-        selected ? "border-leaf bg-leaf-soft" : "border-line bg-surface hover:border-leaf/50"
+        selected ? "border-accent bg-accent-soft shadow-[0_0_0_4px_rgba(246,178,60,0.12)]" : "border-line bg-surface hover:border-accent/50 hover:bg-surface-2"
       }`}>
       <span className="font-display text-lg font-semibold">{title}</span>
       <span className="text-sm text-muted">{body}</span>
@@ -107,11 +107,11 @@ export function OnboardingFlow() {
           <p className="text-sm text-muted" aria-live="polite">Step {step + 1} of {STEPS.length}</p>
         </div>
         <div className="h-1.5 rounded-full bg-line" aria-hidden="true">
-          <div className="h-full rounded-full bg-leaf transition-all" style={{ width: `${((step + 1) / STEPS.length) * 100}%` }} />
+          <div className="bg-glow h-full rounded-full transition-all duration-500" style={{ width: `${((step + 1) / STEPS.length) * 100}%` }} />
         </div>
 
-        <main id="main" className="flex flex-1 flex-col gap-6">
-          <h1 className="text-3xl">{STEPS[step]}</h1>
+        <main id="main" key={step} className="swap-in flex flex-1 flex-col gap-6">
+          <h1 className="text-4xl sm:text-5xl">{STEPS[step]}</h1>
 
           {step === 0 && (
             <div role="radiogroup" aria-label="Your goal" className="flex flex-col gap-3">

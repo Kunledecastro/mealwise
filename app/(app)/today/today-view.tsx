@@ -20,9 +20,9 @@ export function TodayView() {
   const total = (k: "kcal" | "protein" | "carbs" | "fat") =>
     Math.round(entries.reduce((s, e) => s + e.meal[k] * e.log.portion, 0));
   const rows = [
-    { key: "kcal" as const, label: "Energy", unit: "kcal", color: "bg-leaf" },
-    { key: "protein" as const, label: "Protein", unit: "g", color: "bg-leaf" },
-    { key: "carbs" as const, label: "Carbs", unit: "g", color: "bg-plantain" },
+    { key: "kcal" as const, label: "Energy", unit: "kcal", color: "bg-glow" },
+    { key: "protein" as const, label: "Protein", unit: "g", color: "bg-fresh" },
+    { key: "carbs" as const, label: "Carbs", unit: "g", color: "bg-accent" },
     { key: "fat" as const, label: "Fat", unit: "g", color: "bg-pepper" },
   ];
 
@@ -37,7 +37,7 @@ export function TodayView() {
         <DemoStateView state={demo} />
       ) : (
         <>
-          <section aria-labelledby="totals-title" className="rounded-[var(--radius-lg)] bg-surface p-5">
+          <section aria-labelledby="totals-title" className="rounded-[var(--radius-lg)] border border-line bg-surface p-5 sm:p-6">
             <div className="mb-4 flex flex-wrap items-center justify-between gap-2">
               <h2 id="totals-title" className="text-xl">Estimated totals</h2>
               <SampleTag>Sample target and figures</SampleTag>

@@ -19,7 +19,7 @@ export function SettingsView() {
 
   return (
     <div className="flex flex-col gap-8">
-      <Link href="/profile" className="inline-flex w-fit items-center gap-1 font-semibold text-leaf hover:underline">
+      <Link href="/profile" className="inline-flex w-fit items-center gap-1 font-semibold text-accent hover:underline">
         <ArrowLeft size={18} aria-hidden="true" /> Profile
       </Link>
       <PageTitle>Settings</PageTitle>
@@ -42,7 +42,7 @@ export function SettingsView() {
         <p id="data-note" className="text-sm text-muted">Not available in this prototype.</p>
       </section>
 
-      <section aria-labelledby="proto-title" className="flex flex-col gap-4 rounded-[var(--radius-lg)] bg-plantain-soft p-5">
+      <section aria-labelledby="proto-title" className="flex flex-col gap-4 rounded-[var(--radius-lg)] border border-accent/25 bg-plantain-soft p-5">
         <h2 id="proto-title" className="text-xl">Prototype tools</h2>
         <p className="max-w-prose text-sm">
           These links let you review how screens look while loading, when empty, and when something goes wrong. They
@@ -58,7 +58,7 @@ export function SettingsView() {
                 <td className="py-2 pr-2 font-semibold">{s.label}</td>
                 {(["loading", "empty", "error"] as const).map((d) => (
                   <td key={d} className="px-2">
-                    <Link className="font-semibold text-leaf underline" href={`${s.path}?demo=${d}`} aria-label={`${s.label} ${d} state`}>View</Link>
+                    <Link className="font-semibold text-accent underline" href={`${s.path}?demo=${d}`} aria-label={`${s.label} ${d} state`}>View</Link>
                   </td>
                 ))}
               </tr>
@@ -66,7 +66,7 @@ export function SettingsView() {
           </tbody>
         </table>
         <p className="text-sm">
-          Also try a <Link href="/meals/not-a-real-meal" className="font-semibold text-leaf underline">meal that doesn&apos;t exist</Link>.
+          Also try a <Link href="/meals/not-a-real-meal" className="font-semibold text-accent underline">meal that doesn&apos;t exist</Link>.
         </p>
         <Button variant="secondary" className="w-fit" onClick={() => { reset(); showToast("Sample data restored"); }}>
           Reset sample data

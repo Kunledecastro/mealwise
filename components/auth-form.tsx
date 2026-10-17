@@ -33,16 +33,17 @@ export function AuthForm({ mode }: { mode: Mode }) {
   }
 
   return (
-    <div className="flex min-h-dvh flex-col">
+    <div className="relative flex min-h-dvh flex-col overflow-hidden">
       <PrototypeBanner />
-      <div className="mx-auto flex w-full max-w-md flex-1 flex-col gap-8 px-5 py-8">
+      <div className="aura -top-1/3 opacity-60" aria-hidden="true" />
+      <div className="relative mx-auto flex w-full max-w-md flex-1 flex-col gap-8 px-5 py-8">
         <Link href="/" aria-label="Mealwise welcome page">
           <Logo />
         </Link>
-        <main id="main" className="flex flex-col gap-6">
-          <h1 className="text-3xl">{c.title}</h1>
+        <main id="main" className="rise flex flex-col gap-6 rounded-[var(--radius-lg)] border border-line bg-surface/80 p-6 backdrop-blur sm:p-8">
+          <h1 className="text-4xl">{c.title}</h1>
           {submitted ? (
-            <div role="status" className="flex flex-col gap-4 rounded-[var(--radius-md)] border border-line bg-surface p-5">
+            <div role="status" className="swap-in flex flex-col gap-4 rounded-[var(--radius-md)] border border-accent/30 bg-accent-soft p-5">
               <p className="font-semibold">Accounts aren&apos;t switched on in this prototype.</p>
               <p className="text-muted">
                 Your details were checked but not sent anywhere. Sign-in, sign-up and password reset will work once
@@ -72,19 +73,19 @@ export function AuthForm({ mode }: { mode: Mode }) {
           <div className="flex flex-col gap-2 text-sm">
             {mode === "sign-in" && (
               <>
-                <Link href="/reset-password" className="font-semibold text-leaf hover:underline">Forgot your password?</Link>
+                <Link href="/reset-password" className="font-semibold text-accent hover:underline">Forgot your password?</Link>
                 <p className="text-muted">
-                  New to Mealwise? <Link href="/sign-up" className="font-semibold text-leaf hover:underline">Create an account</Link>
+                  New to Mealwise? <Link href="/sign-up" className="font-semibold text-accent hover:underline">Create an account</Link>
                 </p>
               </>
             )}
             {mode === "sign-up" && (
               <p className="text-muted">
-                Already have an account? <Link href="/sign-in" className="font-semibold text-leaf hover:underline">Sign in</Link>
+                Already have an account? <Link href="/sign-in" className="font-semibold text-accent hover:underline">Sign in</Link>
               </p>
             )}
             {mode === "reset" && (
-              <Link href="/sign-in" className="font-semibold text-leaf hover:underline">Back to sign in</Link>
+              <Link href="/sign-in" className="font-semibold text-accent hover:underline">Back to sign in</Link>
             )}
           </div>
         </main>

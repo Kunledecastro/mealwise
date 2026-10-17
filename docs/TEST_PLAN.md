@@ -58,6 +58,17 @@ Environment note: this workspace can't download Playwright browsers, so tests us
 | P1-05 | Visual review | Error "Try again" dropped the selected meal tab | Keeps other URL parameters |
 | P1-06 | Review | Portion buttons read "½ serving" / "1½ servings" ambiguously to screen readers | Now "Half a serving", "One and a half servings" |
 
+### Redesign (2026-10-17) — results and defects fixed
+All checks re-run after the redesign: unit 34/34, E2E 72/72, axe zero serious issues, Lighthouse accessibility 100.
+
+| ID | Found by | Issue | Fix |
+|---|---|---|---|
+| R-01 | axe (E2E) | Dimmed inactive steps in the landing scroll story fell below text contrast minimum | Body text stays full contrast; only headings dim |
+| R-02 | Review | Hero headline read as "What can Ieat next?" to screen readers (line break without a space) | Space added before the break |
+| R-03 | Visual review | On phones the scroll story showed only one phone screen | Each step shows its own phone screen on small screens |
+| R-04 | Lighthouse | Landing performance 68: grain overlay was the slowest-painting element; ~4,000 page elements | Removed grain; tiny plates skip textures (DOM 4,085 → 2,415); headline no longer starts transparent. Now 85–88 |
+| R-05 | E2E | Tests matched text in the previous page, which Next.js 16 keeps hidden in memory | Tests scoped to the visible page (not an app defect) |
+
 ---
 
 ## Phase 1 manual tests (for you)
@@ -66,7 +77,9 @@ Run the app (README → "Run it on your computer"), or use the preview link once
 
 | ID | Feature | Steps | Expected |
 |---|---|---|---|
-| M1-01 | Welcome | Open `/` | Big "What can I eat next?", plate illustration, "Get started" and "I have an account". Yellow prototype banner at top. |
+| M1-01 | Landing hero | Open `/` | Dark page; big "What can I eat next?"; a dish name in amber glow and a plate that assembles, changing every few seconds; pause button stops it. Prototype banner at top. |
+| M1-01b | Landing motion | Scroll the whole landing page on phone and desktop | Two drifting rows of dishes; "How it works" steps (desktop: phone on the left changes screen per step); feature cards glow under the mouse (desktop); sections fade in once; closing plates float. Nothing jumps or overlaps. |
+| M1-01c | Reduced motion | Turn on "Remove animations" (Android: Settings → Accessibility) or "Reduce motion" (iPhone/Mac), reload `/` | No slideshow, no drifting rows, everything visible immediately. |
 | M1-02 | Onboarding: goal | Get started → press Continue without choosing | "Choose a goal to continue." Choose any goal → Continue works. |
 | M1-03 | Onboarding: age gate | On "About you", enter a birth year making you 16 | Message that Mealwise is for adults; Continue disabled. |
 | M1-04 | Onboarding: validation | Enter 1990, weight 900 → Continue | "Enter a weight between 20 and 400 kg." Fix to a real value → continues. |

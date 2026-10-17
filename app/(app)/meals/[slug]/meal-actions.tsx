@@ -52,8 +52,8 @@ export function MealActions({ slug }: { slug: string }) {
       <NotForMe meal={meal} onDone={() => router.push(`/meals?slot=${meal.mealTypes[0]}`)} />
 
       <dialog ref={dialog} aria-labelledby="log-title"
-        className="m-auto w-[min(28rem,calc(100%-2rem))] rounded-[var(--radius-lg)] bg-surface p-0 text-ink backdrop:bg-ink/40">
-        <form method="dialog" className="sheet-up flex flex-col gap-5 p-6" onSubmit={(e) => { e.preventDefault(); log(); }}>
+        className="mx-auto mb-0 mt-auto w-full max-w-none rounded-t-[1.75rem] border border-line bg-surface-2 p-0 text-ink backdrop:bg-black/65 backdrop:backdrop-blur-sm sm:m-auto sm:w-[28rem] sm:rounded-[1.75rem]">
+        <form method="dialog" className="sheet-up flex flex-col gap-5 p-6 pb-8 sm:pb-6" onSubmit={(e) => { e.preventDefault(); log(); }}>
           <h2 id="log-title" className="text-2xl">Log {meal.name}</h2>
           <fieldset className="flex flex-col gap-2">
             <legend className="mb-2 font-semibold">How much did you have?</legend>
@@ -94,7 +94,7 @@ export function WhyThisSuits({ slug }: { slug: string }) {
     <section aria-labelledby="why-title" className="flex flex-col gap-3">
       <h2 id="why-title" className="text-xl">Why this may suit you</h2>
       <ul className="flex flex-wrap gap-2">
-        {reasons.map((r) => <li key={r} className="rounded-full bg-leaf-soft px-3 py-1.5 font-medium text-leaf">{r}</li>)}
+        {reasons.map((r) => <li key={r} className="rounded-full bg-fresh-soft px-3 py-1.5 font-semibold text-fresh">{r}</li>)}
       </ul>
     </section>
   );

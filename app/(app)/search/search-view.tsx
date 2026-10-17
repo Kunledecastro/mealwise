@@ -45,7 +45,7 @@ export function SearchView() {
           <SearchIcon className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 text-muted" size={20} aria-hidden="true" />
           <input type="search" value={query} onChange={(e) => setQuery(e.target.value)}
             placeholder="Try beans, plantain or soup"
-            className="min-h-13 w-full rounded-full border border-line bg-surface pl-12 pr-4 text-base focus:border-leaf" />
+            className="min-h-13 w-full rounded-full border border-line bg-surface pl-12 pr-4 text-base focus:border-accent" />
         </label>
 
         <div className="flex flex-col gap-4">
@@ -75,7 +75,7 @@ export function SearchView() {
           </FilterRow>
           {profile.allergies.length > 0 && (
             <label className="flex items-center gap-3 text-sm">
-              <input type="checkbox" className="size-5 accent-leaf" checked={hideAllergens} onChange={(e) => setHideAllergens(e.target.checked)} />
+              <input type="checkbox" className="size-5 accent-[var(--color-accent)]" checked={hideAllergens} onChange={(e) => setHideAllergens(e.target.checked)} />
               Hide meals with my allergies ({profile.allergies.join(", ")})
             </label>
           )}

@@ -41,7 +41,7 @@ export function HomeView() {
     <div className="flex flex-col gap-10">
       <header className="flex flex-col gap-1">
         <p className="text-muted">{hour === null ? "Hello" : greeting(hour)}, {profile.displayName}</p>
-        <h1 className="text-3xl sm:text-4xl">What can I eat next?</h1>
+        <h1 className="text-4xl sm:text-5xl">What can I eat next?</h1>
       </header>
 
       <section aria-labelledby="hero-title" className="flex flex-col gap-5">
@@ -54,21 +54,22 @@ export function HomeView() {
         </div>
 
         {hero ? (
-          <div className="grid items-center gap-6 rounded-[var(--radius-lg)] bg-surface p-5 sm:grid-cols-[minmax(0,1fr)_minmax(0,1.1fr)] sm:p-7">
-            <Link href={`/meals/${hero.slug}`} className="mx-auto block w-full max-w-72" tabIndex={-1} aria-hidden="true">
-              <PlateArt key={hero.slug} parts={hero.plate} seed={hero.slug} size={300} animate className="h-auto w-full" />
+          <div className="relative grid items-center gap-6 overflow-hidden rounded-[var(--radius-lg)] border border-line bg-surface p-5 sm:grid-cols-[minmax(0,1fr)_minmax(0,1.1fr)] sm:p-7">
+            <Link href={`/meals/${hero.slug}`} className="relative mx-auto block w-full max-w-72" tabIndex={-1} aria-hidden="true">
+              <div className="aura" />
+              <PlateArt key={hero.slug} parts={hero.plate} seed={hero.slug} size={300} animate className="relative h-auto w-full" />
             </Link>
-            <div className="flex flex-col gap-3">
-              <p className="text-sm font-semibold text-leaf">{MEAL_TYPE_LABEL[slot]} idea</p>
+            <div key={hero.slug} className="swap-in relative flex flex-col gap-3">
+              <p className="text-sm font-semibold text-accent">{MEAL_TYPE_LABEL[slot]} idea</p>
               <h2 id="hero-title" className="text-2xl sm:text-3xl">
-                <Link href={`/meals/${hero.slug}`} className="hover:text-leaf">{hero.name}</Link>
+                <Link href={`/meals/${hero.slug}`} className="hover:text-accent">{hero.name}</Link>
               </h2>
               <p className="text-muted">{hero.description}</p>
               <MealFacts meal={hero} />
               {sampleReasons(hero, profile).length > 0 && (
                 <ul className="flex flex-wrap gap-2" aria-label="Why this may suit you">
                   {sampleReasons(hero, profile).map((r) => (
-                    <li key={r} className="rounded-full bg-leaf-soft px-3 py-1 text-sm font-medium text-leaf">{r}</li>
+                    <li key={r} className="rounded-full bg-fresh-soft px-3 py-1 text-sm font-semibold text-fresh">{r}</li>
                   ))}
                 </ul>
               )}
@@ -97,7 +98,7 @@ export function HomeView() {
         <section aria-labelledby="more-title">
           <div className="flex items-baseline justify-between">
             <h2 id="more-title" className="text-xl">More {MEAL_TYPE_LABEL[slot].toLowerCase()} ideas</h2>
-            <Link href={`/meals?slot=${slot}`} className="font-semibold text-leaf hover:underline">See all</Link>
+            <Link href={`/meals?slot=${slot}`} className="font-semibold text-accent hover:underline">See all</Link>
           </div>
           <ul className="divide-y divide-line">
             {others.map((m) => <MealRow key={m.slug} meal={m} />)}
@@ -105,17 +106,17 @@ export function HomeView() {
         </section>
       )}
 
-      <section aria-labelledby="day-title" className="flex flex-col gap-3 rounded-[var(--radius-lg)] border border-line p-5">
+      <section aria-labelledby="day-title" className="flex flex-col gap-3 rounded-[var(--radius-lg)] border border-line bg-surface p-5 sm:p-6">
         <div className="flex items-baseline justify-between">
           <h2 id="day-title" className="text-xl">Your day so far</h2>
-          <Link href="/today" className="font-semibold text-leaf hover:underline">Open today</Link>
+          <Link href="/today" className="font-semibold text-accent hover:underline">Open today</Link>
         </div>
         <p>
           <span className="font-display text-2xl font-semibold">{Math.round(kcalToday).toLocaleString()}</span>{" "}
           <span className="text-muted">of about {SAMPLE_DAILY_TARGET.kcal.toLocaleString()} kcal logged</span>
         </p>
         <div className="h-2 rounded-full bg-line" aria-hidden="true">
-          <div className="h-full rounded-full bg-leaf" style={{ width: `${Math.min(100, (kcalToday / SAMPLE_DAILY_TARGET.kcal) * 100)}%` }} />
+          <div className="bg-glow h-full rounded-full transition-[width] duration-700" style={{ width: `${Math.min(100, (kcalToday / SAMPLE_DAILY_TARGET.kcal) * 100)}%` }} />
         </div>
         <SampleTag />
       </section>

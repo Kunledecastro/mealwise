@@ -29,20 +29,27 @@ function WeightChart({ entries, unit, targetKg }: { entries: WeightEntry[]; unit
     <svg viewBox={`0 0 ${W} ${H}`} className="h-auto w-full" role="img" aria-label={summary}>
       {[min, (min + max) / 2, max].map((v) => (
         <g key={v}>
-          <line x1={P.l} x2={W - P.r} y1={y(v)} y2={y(v)} stroke="#d9e1d6" />
-          <text x={P.l - 8} y={y(v) + 4} textAnchor="end" fontSize="13" fill="#55645a">{round(v, 0)}</text>
+          <line x1={P.l} x2={W - P.r} y1={y(v)} y2={y(v)} stroke="var(--color-line)" />
+          <text x={P.l - 8} y={y(v) + 4} textAnchor="end" fontSize="13" fill="var(--color-muted)">{round(v, 0)}</text>
         </g>
       ))}
       {targetKg && (
         <g>
-          <line x1={P.l} x2={W - P.r} y1={y(conv(targetKg))} y2={y(conv(targetKg))} stroke="#f4b53f" strokeWidth="2" strokeDasharray="6 5" />
-          <text x={W - P.r} y={y(conv(targetKg)) - 6} textAnchor="end" fontSize="13" fill="#7a5410">Target</text>
+          <line x1={P.l} x2={W - P.r} y1={y(conv(targetKg))} y2={y(conv(targetKg))} stroke="var(--color-fresh)" strokeWidth="2" strokeDasharray="6 5" />
+          <text x={W - P.r} y={y(conv(targetKg)) - 6} textAnchor="end" fontSize="13" fill="var(--color-fresh)">Target</text>
         </g>
       )}
-      <polyline points={pts.map((p) => p.join(",")).join(" ")} fill="none" stroke="#1e5b3c" strokeWidth="3" strokeLinejoin="round" strokeLinecap="round" />
-      {pts.map(([px, py], i) => <circle key={i} cx={px} cy={py} r={i === pts.length - 1 ? 6 : 4} fill={i === pts.length - 1 ? "#1e5b3c" : "#fff"} stroke="#1e5b3c" strokeWidth="2" />)}
-      <text x={P.l} y={H - 8} fontSize="13" fill="#55645a">{fmtDate(entries[0].date)}</text>
-      <text x={W - P.r} y={H - 8} textAnchor="end" fontSize="13" fill="#55645a">{fmtDate(entries[entries.length - 1].date)}</text>
+      <defs>
+        <linearGradient id="weight-fill" x1="0" x2="0" y1="0" y2="1">
+          <stop offset="0" stopColor="#f6b23c" stopOpacity="0.32" />
+          <stop offset="1" stopColor="#f6b23c" stopOpacity="0" />
+        </linearGradient>
+      </defs>
+      <path d={`M${pts[0][0]},${H - P.b} ${pts.map((p) => `L${p[0]},${p[1]}`).join(" ")} L${pts[pts.length - 1][0]},${H - P.b} Z`} fill="url(#weight-fill)" />
+      <polyline points={pts.map((p) => p.join(",")).join(" ")} fill="none" stroke="var(--color-accent)" strokeWidth="3" strokeLinejoin="round" strokeLinecap="round" className="draw-line" pathLength={400} />
+      {pts.map(([px, py], i) => <circle key={i} cx={px} cy={py} r={i === pts.length - 1 ? 6 : 4} fill={i === pts.length - 1 ? "var(--color-accent)" : "var(--color-paper)"} stroke="var(--color-accent)" strokeWidth="2" />)}
+      <text x={P.l} y={H - 8} fontSize="13" fill="var(--color-muted)">{fmtDate(entries[0].date)}</text>
+      <text x={W - P.r} y={H - 8} textAnchor="end" fontSize="13" fill="var(--color-muted)">{fmtDate(entries[entries.length - 1].date)}</text>
     </svg>
   );
 }
@@ -104,7 +111,7 @@ export function ProgressView() {
       ) : entries.length === 0 ? (
         <EmptyState title="No weights yet" body="Add your first weight below to start seeing your trend. Weekly is plenty." />
       ) : (
-        <section aria-labelledby="trend-title" className="rounded-[var(--radius-lg)] bg-surface p-5">
+        <section aria-labelledby="trend-title" className="rounded-[var(--radius-lg)] border border-line bg-surface p-5 sm:p-6">
           <div className="mb-3 flex flex-wrap items-baseline justify-between gap-2">
             <h2 id="trend-title" className="text-xl">Trend</h2>
             <SampleTag>Sample entries</SampleTag>
@@ -164,7 +171,7 @@ export function ProgressView() {
                 ) : (
                   <>
                     <button type="button" onClick={() => startEdit(e)} aria-label={`Edit weight for ${e.date}`}
-                      className="grid size-11 place-items-center rounded-full text-leaf hover:bg-leaf-soft"><Pencil size={18} aria-hidden="true" /></button>
+                      className="grid size-11 place-items-center rounded-full text-accent hover:bg-accent-soft"><Pencil size={18} aria-hidden="true" /></button>
                     <button type="button" onClick={() => setConfirmDelete(e.id)} aria-label={`Delete weight for ${e.date}`}
                       className="grid size-11 place-items-center rounded-full text-muted hover:bg-error-soft hover:text-error"><Trash2 size={18} aria-hidden="true" /></button>
                   </>

@@ -96,8 +96,8 @@ export function ProfileView() {
           <Row label="Cooking time" value={profile.maxPrepMinutes !== undefined ? PREP_LABELS[String(profile.maxPrepMinutes)] ?? `${profile.maxPrepMinutes} min` : "Not set"} />
         </dl>
       </section>
-      <Link href="/settings" className="flex min-h-14 items-center gap-3 rounded-[var(--radius-md)] border border-line bg-surface px-4 font-semibold hover:border-leaf">
-        <Settings size={20} aria-hidden="true" className="text-leaf" /> <span className="flex-1">Settings</span> <ChevronRight size={20} aria-hidden="true" />
+      <Link href="/settings" className="flex min-h-14 items-center gap-3 rounded-[var(--radius-md)] border border-line bg-surface px-4 font-semibold hover:border-accent">
+        <Settings size={20} aria-hidden="true" className="text-accent" /> <span className="flex-1">Settings</span> <ChevronRight size={20} aria-hidden="true" />
       </Link>
     </div>
   );

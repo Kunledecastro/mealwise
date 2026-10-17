@@ -23,28 +23,31 @@ export default async function MealPage(props: PageProps<"/meals/[slug]">) {
   if (!meal) notFound();
 
   const macros = [
-    { label: "Protein", g: meal.protein, kcal: meal.protein * 4, color: "bg-leaf" },
-    { label: "Carbs", g: meal.carbs, kcal: meal.carbs * 4, color: "bg-plantain" },
+    { label: "Protein", g: meal.protein, kcal: meal.protein * 4, color: "bg-fresh" },
+    { label: "Carbs", g: meal.carbs, kcal: meal.carbs * 4, color: "bg-accent" },
     { label: "Fat", g: meal.fat, kcal: meal.fat * 9, color: "bg-pepper" },
   ];
   const macroKcal = macros.reduce((s, m) => s + m.kcal, 0);
 
   return (
     <article className="flex flex-col gap-8">
-      <Link href={`/meals?slot=${meal.mealTypes[0]}`} className="inline-flex w-fit items-center gap-1 font-semibold text-leaf hover:underline">
+      <Link href={`/meals?slot=${meal.mealTypes[0]}`} className="inline-flex w-fit items-center gap-1 font-semibold text-accent hover:underline">
         <ArrowLeft size={18} aria-hidden="true" /> Meal ideas
       </Link>
 
       <header className="grid items-center gap-6 sm:grid-cols-[minmax(0,0.9fr)_minmax(0,1.1fr)]">
-        <PlateArt parts={meal.plate} seed={meal.slug} size={320} animate className="mx-auto h-auto w-full max-w-80" title={meal.name} />
+        <div className="relative mx-auto w-full max-w-80">
+          <div className="aura" aria-hidden="true" />
+          <PlateArt parts={meal.plate} seed={meal.slug} size={320} animate className="relative h-auto w-full" title={meal.name} />
+        </div>
         <div className="flex flex-col gap-3">
-          <p className="text-sm font-semibold text-leaf">
+          <p className="text-sm font-semibold text-accent">
             Good for {meal.mealTypes.map((t) => MEAL_TYPE_LABEL[t].toLowerCase()).join(" or ")}
           </p>
-          <h1 className="text-3xl sm:text-4xl">{meal.name}</h1>
+          <h1 className="text-4xl sm:text-5xl">{meal.name}</h1>
           <p className="text-lg text-muted">{meal.description}</p>
           <ul className="flex flex-wrap gap-2" aria-label="Cuisine and dietary tags">
-            {[meal.cuisine, ...meal.tags].map((t) => <li key={t} className="rounded-full border border-line px-3 py-1 text-sm">{t}</li>)}
+            {[meal.cuisine, ...meal.tags].map((t) => <li key={t} className="rounded-full border border-line bg-surface px-3 py-1 text-sm">{t}</li>)}
           </ul>
           <MealActions slug={meal.slug} />
         </div>
@@ -52,7 +55,7 @@ export default async function MealPage(props: PageProps<"/meals/[slug]">) {
 
       <WhyThisSuits slug={meal.slug} />
 
-      <section aria-labelledby="facts-title" className="rounded-[var(--radius-lg)] bg-surface p-5">
+      <section aria-labelledby="facts-title" className="rounded-[var(--radius-lg)] border border-line bg-surface p-5 sm:p-6">
         <div className="mb-4 flex flex-wrap items-center justify-between gap-2">
           <h2 id="facts-title" className="text-xl">Per serving</h2>
           <SampleTag />
@@ -75,7 +78,7 @@ export default async function MealPage(props: PageProps<"/meals/[slug]">) {
           ))}
         </ul>
         <details className="mt-4 text-sm">
-          <summary className="cursor-pointer font-semibold text-leaf">How these figures are estimated</summary>
+          <summary className="cursor-pointer font-semibold text-accent">How these figures are estimated</summary>
           <p className="mt-2 max-w-prose text-muted">
             In this prototype, these numbers are placeholders. In the full app they are calculated from each
             ingredient&apos;s weight and published food-composition data, with the source shown here. Cooking oil, portion
@@ -106,7 +109,7 @@ export default async function MealPage(props: PageProps<"/meals/[slug]">) {
           <ol className="flex flex-col gap-3">
             {meal.steps.map((s, i) => (
               <li key={i} className="flex gap-3">
-                <span className="grid size-7 shrink-0 place-items-center rounded-full bg-leaf-soft text-sm font-bold text-leaf" aria-hidden="true">{i + 1}</span>
+                <span className="grid size-7 shrink-0 place-items-center rounded-full bg-accent-soft text-sm font-bold text-accent" aria-hidden="true">{i + 1}</span>
                 <span className="pt-0.5">{s}</span>
               </li>
             ))}

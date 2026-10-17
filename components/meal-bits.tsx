@@ -86,7 +86,7 @@ export function MealRow({ meal, actions = true }: { meal: Meal; actions?: boolea
     <li className="flex items-center gap-4 py-4">
       <PlateArt parts={meal.plate} seed={meal.slug} size={84} className="shrink-0" title={meal.name} />
       <div className="flex min-w-0 flex-1 flex-col gap-1">
-        <Link href={`/meals/${meal.slug}`} className="font-display text-lg font-semibold leading-tight hover:text-leaf hover:underline">
+        <Link href={`/meals/${meal.slug}`} className="font-display text-lg font-semibold leading-tight hover:text-accent hover:underline">
           {meal.name}
         </Link>
         <MealFacts meal={meal} />
@@ -97,7 +97,7 @@ export function MealRow({ meal, actions = true }: { meal: Meal; actions?: boolea
           onClick={() => showToast(toggleSaved(meal.slug) ? `Saved ${meal.name}` : `Removed ${meal.name} from saved`)}
           aria-pressed={isSaved}
           aria-label={isSaved ? `Remove ${meal.name} from saved` : `Save ${meal.name}`}
-          className="grid size-11 shrink-0 place-items-center rounded-full text-leaf hover:bg-leaf-soft"
+          className="grid size-11 shrink-0 place-items-center rounded-full text-accent hover:bg-accent-soft"
         >
           {isSaved ? <BookmarkCheck size={22} aria-hidden="true" /> : <Bookmark size={22} aria-hidden="true" />}
         </button>
@@ -129,7 +129,7 @@ export function NotForMe({ meal, onDone }: { meal: Meal; onDone?: () => void }) 
       <p className="font-semibold">What&apos;s the reason? This helps us suggest better meals.</p>
       <div className="flex flex-wrap gap-2">
         {REASONS.map((r) => (
-          <button key={r.value} type="button" className="min-h-10 rounded-full border border-line px-4 text-sm font-medium hover:border-leaf"
+          <button key={r.value} type="button" className="min-h-10 rounded-full border border-line px-4 text-sm font-medium hover:border-accent"
             onClick={() => { reject(meal.slug, r.value); showToast(`We'll show ${meal.name} less`); setOpen(false); onDone?.(); }}>
             {r.label}
           </button>

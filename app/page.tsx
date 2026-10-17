@@ -1,57 +1,161 @@
 import Link from "next/link";
+import { BadgeCheck, HeartHandshake, ShieldCheck, Smartphone, Soup, Wallet } from "lucide-react";
 import { Logo, PrototypeBanner } from "@/components/app-shell";
+import { HeroCycler } from "@/components/landing/hero-cycler";
+import { ScrollStory } from "@/components/landing/scroll-story";
+import { RevealRoot, SpotlightGroup } from "@/components/motion";
 import { PlateArt } from "@/components/plate-art";
 import { ButtonLink } from "@/components/ui";
 import { SAMPLE_MEALS } from "@/lib/sample-data";
 
-const hero = SAMPLE_MEALS.find((m) => m.slug === "jollof-rice-chicken")!;
-const trio = ["akara-and-pap", "efo-riro-eba", "fruit-bowl"].map((s) => SAMPLE_MEALS.find((m) => m.slug === s)!);
+const FEATURES = [
+  {
+    icon: Soup,
+    title: "Nigerian food first",
+    body: "Jollof, efo riro, moi moi, yam and egg, beans and plantain — next to oats and salads when you want them.",
+    wide: true,
+  },
+  { icon: Wallet, title: "Priced in naira", body: "Every meal shows a price range and when it was checked, so you can plan to your budget." },
+  { icon: ShieldCheck, title: "Allergies respected", body: "Tell us once. Meals with your allergens stay off your list." },
+  { icon: HeartHandshake, title: "No guilt, ever", body: "No red numbers, no “cheat days”. Just what you ate and where you're heading." },
+  { icon: BadgeCheck, title: "Honest numbers", body: "Calories and prices are estimates, and we say so, with the source a tap away." },
+  {
+    icon: Smartphone,
+    title: "Light on your data",
+    body: "Opens fast on everyday Android phones and installs to your home screen like an app.",
+    wide: true,
+  },
+];
 
-export default function WelcomePage() {
+function DishMarquee({ reverse = false }: { reverse?: boolean }) {
+  const meals = reverse ? [...SAMPLE_MEALS].reverse() : SAMPLE_MEALS;
+  const row = (hidden: boolean) =>
+    meals.map((m) => (
+      <li key={`${m.slug}-${hidden}`} aria-hidden={hidden || undefined}
+        className="mx-2 flex shrink-0 items-center gap-3 rounded-full border border-line bg-surface py-2 pl-2 pr-5">
+        <PlateArt parts={m.plate} seed={m.slug} size={40} title={m.name} />
+        <span className="whitespace-nowrap font-semibold">{m.name}</span>
+      </li>
+    ));
   return (
-    <div className="flex min-h-dvh flex-col">
-      <PrototypeBanner />
-      <header className="mx-auto flex w-full max-w-5xl items-center justify-between px-5 py-5">
-        <Logo />
-        <Link href="/sign-in" className="font-semibold text-leaf underline-offset-4 hover:underline">
-          Sign in
-        </Link>
-      </header>
-      <main id="main" className="mx-auto grid w-full max-w-5xl flex-1 items-center gap-10 px-5 pb-12 md:grid-cols-[1.1fr_1fr]">
-        <div className="flex flex-col gap-6">
-          <h1 className="text-4xl sm:text-[3.6rem]">What can I eat next?</h1>
-          <p className="max-w-[34ch] text-lg text-muted">
-            Mealwise suggests real meals, from jollof to oats, that fit your taste, your budget and your weight goal.
-            No guilt, no spreadsheets.
-          </p>
-          <div className="flex flex-wrap gap-3">
-            <ButtonLink href="/onboarding">Get started</ButtonLink>
-            <ButtonLink href="/sign-in" variant="secondary">
-              I have an account
-            </ButtonLink>
-          </div>
-          <ul className="mt-4 flex flex-col gap-3 text-sm text-muted sm:flex-row sm:gap-6" aria-label="Example meals">
-            {trio.map((m) => (
-              <li key={m.slug} className="flex items-center gap-2">
-                <PlateArt parts={m.plate} seed={m.slug} size={44} title={m.name} />
-                <span>
-                  <span className="block font-semibold text-ink">{m.name}</span>
-                  {m.mealTypes[0][0].toUpperCase() + m.mealTypes[0].slice(1)}
-                </span>
-              </li>
-            ))}
-          </ul>
-        </div>
-        <div className="relative mx-auto w-full max-w-md">
-          <PlateArt parts={hero.plate} seed={hero.slug} size={420} animate className="h-auto w-full" title={hero.name} />
-          <p className="absolute bottom-2 right-0 rounded-full bg-surface px-4 py-2 text-sm font-semibold shadow-sm">
-            {hero.name}
-          </p>
-        </div>
-      </main>
-      <footer className="mx-auto w-full max-w-5xl px-5 pb-8 text-sm text-muted">
-        Mealwise gives general food guidance and is not a substitute for advice from a doctor or dietitian.
-      </footer>
+    <div className="marquee-wrap overflow-hidden [mask-image:linear-gradient(90deg,transparent,#000_8%,#000_92%,transparent)]">
+      <ul className="marquee py-1" style={reverse ? { animationDirection: "reverse", animationDuration: "48s" } : undefined}>
+        {row(false)}
+        {row(true)}
+      </ul>
     </div>
+  );
+}
+
+export default function LandingPage() {
+  return (
+    <RevealRoot>
+      <div className="relative min-h-dvh overflow-x-clip">
+        <PrototypeBanner />
+
+        <header className="sticky top-0 z-40 border-b border-line/60 bg-paper/75 backdrop-blur-md">
+          <div className="mx-auto flex w-full max-w-6xl items-center justify-between gap-4 px-5 py-3.5">
+            <Link href="/" aria-label="Mealwise home"><Logo /></Link>
+            <nav aria-label="Page sections" className="hidden items-center gap-7 text-sm font-semibold text-muted md:flex">
+              <a href="#how" className="hover:text-ink">How it works</a>
+              <a href="#features" className="hover:text-ink">Why Mealwise</a>
+            </nav>
+            <div className="flex items-center gap-2">
+              <Link href="/sign-in" className="hidden min-h-11 items-center px-3 font-semibold text-muted hover:text-ink sm:inline-flex">Sign in</Link>
+              <ButtonLink href="/onboarding" className="min-h-11 px-5 text-sm">Get started</ButtonLink>
+            </div>
+          </div>
+        </header>
+
+        <main id="main">
+          {/* Hero */}
+          <section className="relative">
+            <div className="mx-auto w-full max-w-6xl px-5 pb-16 pt-12 sm:pt-16 lg:pb-24">
+              <HeroCycler />
+              <div className="rise mt-10 flex flex-col gap-6 lg:-mt-6 lg:max-w-xl" style={{ "--delay": "240ms" } as React.CSSProperties}>
+                <p className="max-w-[46ch] text-lg text-muted">
+                  Real meals that fit your taste, your budget and your weight goal. Built for Nigerian kitchens, with no
+                  calorie spreadsheets and no guilt.
+                </p>
+                <div className="flex flex-wrap gap-3">
+                  <ButtonLink href="/onboarding">Find my next meal</ButtonLink>
+                  <ButtonLink href="/sign-in" variant="secondary">I have an account</ButtonLink>
+                </div>
+              </div>
+            </div>
+          </section>
+
+          {/* Dishes */}
+          <section aria-label="Some of the meals in Mealwise" className="flex flex-col gap-3 border-y border-line/60 py-8">
+            <DishMarquee />
+            <DishMarquee reverse />
+          </section>
+
+          {/* How it works */}
+          <section id="how" aria-labelledby="how-title" className="mx-auto w-full max-w-6xl scroll-mt-20 px-5 py-20 lg:py-28">
+            <div data-reveal className="mb-6 max-w-2xl lg:mb-0">
+              <h2 id="how-title" className="text-4xl sm:text-5xl">From “I don&apos;t know” to dinner in three taps.</h2>
+            </div>
+            <ScrollStory />
+          </section>
+
+          {/* Features */}
+          <section id="features" aria-labelledby="features-title" className="mx-auto w-full max-w-6xl scroll-mt-20 px-5 pb-24">
+            <h2 id="features-title" data-reveal className="mb-10 max-w-2xl text-4xl sm:text-5xl">
+              Made for how you actually eat.
+            </h2>
+            <SpotlightGroup className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+              {FEATURES.map((f, i) => (
+                <article
+                  key={f.title}
+                  data-reveal
+                  style={{ "--delay": `${(i % 4) * 90}ms` } as React.CSSProperties}
+                  className={`spotlight flex flex-col gap-4 rounded-[var(--radius-lg)] border border-line bg-surface p-6 transition-colors hover:border-accent/40 ${f.wide ? "lg:col-span-2" : ""}`}
+                >
+                  <span className="grid size-12 place-items-center rounded-2xl bg-accent-soft text-accent">
+                    <f.icon size={22} aria-hidden="true" />
+                  </span>
+                  <h3 className="text-2xl">{f.title}</h3>
+                  <p className="text-muted">{f.body}</p>
+                </article>
+              ))}
+            </SpotlightGroup>
+          </section>
+
+          {/* Closing call to action */}
+          <section aria-labelledby="cta-title" className="relative overflow-hidden border-t border-line/60">
+            <div className="aura" aria-hidden="true" />
+            <div className="relative mx-auto flex w-full max-w-4xl flex-col items-center gap-8 px-5 py-24 text-center lg:py-32">
+              <div data-reveal className="flex -space-x-6" aria-hidden="true">
+                {["moi-moi-pap", "jollof-rice-chicken", "fish-pepper-soup"].map((s, i) => {
+                  const m = SAMPLE_MEALS.find((x) => x.slug === s)!;
+                  return (
+                    <div key={s} className="float" style={{ "--delay": `${i * 700}ms` } as React.CSSProperties}>
+                      <PlateArt parts={m.plate} seed={m.slug} size={i === 1 ? 140 : 110} title={m.name} />
+                    </div>
+                  );
+                })}
+              </div>
+              <h2 id="cta-title" data-reveal className="text-5xl sm:text-6xl">
+                Eat well with the food you already love.
+              </h2>
+              <div data-reveal>
+                <ButtonLink href="/onboarding">Get started, it takes two minutes</ButtonLink>
+              </div>
+            </div>
+          </section>
+        </main>
+
+        <footer className="border-t border-line/60">
+          <div className="mx-auto flex w-full max-w-6xl flex-col gap-4 px-5 py-10 text-sm text-muted sm:flex-row sm:items-center sm:justify-between">
+            <Logo />
+            <p className="max-w-xl">
+              Mealwise gives general food guidance and is not a substitute for advice from a doctor or dietitian. This
+              prototype uses sample meals, figures and prices.
+            </p>
+          </div>
+        </footer>
+      </div>
+    </RevealRoot>
   );
 }

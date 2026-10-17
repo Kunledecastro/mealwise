@@ -27,7 +27,7 @@ export function MealsView() {
         {MEAL_TYPES.map((t) => (
           <Link key={t} href={`/meals?slot=${t}`} aria-current={t === slot ? "page" : undefined}
             className={`-mb-px border-b-[3px] px-4 py-3 font-semibold whitespace-nowrap ${
-              t === slot ? "border-leaf text-leaf" : "border-transparent text-muted hover:text-ink"
+              t === slot ? "border-accent text-accent" : "border-transparent text-muted hover:text-ink"
             }`}>
             {MEAL_TYPE_LABEL[t]}
           </Link>
@@ -55,7 +55,7 @@ export function MealsView() {
             {hidden.map((m) => (
               <li key={m.slug} className="flex items-center justify-between gap-3">
                 <span>{m.name}</span>
-                <button type="button" className="min-h-10 px-3 font-semibold text-leaf hover:underline" onClick={() => undoReject(m.slug)}>
+                <button type="button" className="min-h-10 px-3 font-semibold text-accent hover:underline" onClick={() => undoReject(m.slug)}>
                   Show again
                 </button>
               </li>

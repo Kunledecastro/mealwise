@@ -17,7 +17,7 @@ test("main navigation reaches every tab and marks the current one", async ({ pag
 
 test("J1: onboarding blocks under-18s, validates input, and personalises the home screen", async ({ page }) => {
   await page.goto("/");
-  await page.getByRole("link", { name: "Get started" }).click();
+  await page.getByRole("link", { name: "Get started", exact: true }).click();
   await page.getByRole("button", { name: "Continue" }).click();
   await expect(page.getByText("Choose a goal to continue.")).toBeVisible();
   await page.getByRole("radio", { name: /Gain weight/ }).click();
@@ -44,8 +44,10 @@ test("J1: onboarding blocks under-18s, validates input, and personalises the hom
   await page.getByRole("button", { name: "Skip" }).click();
 
   await expect(page.getByRole("heading", { name: "Summary" })).toBeVisible();
-  await expect(page.getByText("Gain weight")).toBeVisible();
-  await expect(page.getByText("Peanuts")).toBeVisible();
+  // Scope to the visible page: Next.js keeps the previous (landing) page hidden in the DOM.
+  const main = page.getByRole("main");
+  await expect(main.getByText("Gain weight")).toBeVisible();
+  await expect(main.getByText("Peanuts")).toBeVisible();
   await page.getByRole("button", { name: "Show me meals" }).click();
   await expect(page).toHaveURL(/\/home$/);
   await expect(page.getByText(/, Tunde$/)).toBeVisible();

@@ -1,3 +1,4 @@
+import type React from "react";
 import type { PlatePart } from "@/lib/types";
 
 /** Deterministic pseudo-random generator so each dish always draws the same way. */
@@ -156,11 +157,15 @@ export function PlateArt({
   const id = `p-${seed}`;
 
   return (
-    <svg viewBox="0 0 200 200" width={size} height={size} className={`${className ?? ""} ${animate ? "plate-in" : ""}`}
+    <svg viewBox="0 0 200 200" width={size} height={size} className={`${className ?? ""} ${animate ? "assemble" : ""}`}
       role="img" aria-label={title ?? `Illustration: ${parts.map((p) => p.label).join(", ")}`}>
-      <circle cx={100} cy={103} r={96} fill="#17251d" opacity={0.08} />
-      <circle cx={100} cy={100} r={96} fill="#ffffff" stroke="#d9e1d6" strokeWidth={1.5} />
-      <circle cx={100} cy={100} r={80} fill="#f3f6f0" />
+      <g className="plate-base">
+        <ellipse cx={100} cy={108} rx={94} ry={92} fill="#000" opacity={0.45} />
+        <circle cx={100} cy={100} r={96} fill="#f4f0e7" />
+        <circle cx={100} cy={100} r={96} fill="none" stroke="#fffdf7" strokeWidth={1.5} opacity={0.7} />
+        <circle cx={100} cy={100} r={80} fill="#e8e3d7" />
+        <circle cx={100} cy={100} r={80} fill="none" stroke="#d6cfbf" strokeWidth={1.2} />
+      </g>
       <defs>
         <clipPath id={`${id}-plate`}>
           <circle cx={100} cy={100} r={84} />
@@ -170,16 +175,19 @@ export function PlateArt({
         {placed.map(({ part, cx, cy, r }, i) => {
           const d = blobPath(cx, cy, r, rand);
           return (
-            <g key={i}>
+            <g key={i} className="portion" style={{ "--i": i } as React.CSSProperties}>
               <defs>
                 <clipPath id={`${id}-${i}`}>
                   <path d={d} />
                 </clipPath>
               </defs>
               <path d={d} fill={part.color} stroke={shade(part.color, -0.25)} strokeWidth={1.2} />
-              <g clipPath={`url(#${id}-${i})`}>
-                <Texture part={part} cx={cx} cy={cy} r={r} rand={rand} detail={size >= 200 ? 1 : size >= 80 ? 0.45 : 0.3} />
-              </g>
+              {/* Tiny thumbnails skip texture marks: invisible at that size and costly in long lists. */}
+              {size >= 60 && (
+                <g clipPath={`url(#${id}-${i})`}>
+                  <Texture part={part} cx={cx} cy={cy} r={r} rand={rand} detail={size >= 200 ? 1 : 0.45} />
+                </g>
+              )}
             </g>
           );
         })}

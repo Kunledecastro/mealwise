@@ -10,7 +10,12 @@ for (const [name, vp] of [["m", { width: 390, height: 844 }], ["d", { width: 128
   p.on("pageerror", (e) => errors.push(`${name} ${p.url()}: ${e.message}`));
   for (const r of routes) {
     await p.goto("http://localhost:3100" + r, { waitUntil: "networkidle" });
-    await p.waitForTimeout(700);
+    // Scroll through the page so scroll-triggered reveals run, then let animations settle.
+    await p.evaluate(async () => {
+      for (let y = 0; y < document.body.scrollHeight; y += 400) { window.scrollTo(0, y); await new Promise((r) => setTimeout(r, 60)); }
+      window.scrollTo(0, 0);
+    });
+    await p.waitForTimeout(1800);
     await p.screenshot({ path: `${out}/${name}-${r.replace(/[\/?=]/g, "_") || "root"}.png`, fullPage: true });
   }
   await ctx.close();
