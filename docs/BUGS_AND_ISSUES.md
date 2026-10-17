@@ -1,21 +1,42 @@
 # Mealwise — Bugs, Issues and Risk Register
 
-## Defects
-None — no code exists yet.
+## Open defects
+None.
 
-## Risk register (Phase 0)
+## Fixed in Phase 1
+P1-01 to P1-06 — see TEST_PLAN.md "Defects found and fixed during Phase 1 testing".
+
+## Known limitations (Phase 1, by design)
+| ID | Limitation | Resolved in |
+|---|---|---|
+| L1 | Nothing persists; a page reload resets everything to sample data | Phase 2 |
+| L2 | All meals, nutrition figures, prices, weights and the daily target are placeholders, labelled "Sample" | Phases 3–4 |
+| L3 | Suggestions are simple filters (meal time, allergies, dislikes, diet), not the ranked engine | Phase 3 |
+| L4 | Sign-in/up/reset forms don't create accounts | Phase 2 |
+| L5 | Data export and account deletion disabled | Phase 2 / 6 |
+| L6 | `?demo=` preview links and "Prototype tools" are prototype-only and must be removed before release | Phase 6 |
+
+## Open issues
+| ID | Issue | Impact | Plan |
+|---|---|---|---|
+| I1 | Preview deployment blocked: the GitHub token in the build workspace is invalid, so the private repo + Vercel link couldn't be created | You can't yet test on your phone via a link | Needs your action (PROJECT_STATUS D10) |
+| I2 | Lighthouse mobile shows 150–660 ms total blocking time on throttled CPU (mostly React start-up) | Minor; scores 83–96 | Re-measure in Phase 6 performance audit; consider lighter hydration once real data is server-rendered |
+| I3 | 5 "high" npm audit findings in dev-only lint tooling (`braces` via `fast-glob` in `eslint-config-next`); 0 in production dependencies | None at runtime | Re-check on next Next.js upgrade |
+| I4 | Playwright pinned to 1.56.1 to match the workspace's pre-installed Chromium | None for the product | Unpin when the workspace allows browser downloads |
+
+## Risk register (from Phase 0)
 
 | ID | Risk | Likelihood | Impact | Mitigation | Owner |
 |---|---|---|---|---|---|
-| R1 | Nigerian dish nutrition is inaccurate (oil, yield, regional recipe variation) | High | High | Compute from ingredients with explicit assumptions; label as estimates; source every ingredient; optional dietitian review before launch | Claude + you |
-| R2 | Nutrition dataset licence restricts commercial use (FAO/INFOODS WAFCT appears to be published under a non-commercial CC licence — must verify) | Medium | High | Confirm licence before Phase 3; fall back to USDA FoodData Central (public domain) + own documented estimates for local items; or seek permission | You (decision D4) |
-| R3 | Allergen data incomplete → unsafe recommendation | Medium | High | Allergen status per ingredient; unknown = excluded for allergic users by default; leak tests; disclaimer | Claude |
-| R4 | Food prices go stale fast (inflation) | High | Medium | Dated ranges, staleness flag after 90 days, clear "estimate" labelling; no exact prices | You (D5) |
-| R5 | Users with eating-disorder risk, minors, pregnancy, medical conditions given weight targets | Medium | High | Age gate 18+; safety floors; BMI guard; professional-guidance flag disables targets; no shaming copy | Claude |
-| R6 | Sensitive data exposure (cross-user access) | Low | High | RLS everywhere, automated RLS tests, no service key client-side | Claude |
-| R7 | Data protection obligations (Nigeria Data Protection Act 2023; cross-border hosting in EU region) | Medium | High | Data minimisation, consent capture, export/delete; formal assessment before public launch; no compliance claims until then | You |
-| R8 | Free-tier limits: Supabase free projects pause after ~1 week of inactivity; Vercel Hobby is for non-commercial use | High | Medium | Fine for dev/testing; budget upgrade before public/commercial launch (see cost estimate) | You (D2) |
-| R9 | Food image rights | Medium | Medium | Illustrations/own photos/licensed stock with credit stored per image | You (D6) |
-| R10 | Slow networks / low-end devices in target market | Medium | Medium | Server rendering, JS budget, compressed images, Lighthouse checks | Claude |
-| R11 | Catalogue curation effort underestimated | High | Medium | Start with 60–80 high-frequency meals; content template; you review in batches | Both |
-| R12 | Scope creep into AI/subscriptions before core works | Medium | Medium | Phase gates; exclusions list | You |
+| R1 | Nigerian dish nutrition is inaccurate (oil, yield, recipe variation) | High | High | Compute from ingredients with explicit assumptions; label estimates; source every ingredient; optional dietitian review | Claude + you |
+| R2 | Nutrition dataset licence may restrict commercial use (FAO/INFOODS WAFCT appears non-commercial — verify) | Medium | High | Confirm licence before Phase 3; fall back to USDA FDC + documented estimates | You (D4) |
+| R3 | Allergen data incomplete → unsafe recommendation | Medium | High | Allergen status per ingredient; unknown = excluded for allergic users; leak tests; disclaimer | Claude |
+| R4 | Food prices go stale fast | High | Medium | Dated ranges, staleness flag after 90 days | You (D5) |
+| R5 | Weight targets for minors, pregnancy, medical conditions, eating-disorder risk | Medium | High | Age gate 18+ (built in Phase 1 onboarding); safety floors; professional-guidance flag | Claude |
+| R6 | Cross-user data exposure | Low | High | RLS everywhere, automated RLS tests | Claude |
+| R7 | Nigeria Data Protection Act 2023; EU hosting region | Medium | High | Minimisation, consent, export/delete; assessment before public launch; no compliance claims | You |
+| R8 | Free-tier limits (Supabase pausing; Vercel Hobby non-commercial) | High | Medium | Fine for dev/testing; upgrade before commercial launch | You |
+| R9 | Food image rights | Low (was Medium) | Medium | Generated plate illustrations remove the need for photos in MVP | Claude |
+| R10 | Slow networks / low-end devices | Medium | Medium | Static pre-rendering, bundled fonts, JS budget (186/200 KB) | Claude |
+| R11 | Catalogue curation effort underestimated | High | Medium | 60–80 meals first; batch review | Both |
+| R12 | Scope creep | Medium | Medium | Phase gates | You |

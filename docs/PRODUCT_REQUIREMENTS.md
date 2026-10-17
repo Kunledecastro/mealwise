@@ -1,6 +1,6 @@
 # Mealwise — Product Requirements (Phase 0 draft)
 
-Status: DRAFT — awaiting product-owner approval
+Status: APPROVED 2026-10-17 (Phase 0)
 Last updated: 2026-10-17
 
 ## 1. Problem and vision

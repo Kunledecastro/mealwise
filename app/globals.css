@@ -1,0 +1,119 @@
+@import "tailwindcss";
+
+/* Mealwise design tokens — see docs/DESIGN_SYSTEM.md */
+@theme {
+  --color-leaf: #1e5b3c;
+  --color-leaf-deep: #123d28;
+  --color-leaf-soft: #e3eee4;
+  --color-plantain: #f4b53f;
+  --color-plantain-soft: #fdf0d2;
+  --color-pepper: #d2492a;
+  --color-error: #a8321a;
+  --color-error-soft: #fbe6e0;
+  --color-paper: #f6f8f2;
+  --color-surface: #ffffff;
+  --color-ink: #17251d;
+  --color-muted: #55645a;
+  --color-line: #d9e1d6;
+
+  --font-display: "Bricolage Grotesque Variable", ui-sans-serif, system-ui, sans-serif;
+  --font-sans: "Figtree Variable", ui-sans-serif, system-ui, sans-serif;
+
+  /* Type scale (major third, 16px base) */
+  --text-xs: 0.8125rem;
+  --text-sm: 0.875rem;
+  --text-base: 1rem;
+  --text-lg: 1.25rem;
+  --text-xl: 1.5625rem;
+  --text-2xl: 1.953rem;
+  --text-3xl: 2.441rem;
+  --text-4xl: 3.052rem;
+
+  --radius-sm: 0.5rem;
+  --radius-md: 0.875rem;
+  --radius-lg: 1.5rem;
+}
+
+:root {
+  color-scheme: light;
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  background: var(--color-paper);
+  color: var(--color-ink);
+  font-family: var(--font-sans);
+  line-height: 1.5;
+}
+
+h1,
+h2,
+h3 {
+  font-family: var(--font-display);
+  line-height: 1.12;
+  letter-spacing: -0.015em;
+  text-wrap: balance;
+}
+
+:focus-visible {
+  outline: 3px solid var(--color-plantain);
+  outline-offset: 2px;
+  border-radius: 4px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+@keyframes plate-in {
+  from {
+    transform: rotate(-24deg) scale(0.92);
+    opacity: 0;
+  }
+  to {
+    transform: rotate(0) scale(1);
+    opacity: 1;
+  }
+}
+
+.plate-in {
+  animation: plate-in 600ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+
+@keyframes sheet-up {
+  from {
+    transform: translateY(24px);
+    opacity: 0;
+  }
+  to {
+    transform: none;
+    opacity: 1;
+  }
+}
+
+.sheet-up {
+  animation: sheet-up 220ms ease-out both;
+}
+
+@keyframes shimmer {
+  0% {
+    background-position: -200px 0;
+  }
+  100% {
+    background-position: 200px 0;
+  }
+}
+
+.skeleton {
+  background: linear-gradient(90deg, #e7ece4 0, #f2f5ef 50%, #e7ece4 100%);
+  background-size: 400px 100%;
+  animation: shimmer 1.2s linear infinite;
+}

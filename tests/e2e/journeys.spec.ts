@@ -1,0 +1,195 @@
+import { expect, test, type Page } from "@playwright/test";
+
+const nav = (page: Page) => page.locator('nav[aria-label="Main"]:visible');
+
+test("main navigation reaches every tab and marks the current one", async ({ page }) => {
+  await page.goto("/home");
+  // The desktop rail also has a logo link to /home, so match tab names exactly.
+  for (const [label, url] of [["Search", /\/search$/], ["Progress", /\/progress$/], ["Saved", /\/saved$/], ["Profile", /\/profile$/], ["Home", /\/home$/]] as const) {
+    await nav(page).getByRole("link", { name: label, exact: true }).click();
+    await expect(page).toHaveURL(url);
+    await expect(nav(page).getByRole("link", { name: label, exact: true })).toHaveAttribute("aria-current", "page");
+  }
+  await nav(page).getByRole("link", { name: "Profile", exact: true }).click();
+  await page.getByRole("link", { name: "Settings" }).click();
+  await expect(page).toHaveURL(/\/settings$/);
+});
+
+test("J1: onboarding blocks under-18s, validates input, and personalises the home screen", async ({ page }) => {
+  await page.goto("/");
+  await page.getByRole("link", { name: "Get started" }).click();
+  await page.getByRole("button", { name: "Continue" }).click();
+  await expect(page.getByText("Choose a goal to continue.")).toBeVisible();
+  await page.getByRole("radio", { name: /Gain weight/ }).click();
+  await page.getByRole("button", { name: "Continue" }).click();
+
+  await page.getByLabel("What should we call you?").fill("Tunde");
+  const year = new Date().getFullYear();
+  await page.getByLabel("Year you were born").fill(String(year - 15));
+  await expect(page.getByText(/designed for adults/)).toBeVisible();
+  await expect(page.getByRole("button", { name: "Continue" })).toBeDisabled();
+
+  await page.getByLabel("Year you were born").fill("1992");
+  await page.getByLabel(/Current weight in kg/).fill("900");
+  await page.getByRole("button", { name: "Continue" }).click();
+  await expect(page.getByText("Enter a weight between 20 and 400 kg.")).toBeVisible();
+  await page.getByLabel(/Current weight in kg/).fill("68");
+  await page.getByLabel(/Height in cm/).fill("178");
+  await page.getByRole("button", { name: "Continue" }).click();
+
+  await page.getByRole("radio", { name: /Active/ }).first().click();
+  await page.getByRole("button", { name: "Continue" }).click();
+  await page.getByRole("button", { name: "Peanuts" }).click();
+  await page.getByRole("button", { name: "Continue" }).click();
+  await page.getByRole("button", { name: "Skip" }).click();
+
+  await expect(page.getByRole("heading", { name: "Summary" })).toBeVisible();
+  await expect(page.getByText("Gain weight")).toBeVisible();
+  await expect(page.getByText("Peanuts")).toBeVisible();
+  await page.getByRole("button", { name: "Show me meals" }).click();
+  await expect(page).toHaveURL(/\/home$/);
+  await expect(page.getByText(/, Tunde$/)).toBeVisible();
+
+  // Peanut meals are hidden after declaring the allergy. (Navigate in-app: a page reload resets prototype memory.)
+  await nav(page).getByRole("link", { name: "Search", exact: true }).click();
+  await page.getByRole("searchbox").fill("groundnuts");
+  await expect(page.getByRole("heading", { name: "No meals match" })).toBeVisible();
+  await page.getByLabel(/Hide meals with my allergies/).uncheck();
+  await expect(page.getByRole("link", { name: "Groundnuts and banana" })).toBeVisible();
+});
+
+test("J2: pick a meal, log half a portion, and see it on Today", async ({ page }) => {
+  await page.goto("/home");
+  await page.getByRole("button", { name: "Lunch", exact: true }).click();
+  const name = (await page.locator("#hero-title").innerText()).trim();
+  await page.getByRole("link", { name: "See meal" }).click();
+  await expect(page.getByRole("heading", { level: 1, name })).toBeVisible();
+  await page.getByRole("button", { name: "I ate this" }).click();
+  const dialog = page.getByRole("dialog");
+  await dialog.getByRole("button", { name: "Half a serving" }).click();
+  await dialog.getByRole("button", { name: "Lunch" }).click();
+  await dialog.getByRole("button", { name: "Log meal" }).click();
+  await expect(page.getByText(`Logged ${name} to today`)).toBeVisible();
+
+  // Client-side navigation keeps the in-memory prototype state.
+  await nav(page).getByRole("link", { name: "Home", exact: true }).click();
+  await page.getByRole("link", { name: "Open today" }).click();
+  await expect(page.getByRole("link", { name })).toBeVisible();
+  await expect(page.getByText("0.5 servings")).toBeVisible();
+});
+
+test("J2b: Show another cycles suggestions", async ({ page }) => {
+  await page.goto("/home");
+  await page.getByRole("button", { name: "Dinner", exact: true }).click();
+  const first = await page.locator("#hero-title").innerText();
+  await page.getByRole("button", { name: "Show another" }).click();
+  await expect(page.locator("#hero-title")).not.toHaveText(first);
+});
+
+test("J3: Not for me hides a meal and Show again restores it", async ({ page }) => {
+  await page.goto("/meals/akara-and-pap");
+  await page.getByRole("button", { name: "Not for me" }).click();
+  await page.getByRole("button", { name: "Takes too long" }).click();
+  await expect(page).toHaveURL(/slot=breakfast/);
+  const list = page.getByRole("list", { name: "Breakfast ideas" });
+  await expect(list.getByRole("link", { name: "Akara and pap" })).toHaveCount(0);
+  await page.getByRole("button", { name: "Show again" }).click();
+  await expect(list.getByRole("link", { name: "Akara and pap" })).toBeVisible();
+});
+
+test("save and unsave meals, with an empty Saved screen", async ({ page }) => {
+  await page.goto("/saved");
+  for (const n of ["Jollof rice with chicken", "Fish pepper soup"]) {
+    await page.getByRole("button", { name: `Remove ${n} from saved` }).click();
+  }
+  await expect(page.getByRole("heading", { name: "Nothing saved yet" })).toBeVisible();
+  await nav(page).getByRole("link", { name: "Search", exact: true }).click();
+  await page.getByRole("button", { name: "Save Fresh fruit bowl" }).click();
+  await nav(page).getByRole("link", { name: "Saved", exact: true }).click();
+  await expect(page.getByRole("link", { name: "Fresh fruit bowl" })).toBeVisible();
+});
+
+test("J4: search with filters, empty result, and clearing", async ({ page }) => {
+  await page.goto("/search");
+  await page.getByRole("searchbox").fill("pizza");
+  await expect(page.getByRole("heading", { name: "No meals match" })).toBeVisible();
+  await page.getByRole("button", { name: "Clear search and filters" }).click();
+  await expect(page.getByText(/^17 meals/)).toBeVisible();
+  await page.getByRole("searchbox").fill("beans");
+  await page.getByRole("group", { name: "Time" }).getByRole("button", { name: "Under 45 min" }).click();
+  await expect(page.getByRole("link", { name: "Akara and pap" })).toBeVisible();
+  await expect(page.getByRole("link", { name: "Beans porridge with plantain" })).toHaveCount(0);
+});
+
+test("J5: add, validate, edit, delete weight and switch units", async ({ page }) => {
+  await page.goto("/progress");
+  await expect(page.getByText("79.4 kg").first()).toBeVisible();
+
+  await page.getByLabel("Weight (kg)").fill("abc");
+  await page.getByRole("button", { name: "Add weight" }).click();
+  await expect(page.getByText("Use numbers only, for example 72.5.")).toBeVisible();
+
+  const future = new Date();
+  future.setDate(future.getDate() + 3);
+  const iso = `${future.getFullYear()}-${String(future.getMonth() + 1).padStart(2, "0")}-${String(future.getDate()).padStart(2, "0")}`;
+  await page.getByLabel("Date").fill(iso);
+  await page.getByLabel("Weight (kg)").fill("78.9");
+  await page.getByRole("button", { name: "Add weight" }).click();
+  await expect(page.getByText("The date can't be in the future.")).toBeVisible();
+
+  await page.getByLabel("Date").fill("2026-10-15");
+  await page.getByRole("button", { name: "Add weight" }).click();
+  await expect(page.getByText("Weight added")).toBeVisible();
+  const history = page.locator("section", { has: page.getByRole("heading", { name: "History" }) });
+  await expect(history.getByText("78.9 kg")).toBeVisible();
+
+  await page.getByRole("button", { name: "Edit weight for 2026-10-15" }).click();
+  await page.getByLabel("Weight (kg)").fill("78.5");
+  await page.getByRole("button", { name: "Save changes" }).click();
+  await expect(history.getByText("78.5 kg")).toBeVisible();
+  await expect(history.getByText("78.9 kg")).toHaveCount(0);
+
+  await page.getByRole("button", { name: "Delete weight for 2026-10-15" }).click();
+  await page.getByRole("button", { name: "Delete", exact: true }).click();
+  await expect(history.getByText("78.5 kg")).toHaveCount(0);
+
+  await page.getByRole("radio", { name: "lb" }).click();
+  await expect(page.getByText("175.0 lb").first()).toBeVisible();
+  await expect(page.getByLabel("Weight (lb)")).toBeVisible();
+});
+
+test("J6: remove a logged meal from Today", async ({ page }) => {
+  await page.goto("/today");
+  await page.getByRole("button", { name: "Remove Fresh fruit bowl from today" }).click();
+  await page.getByRole("button", { name: /Remove Oats with banana/ }).click();
+  await expect(page.getByRole("heading", { name: "Nothing logged today" })).toBeVisible();
+});
+
+test("J8: edit preferences updates the profile for this session", async ({ page }) => {
+  await page.goto("/profile");
+  await page.getByRole("button", { name: "Edit" }).click();
+  await page.getByLabel("Name").fill("Grace");
+  await page.getByRole("button", { name: "Shellfish" }).click();
+  await page.getByRole("button", { name: "Save changes" }).click();
+  await expect(page.getByRole("heading", { level: 1, name: "Grace" })).toBeVisible();
+  await expect(page.getByText("Shellfish")).toBeVisible();
+  await nav(page).getByRole("link", { name: "Home", exact: true }).click();
+  await expect(page.getByText(/, Grace$/)).toBeVisible();
+});
+
+test("sign-in validates input and explains accounts are not active", async ({ page }) => {
+  await page.goto("/sign-in");
+  await page.getByRole("button", { name: "Sign in" }).click();
+  await expect(page.getByText("Enter an email address like name@example.com.")).toBeVisible();
+  await page.getByLabel("Email").fill("tester.a@example.test");
+  await page.getByLabel("Password").fill("password123");
+  await page.getByRole("button", { name: "Sign in" }).click();
+  await expect(page.getByText("Accounts aren't switched on in this prototype.")).toBeVisible();
+});
+
+test("PWA manifest and icons are served", async ({ request }) => {
+  const m = await (await request.get("/manifest.webmanifest")).json();
+  expect(m.name).toBe("Mealwise");
+  expect(m.display).toBe("standalone");
+  for (const icon of m.icons) expect((await request.get(icon.src)).status()).toBe(200);
+});

@@ -13,3 +13,9 @@
 | 009 | 2026-10-17 | Prices as dated ranges, never exact | **Proposed** | Inflation, honesty |
 | 010 | 2026-10-17 | Use the same free resources as Educore: existing Supabase organisation (Free plan) and Vercel team "Adekunle Oludele's projects" (Hobby). $0 running cost; no paid upgrades without separate approval | **Approved by product owner** | Keeps development at $0 (answers D2) |
 | 011 | 2026-10-17 | Separate Supabase project for Mealwise vs sharing the `educore-greenfield` database | **Open — awaiting product owner** | See PROJECT_STATUS D3 |
+| 012 | 2026-10-17 | Phase 0 approved: all recommendations accepted (PWA; Next.js + Supabase + Vercel; separate free Supabase project in Phase 2; proposed brand; GitHub repo + Vercel preview) | **Approved** | Product owner: "phase 0 approved" — also closes 002, 003, 005–009 and 011 as approved |
+| 013 | 2026-10-17 | Brand: ugu green #1E5B3C, plantain #F4B53F, Bricolage Grotesque + Figtree; meals shown as generated plate illustrations instead of photos | Approved via 012; open to change in Phase 1 review | Distinctive, food-led, no image licensing (lowers R9) |
+| 014 | 2026-10-17 | Next.js 16.4.2 with its defaults (Turbopack, Cache Components). Fonts bundled from npm rather than fetched from Google at runtime | Implemented | Current stable; works offline-first and on restricted networks |
+| 015 | 2026-10-17 | Prototype state kept in browser memory only, with a banner on every screen saying nothing is saved | Implemented | Brief forbids pretending persistence works |
+| 016 | 2026-10-17 | Exact dependency versions pinned in package.json | Implemented | Reproducible builds, including on Vercel |
+| 017 | 2026-10-17 | Preview deploy deferred until GitHub is reconnected, rather than hand-uploading source to Vercel | Proposed | Git-linked previews update automatically each phase and are less error-prone |

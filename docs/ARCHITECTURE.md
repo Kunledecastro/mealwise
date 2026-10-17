@@ -1,6 +1,6 @@
 # Mealwise — Architecture Proposal (Phase 0 draft)
 
-Status: DRAFT — awaiting approval. Nothing below has been provisioned.
+Status: APPROVED 2026-10-17. Phase 1 implements the front end; Supabase is provisioned in Phase 2.
 Last updated: 2026-10-17
 
 ## 1. Environment findings (inspected 2026-10-17)

@@ -1,52 +1,36 @@
 # Mealwise — Project Status
 
-**Current phase:** Phase 0 — Discovery & Technical Plan
-**Last completed phase:** none (Phase 0 deliverables drafted; approval pending)
-**Implementation status:** Documents only. No code, repo, database or deployment created.
+**Current phase:** Phase 1 — User Interface and Navigation
+**Last completed phase:** Phase 0 (approved 2026-10-17)
+**Implementation status:** Phase 1 built and tested by Claude. **Awaiting your testing and approval.**
+**Last updated:** 2026-10-17
 
 ## Completed
-- Environment inspection (empty workspace; Node 22, pnpm, Docker, psql available; Supabase org has a free active-project slot; Vercel personal team present)
-- PRD, MVP scope/exclusions, user journeys, screen inventory → PRODUCT_REQUIREMENTS.md
-- Architecture & stack proposal → ARCHITECTURE.md
-- Database model → DATABASE_SCHEMA.md
-- Phase plan & acceptance criteria → IMPLEMENTATION_PLAN.md
-- Testing strategy → TEST_PLAN.md
-- Risk register → BUGS_AND_ISSUES.md
+- Phase 0 documents (approved).
+- Phase 1 prototype: Next.js app with all MVP screens, design system, plate illustrations, labelled sample data, in-memory interactions, loading/empty/error states, 404 page, PWA manifest and icons.
 
-## Incomplete
-All product features (Phases 1–6).
+## Incomplete (by design, later phases)
+- Accounts, database and saving anything (Phase 2). Sign-in/up/reset forms validate input, then explain accounts aren't on yet.
+- Real meal catalogue with sourced nutrition and prices; personalised recommendation engine (Phase 3). Current suggestions are simple filters over 17 sample meals.
+- Real calorie/macro targets (Phase 4). A fixed sample target is shown and labelled.
+- Meal plans and shopping lists (Phase 5).
+- Data export and account deletion (buttons present but disabled with explanation).
 
-## Known defects
-None (no code).
+## Known defects / limitations
+See BUGS_AND_ISSUES.md. Summary: no open defects; prototype state resets on page reload (expected); preview deployment pending GitHub access (D10).
 
-## Latest test results
-None — no tests applicable in Phase 0.
-
-## Estimated running costs (approximate, USD; verify current pricing before any purchase)
-
-| Stage | Items | Monthly |
-|---|---|---|
-| Development & your testing (Phases 1–5) | Vercel Hobby, Supabase Free, GitHub Free, GitHub Actions free minutes | **$0** |
-| Private beta (small tester group) | Same, accepting that free Supabase pauses after inactivity and Vercel Hobby is non-commercial | $0 |
-| Public / commercial launch | Supabase Pro (~$25, no pausing, daily backups) + Vercel Pro (~$20 per member) + transactional email provider (free tier likely sufficient at first) + domain (~$10–15/yr) | **≈ $45–50/month** + domain |
-| Optional | Store apps later (Apple $99/yr, Google $25 once); dietitian review of catalogue (one-off, quote needed) | — |
-
-No paid service will be introduced without your approval.
+## Latest test results (2026-10-17)
+- TypeScript: pass. ESLint: pass. Production build: pass (36 routes).
+- Unit tests (Vitest): **34/34 passed**.
+- End-to-end (Playwright, Chromium, phone 390 px + desktop 1280 px): **72/72 passed**, including axe WCAG 2.1 AA checks with zero serious/critical issues on 17 screens.
+- Lighthouse (mobile, throttled): accessibility **100** on all 6 screens audited; performance 83–96; best practices 100. JavaScript 186 KB compressed (budget 200 KB).
 
 ## Decisions requiring your input
-
-| ID | Decision | My recommendation | Needed before |
-|---|---|---|---|
-| D1 | PWA vs native app | Installable PWA | Phase 1 |
-| D2 | ~~Accept $0 during development~~ **DECIDED 2026-10-17:** use the same free Supabase org and Vercel Hobby team as Educore. Launch-time upgrade (≈ $45–50/month) to be revisited in Phase 6 | — | Done |
-| D3 | Separate free Supabase project "mealwise-dev" in the same org (uses the 2nd free active slot alongside educore-greenfield) **or** share the educore-greenfield database | Separate project | Phase 2 |
-| D4 | Nutrition data sources: confirm WAFCT licence suitability; use USDA FDC as public-domain base | Use both, with licence check; I draft, you (ideally a dietitian) review | Phase 3 |
-| D5 | Who maintains ₦ price ranges, and how often | You or a helper, quarterly; I build the update template | Phase 3 |
-| D6 | Meal images: illustrations, own photos, or licensed stock | Simple illustrations in MVP; real photos later | Phase 3 |
-| D7 | Minimum age 18 and safety rules in ARCHITECTURE §7 | Approve as written | Phase 2 |
-| D8 | Sign-in methods: email+password and magic link; add Google sign-in? | Email + magic link now; Google later | Phase 2 |
-| D9 | Brand: name "Mealwise" final? any colours/logo? | I propose a warm, food-friendly palette if none | Phase 1 |
-| D10 | Create a private GitHub repo + Vercel project for preview builds you can open on your phone | Yes | Phase 1 (end) |
+| ID | Decision | Recommendation |
+|---|---|---|
+| D10 | Preview on your phone needs a private GitHub repo linked to Vercel. The GitHub token in this workspace is invalid, so I couldn't create it. | Reconnect GitHub for Claude (claude.ai Settings → Connectors), then I'll create the private repo `mealwise` and a Vercel project with protected preview links. Alternative: run locally (README). |
+| D9 | Brand direction (ugu green, plantain yellow, Bricolage Grotesque + Figtree, plate illustrations) | Approve, or tell me what to change |
+| D3 | Separate free Supabase project for Phase 2 | Approved with Phase 0; will be created at the start of Phase 2 |
 
 ## Exact next step
-Product owner reviews these documents and replies with approvals/changes, e.g. **"Phase 0 approved"** (accepting recommendations) or specific changes. On approval, Phase 1 (UI prototype with labelled sample data) begins.
+You test the prototype using the checklist in TEST_PLAN.md (section "Phase 1 manual tests") and reply **"Phase 1 approved"**, or list changes. Phase 2 (accounts and saved profiles) starts only after approval.
