@@ -108,9 +108,17 @@ An LLM is not used. A later AI assistant would be proposed separately with cost,
 - Region: Supabase has no African region; propose **eu-west-2 (London)**. This is a cross-border transfer of personal data from Nigeria; the Nigeria Data Protection Act 2023 has rules for this and for sensitive (health-related) data. **Mealwise will not claim NDPA compliance** until a proper assessment is done (Phase 6 / before public launch).
 - Security headers (CSP, HSTS), rate limiting on auth (Supabase built-in), dependency audit in CI.
 
+### As built in Phase 2 (2026-10-18)
+- **Browser ↔ Supabase directly** using the publishable key (`sb_publishable_…`, safe to be public). Every read/write is checked by RLS against the user's signed token. The web app has no server-side secret at all.
+- **Sessions**: `@supabase/ssr` browser client stores the session in a first-party cookie (`sb-<ref>-auth-token`); PKCE flow for every email link; links land on `/auth/callback`, which completes sign-in and redirects only to paths on this site.
+- **`proxy.ts`** (Next.js 16's replacement for middleware) checks only that the session cookie exists, to send signed-out visitors to sign-in before the page loads. It does not verify the token — that is RLS's job — so a forged cookie shows an empty shell and no data.
+- **Secret key** exists only inside the `delete-account` Supabase Edge Function (Supabase-managed env var). Not in Vercel, the repo, or logs.
+- **Consent** recorded at sign-up through Auth user metadata → `handle_new_user` trigger → `profiles.consent_version/consent_at`, then locked against edits.
+- Not built yet: security headers/CSP (Phase 6), custom email sender (decision 030).
+
 ## 9. Environments and deployment
 
-- **Local**: Next.js dev server + local Supabase via Docker (Supabase CLI) with synthetic seed data.
+- **Local**: Next.js dev server against the `mealwise-dev` project (`.env.local`, git-ignored). Local Supabase via Docker remains an option on your machine; this workspace can't download its images.
 - **Preview**: Vercel preview deployment per branch, pointing to a Supabase "dev" project — used for your phase testing on your phone.
 - **Production**: created only in Phase 6 with your explicit approval.
 

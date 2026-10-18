@@ -1,7 +1,30 @@
-# Mealwise — Database Model (Phase 0 draft)
+# Mealwise — Database Model
 
-Status: DRAFT — logical model; SQL migrations will be written in Phase 2 (user tables) and Phase 3 (catalogue).
+Status: Phase 2 — `profiles` is **built and live** (see §0). Everything else below is still the logical design; catalogue tables arrive in Phase 3, logs/weights in Phase 4, plans in Phase 5.
 Engine: PostgreSQL (Supabase). All ids are UUID unless stated. All timestamps `timestamptz`.
+
+## 0. What is actually built (Phase 2, 2026-10-18)
+
+Supabase project `mealwise-dev` (ref `naaoigrhzfivantuysxl`, region eu-west-2 London, Free plan). Migrations in `supabase/migrations/`, applied in this order:
+
+| File | What it does |
+|---|---|
+| `…070001_phase2_profiles_table.sql` | `public.profiles` table with range/list CHECKs; RLS on; SELECT and UPDATE policies "own row only" (`(select auth.uid()) = id`) |
+| `…070002_phase2_profiles_triggers.sql` | `profiles_before_write`: rejects birth years under 18 and dislikes over 40 characters; sets `updated_at`; on UPDATE keeps `id`, `created_at`, `consent_version`, `consent_at` unchanged. `handle_new_user` (on `auth.users` insert): creates the profile with the consent version given at sign-up |
+| `…070003_phase2_tighten_grants.sql` | `anon` has no access at all; `authenticated` cannot INSERT/TRUNCATE (rows only come from the trigger) |
+| `…070004_phase2_lock_internal_functions.sql` | Trigger functions can't be called directly by users |
+
+**`profiles` columns as built** — `id` (= auth.users.id, cascade), `display_name` (≤60), `birth_year` (18+ enforced), `height_cm` 100–250, `current_weight_kg` 20–400, `target_weight_kg` 20–400, `units` metric|imperial, `goal` lose|gain|maintain, `activity_level` sedentary|light|moderate|very, `diet` text[] (fixed list), `allergies` text[] (fixed list of 9), `dislikes` text[] (≤30, each ≤40 chars), `cuisines` text[] (fixed list), `budget_band` low|medium|high, `max_prep_minutes` 0|15|30|45|60, `consent_version`, `consent_at`, `onboarding_completed_at`, `created_at`, `updated_at`.
+
+**Differences from the Phase 0 design (deliberate, simpler for now):**
+- Diet, allergies, dislikes and cuisines are **text arrays on `profiles`**, not the separate `user_exclusions` / `user_food_preferences` / `user_dietary_tags` tables. Those link to catalogue ingredients, which don't exist until Phase 3; the arrays will be migrated then.
+- `current_weight_kg` added (setup asks for it). Full weight history is still `weight_entries` in Phase 4.
+- `sex` **not collected yet** — only needed for calorie targets (Phase 4); we ask when it's needed (data minimisation).
+- `preferred_units` is named `units`. `meal_schedule`, `cooking_facilities`, `safety_flags`, `max_meal_cost_ngn` not built yet.
+
+**Account deletion** — edge function `delete-account` (Deno, deployed): verifies the caller's own token with Supabase Auth, then deletes exactly that user with the secret key, which exists only inside Supabase. `profiles` (and every future user table) cascades.
+
+**Tests** — `supabase/tests/rls_profiles.sql`: 18 checks with two synthetic users, rolled back automatically. Last run 2026-10-18: 18/18 pass, nothing left behind. Supabase security and performance advisors: no warnings.
 
 ## 1. Entity overview
 
@@ -82,4 +105,4 @@ Catalogue tables: `select` allowed for `authenticated` (and `anon` for published
 
 ## 5. Deletion
 
-All user tables `on delete cascade` from profiles → auth.users. Account deletion = delete auth user server-side (service role, server only).
+All user tables `on delete cascade` from profiles → auth.users. Account deletion = delete auth user server-side (secret key, inside the `delete-account` edge function only).

@@ -1,10 +1,12 @@
 "use client";
 
 import Link from "next/link";
-import { usePathname } from "next/navigation";
+import { usePathname, useRouter } from "next/navigation";
 import { Bookmark, Home, LineChart, Search, UserRound } from "lucide-react";
-import type { ReactNode } from "react";
+import { useEffect, type ReactNode } from "react";
+import { useAuth } from "@/lib/auth";
 import { useStore } from "@/lib/prototype-store";
+import { Button, ErrorState, SkeletonRows } from "./ui";
 
 const NAV = [
   { href: "/home", label: "Home", icon: Home },
@@ -37,7 +39,7 @@ export function Logo({ className = "" }: { className?: string }) {
 export function PrototypeBanner() {
   return (
     <div className="border-b border-accent/25 bg-accent-soft px-4 py-1.5 text-center text-sm font-semibold text-accent" data-testid="prototype-banner">
-      Prototype with sample data. Nothing you do here is saved yet.
+      Test version. Your account and preferences are saved; meals, logs and weights are still sample data.
     </div>
   );
 }
@@ -59,6 +61,36 @@ function activeIndex(pathname: string) {
   if (pathname === "/home" || pathname === "/today" || pathname.startsWith("/meals")) return 0;
   if (pathname.startsWith("/profile") || pathname.startsWith("/settings")) return 4;
   return NAV.findIndex((n) => pathname.startsWith(n.href));
+}
+
+/** Waits for the signed-in user's profile, and sends new accounts to setup first. */
+function ProfileGate({ children }: { children: ReactNode }) {
+  const router = useRouter();
+  const pathname = usePathname();
+  const { status, profile, profileStatus, profileError, reloadProfile, leftOnPurpose } = useAuth();
+
+  useEffect(() => {
+    // After a deliberate sign-out the screen that signed out chooses where to go.
+    if (status === "signed-out" && !leftOnPurpose) router.replace(`/sign-in?next=${encodeURIComponent(pathname)}`);
+    else if (profileStatus === "ready" && !profile.onboarded) router.replace("/onboarding");
+  }, [status, profileStatus, profile.onboarded, pathname, router, leftOnPurpose]);
+
+  if (profileStatus === "error")
+    return (
+      <ErrorState
+        title="Your profile didn't load"
+        body={profileError ?? "Something went wrong while loading your profile."}
+        action={<Button variant="secondary" onClick={reloadProfile}>Try again</Button>}
+      />
+    );
+  if (status !== "signed-in" || profileStatus !== "ready" || !profile.onboarded)
+    return (
+      <div className="flex flex-col gap-6" aria-busy="true">
+        <div className="skeleton h-10 w-2/3 rounded" />
+        <SkeletonRows count={3} />
+      </div>
+    );
+  return <>{children}</>;
 }
 
 export function AppShell({ children }: { children: ReactNode }) {
@@ -103,7 +135,7 @@ export function AppShell({ children }: { children: ReactNode }) {
         </div>
         <main id="main" className="mx-auto w-full max-w-3xl px-4 pb-32 pt-7 sm:px-6 lg:px-10 lg:pb-14 lg:pt-12">
           <div key={pathname} className="page-in">
-            {children}
+            <ProfileGate>{children}</ProfileGate>
           </div>
         </main>
       </div>

@@ -3,6 +3,7 @@ import { BadgeCheck, HeartHandshake, ShieldCheck, Smartphone, Soup, Wallet } fro
 import { Logo, PrototypeBanner } from "@/components/app-shell";
 import { HeroCycler } from "@/components/landing/hero-cycler";
 import { ScrollStory } from "@/components/landing/scroll-story";
+import { AccountDeletedNotice } from "@/components/landing/account-notice";
 import { RevealRoot, SpotlightGroup } from "@/components/motion";
 import { ButtonLink } from "@/components/ui";
 import { SAMPLE_MEALS } from "@/lib/sample-data";
@@ -52,6 +53,7 @@ export default function LandingPage() {
     <RevealRoot>
       <div className="relative min-h-dvh overflow-x-clip">
         <PrototypeBanner />
+        <AccountDeletedNotice />
 
         <header className="sticky top-0 z-40 border-b border-line/60 bg-paper/75 backdrop-blur-md">
           <div className="mx-auto flex w-full max-w-6xl items-center justify-between gap-4 px-5 py-3.5">
@@ -62,7 +64,7 @@ export default function LandingPage() {
             </nav>
             <div className="flex items-center gap-2">
               <Link href="/sign-in" className="hidden min-h-11 items-center px-3 font-semibold text-muted hover:text-ink sm:inline-flex">Sign in</Link>
-              <ButtonLink href="/onboarding" className="min-h-11 px-5 text-sm">Get started</ButtonLink>
+              <ButtonLink href="/sign-up" className="min-h-11 px-5 text-sm">Get started</ButtonLink>
             </div>
           </div>
         </header>
@@ -78,7 +80,7 @@ export default function LandingPage() {
                   calorie spreadsheets and no guilt.
                 </p>
                 <div className="flex flex-wrap gap-3">
-                  <ButtonLink href="/onboarding">Find my next meal</ButtonLink>
+                  <ButtonLink href="/sign-up">Find my next meal</ButtonLink>
                   <ButtonLink href="/sign-in" variant="secondary">I have an account</ButtonLink>
                 </div>
               </div>
@@ -140,7 +142,7 @@ export default function LandingPage() {
                 Eat well with the food you already love.
               </h2>
               <div data-reveal>
-                <ButtonLink href="/onboarding">Get started, it takes two minutes</ButtonLink>
+                <ButtonLink href="/sign-up">Get started, it takes two minutes</ButtonLink>
               </div>
             </div>
           </section>

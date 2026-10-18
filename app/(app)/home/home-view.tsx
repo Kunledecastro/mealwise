@@ -1,7 +1,8 @@
 "use client";
 
 import Link from "next/link";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
+import { useRouter } from "next/navigation";
 import { RefreshCw } from "lucide-react";
 import { MealFacts, MealRow, NotForMe, sampleReasons, suitsProfile } from "@/components/meal-bits";
 import { Button, ButtonLink, Chip, EmptyState, SampleTag } from "@/components/ui";
@@ -19,7 +20,16 @@ function greeting(hour: number) {
 }
 
 export function HomeView() {
-  const { profile, rejected, logs, today } = useStore();
+  const { profile, rejected, logs, today, showToast } = useStore();
+  const router = useRouter();
+
+  // Arriving from the "set a new password" screen.
+  useEffect(() => {
+    if (new URLSearchParams(window.location.search).get("updated") === "password") {
+      showToast("Password updated");
+      router.replace("/home");
+    }
+  }, [showToast, router]);
   // Time of day is read on the client (null during server render) so the suggestion matches the user's clock.
   const hour = useHour();
   const [chosenSlot, setChosenSlot] = useState<MealType | null>(null);
@@ -40,7 +50,7 @@ export function HomeView() {
   return (
     <div className="flex flex-col gap-10">
       <header className="flex flex-col gap-1">
-        <p className="text-muted">{hour === null ? "Hello" : greeting(hour)}, {profile.displayName}</p>
+        <p className="text-muted">{hour === null ? "Hello" : greeting(hour)}{profile.displayName ? `, ${profile.displayName}` : ""}</p>
         <h1 className="text-4xl sm:text-5xl">What can I eat next?</h1>
       </header>
 

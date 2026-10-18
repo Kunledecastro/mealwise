@@ -1,4 +1,5 @@
 import { expect, test, type Page } from "./fixtures";
+import { TESTER } from "./supabase-mock";
 
 const nav = (page: Page) => page.locator('nav[aria-label="Main"]:visible');
 
@@ -15,49 +16,73 @@ test("main navigation reaches every tab and marks the current one", async ({ pag
   await expect(page).toHaveURL(/\/settings$/);
 });
 
-test("J1: onboarding blocks under-18s, validates input, and personalises the home screen", async ({ page }) => {
-  await page.goto("/");
-  await page.getByRole("link", { name: "Get started", exact: true }).click();
-  await page.getByRole("button", { name: "Continue" }).click();
-  await expect(page.getByText("Choose a goal to continue.")).toBeVisible();
-  await page.getByRole("radio", { name: /Gain weight/ }).click();
-  await page.getByRole("button", { name: "Continue" }).click();
+test.describe("new account", () => {
+  test.use({ signedIn: false });
 
-  await page.getByLabel("What should we call you?").fill("Tunde");
-  const year = new Date().getFullYear();
-  await page.getByLabel("Year you were born").fill(String(year - 15));
-  await expect(page.getByText(/designed for adults/)).toBeVisible();
-  await expect(page.getByRole("button", { name: "Continue" })).toBeDisabled();
+  test("J1: sign up, confirm by email link, set up (blocks under-18s, validates input), and the answers are saved", async ({ page, mock }) => {
+    await page.goto("/");
+    await page.getByRole("link", { name: "Get started", exact: true }).click();
+    await expect(page).toHaveURL(/\/sign-up$/);
+    await page.getByLabel("Email").fill("new.person@example.test");
+    await page.getByLabel("Password", { exact: true }).fill("Plantain-2026");
+    await page.getByRole("checkbox").check();
+    await page.getByRole("button", { name: "Create account" }).click();
+    await expect(page.getByText("Check your email", { exact: true })).toBeVisible();
+    expect(mock.emails).toContainEqual({ to: "new.person@example.test", kind: "confirm" });
 
-  await page.getByLabel("Year you were born").fill("1992");
-  await page.getByLabel(/Current weight in kg/).fill("900");
-  await page.getByRole("button", { name: "Continue" }).click();
-  await expect(page.getByText("Enter a weight between 20 and 400 kg.")).toBeVisible();
-  await page.getByLabel(/Current weight in kg/).fill("68");
-  await page.getByLabel(/Height in cm/).fill("178");
-  await page.getByRole("button", { name: "Continue" }).click();
+    // Stand-in for opening the emailed confirmation link in the same browser.
+    await page.goto("/auth/callback?code=confirm:new.person@example.test");
+    await expect(page).toHaveURL(/\/onboarding$/);
 
-  await page.getByRole("radio", { name: /Active/ }).first().click();
-  await page.getByRole("button", { name: "Continue" }).click();
-  await page.getByRole("button", { name: "Peanuts" }).click();
-  await page.getByRole("button", { name: "Continue" }).click();
-  await page.getByRole("button", { name: "Skip" }).click();
+    await page.getByRole("button", { name: "Continue" }).click();
+    await expect(page.getByText("Choose a goal to continue.")).toBeVisible();
+    await page.getByRole("radio", { name: /Gain weight/ }).click();
+    await page.getByRole("button", { name: "Continue" }).click();
 
-  await expect(page.getByRole("heading", { name: "Summary" })).toBeVisible();
-  // Scope to the visible page: Next.js keeps the previous (landing) page hidden in the DOM.
-  const main = page.getByRole("main");
-  await expect(main.getByText("Gain weight")).toBeVisible();
-  await expect(main.getByText("Peanuts")).toBeVisible();
-  await page.getByRole("button", { name: "Show me meals" }).click();
-  await expect(page).toHaveURL(/\/home$/);
-  await expect(page.getByText(/, Tunde$/)).toBeVisible();
+    await page.getByLabel("What should we call you?").fill("Tunde");
+    const year = new Date().getFullYear();
+    await page.getByLabel("Year you were born").fill(String(year - 15));
+    await expect(page.getByText(/designed for adults/)).toBeVisible();
+    await expect(page.getByRole("button", { name: "Continue" })).toBeDisabled();
 
-  // Peanut meals are hidden after declaring the allergy. (Navigate in-app: a page reload resets prototype memory.)
-  await nav(page).getByRole("link", { name: "Search", exact: true }).click();
-  await page.getByRole("searchbox").fill("groundnuts");
-  await expect(page.getByRole("heading", { name: "No meals match" })).toBeVisible();
-  await page.getByLabel(/Hide meals with my allergies/).uncheck();
-  await expect(page.getByRole("link", { name: "Fried plantain with groundnuts" })).toBeVisible();
+    await page.getByLabel("Year you were born").fill("1992");
+    await page.getByLabel(/Current weight in kg/).fill("900");
+    await page.getByRole("button", { name: "Continue" }).click();
+    await expect(page.getByText("Enter a weight between 20 and 400 kg.")).toBeVisible();
+    await page.getByLabel(/Current weight in kg/).fill("68");
+    await page.getByLabel(/Height in cm/).fill("178");
+    await page.getByRole("button", { name: "Continue" }).click();
+
+    await page.getByRole("radio", { name: /Active/ }).first().click();
+    await page.getByRole("button", { name: "Continue" }).click();
+    await page.getByRole("button", { name: "Peanuts" }).click();
+    await page.getByRole("button", { name: "Continue" }).click();
+    await page.getByRole("button", { name: "Skip" }).click();
+
+    await expect(page.getByRole("heading", { name: "Summary" })).toBeVisible();
+    const main = page.getByRole("main");
+    await expect(main.getByText("Gain weight")).toBeVisible();
+    await expect(main.getByText("Peanuts")).toBeVisible();
+    await page.getByRole("button", { name: "Save and show me meals" }).click();
+    await expect(page).toHaveURL(/\/home$/);
+    await expect(page.getByText(/, Tunde$/)).toBeVisible();
+
+    // Saved to the account: consent from sign-up, answers from setup.
+    const row = [...mock.profiles.values()].find((r) => r.display_name === "Tunde")!;
+    expect(row).toMatchObject({ goal: "gain", birth_year: 1992, allergies: ["Peanuts"], consent_version: "2026-10-18" });
+    expect(row.onboarding_completed_at).toBeTruthy();
+
+    // Survives a full reload now (Phase 1 kept this only in memory).
+    await page.reload();
+    await expect(page.getByText(/, Tunde$/)).toBeVisible();
+
+    // Peanut meals are hidden after declaring the allergy.
+    await nav(page).getByRole("link", { name: "Search", exact: true }).click();
+    await page.getByRole("searchbox").fill("groundnuts");
+    await expect(page.getByRole("heading", { name: "No meals match" })).toBeVisible();
+    await page.getByLabel(/Hide meals with my allergies/).uncheck();
+    await expect(page.getByRole("link", { name: "Fried plantain with groundnuts" })).toBeVisible();
+  });
 });
 
 test("J2: pick a meal, log half a portion, and see it on Today", async ({ page }) => {
@@ -167,7 +192,7 @@ test("J6: remove a logged meal from Today", async ({ page }) => {
   await expect(page.getByRole("heading", { name: "Nothing logged today" })).toBeVisible();
 });
 
-test("J8: edit preferences updates the profile for this session", async ({ page }) => {
+test("J8: edit preferences saves them to the account", async ({ page, mock }) => {
   await page.goto("/profile");
   await page.getByRole("button", { name: "Edit" }).click();
   await page.getByLabel("Name").fill("Grace");
@@ -175,18 +200,24 @@ test("J8: edit preferences updates the profile for this session", async ({ page 
   await page.getByRole("button", { name: "Save changes" }).click();
   await expect(page.getByRole("heading", { level: 1, name: "Grace" })).toBeVisible();
   await expect(page.getByText("Shellfish")).toBeVisible();
+  expect(mock.profiles.get(TESTER.id)).toMatchObject({ display_name: "Grace", allergies: ["Shellfish"] });
+  await page.reload();
+  await expect(page.getByRole("heading", { level: 1, name: "Grace" })).toBeVisible();
   await nav(page).getByRole("link", { name: "Home", exact: true }).click();
   await expect(page.getByText(/, Grace$/)).toBeVisible();
 });
 
-test("sign-in validates input and explains accounts are not active", async ({ page }) => {
-  await page.goto("/sign-in");
-  await page.getByRole("button", { name: "Sign in" }).click();
-  await expect(page.getByText("Enter an email address like name@example.com.")).toBeVisible();
-  await page.getByLabel("Email").fill("tester.a@example.test");
-  await page.getByLabel("Password").fill("password123");
-  await page.getByRole("button", { name: "Sign in" }).click();
-  await expect(page.getByText("Accounts aren't switched on in this prototype.")).toBeVisible();
+test("J8b: if saving fails, the change is not shown as saved and can be retried", async ({ page, mock }) => {
+  await page.goto("/profile");
+  await page.getByRole("button", { name: "Edit" }).click();
+  await page.getByLabel("Name").fill("Grace");
+  mock.failNextProfileSave = true;
+  await page.getByRole("button", { name: "Save changes" }).click();
+  await expect(page.getByRole("alert").filter({ hasText: /internet connection|went wrong/ })).toBeVisible();
+  await expect(page.getByRole("button", { name: "Save changes" })).toBeVisible(); // still editing, nothing lost
+  expect(mock.profiles.get(TESTER.id)?.display_name).toBe("Amaka");
+  await page.getByRole("button", { name: "Save changes" }).click();
+  await expect(page.getByRole("heading", { level: 1, name: "Grace" })).toBeVisible();
 });
 
 test("PWA manifest and icons are served", async ({ request }) => {

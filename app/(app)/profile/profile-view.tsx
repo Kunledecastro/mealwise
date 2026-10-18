@@ -1,11 +1,13 @@
 "use client";
 
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 import { useState } from "react";
-import { ChevronRight, Settings } from "lucide-react";
+import { ChevronRight, LogOut, Settings } from "lucide-react";
 import { Button, Chip, Field, PageTitle, inputClass } from "@/components/ui";
 import { formatWeight } from "@/lib/domain/units";
 import { ACTIVITY, ALLERGENS, BUDGET_LABELS, CUISINES, DIETS, GOALS, PREP_LABELS } from "@/lib/options";
+import { useAuth } from "@/lib/auth";
 import { useStore } from "@/lib/prototype-store";
 import type { Profile } from "@/lib/types";
 
@@ -20,23 +22,39 @@ function Row({ label, value }: { label: string; value: string }) {
 
 export function ProfileView() {
   const { profile, setProfile, showToast } = useStore();
+  const { signOut } = useAuth();
+  const router = useRouter();
   const [editing, setEditing] = useState(false);
+  const [saving, setSaving] = useState(false);
+  const [saveError, setSaveError] = useState<string | null>(null);
   const [draft, setDraft] = useState<Profile>(profile);
   const [dislikes, setDislikes] = useState(profile.dislikes.join(", "));
   const unit = profile.units === "metric" ? "kg" : "lb";
   const toggle = (key: "diet" | "allergies" | "cuisines", v: string) =>
     setDraft((d) => ({ ...d, [key]: d[key].includes(v) ? d[key].filter((x) => x !== v) : [...d[key], v] }));
 
-  function save() {
-    setProfile({ ...draft, displayName: draft.displayName.trim() || profile.displayName, dislikes: dislikes.split(",").map((s) => s.trim()).filter(Boolean) });
+  async function save() {
+    setSaving(true);
+    setSaveError(null);
+    const result = await setProfile({ ...draft, displayName: draft.displayName.trim() || profile.displayName, dislikes: dislikes.split(",").map((s) => s.trim()).filter(Boolean) });
+    setSaving(false);
+    if (!result.ok) {
+      setSaveError(result.error);
+      return;
+    }
     setEditing(false);
-    showToast("Changes saved for this session");
+    showToast("Changes saved");
+  }
+
+  async function handleSignOut() {
+    await signOut();
+    router.replace("/");
   }
 
   if (editing)
     return (
       <div className="flex flex-col gap-6">
-        <PageTitle sub="Changes apply to your suggestions straight away.">Edit preferences</PageTitle>
+        <PageTitle sub="Saved to your account. Changes apply to your suggestions straight away.">Edit preferences</PageTitle>
         <Field id="p-name" label="Name">
           <input id="p-name" className={inputClass} value={draft.displayName} onChange={(e) => setDraft({ ...draft, displayName: e.target.value })} />
         </Field>
@@ -63,9 +81,10 @@ export function ProfileView() {
           ))}
         </Group>
         <div className="sticky bottom-20 flex gap-2 border-t border-line bg-paper py-4 lg:bottom-0">
-          <Button onClick={save}>Save changes</Button>
-          <Button variant="ghost" onClick={() => { setDraft(profile); setDislikes(profile.dislikes.join(", ")); setEditing(false); }}>Cancel</Button>
+          <Button onClick={save} disabled={saving}>{saving ? "Saving…" : "Save changes"}</Button>
+          <Button variant="ghost" disabled={saving} onClick={() => { setDraft(profile); setDislikes(profile.dislikes.join(", ")); setSaveError(null); setEditing(false); }}>Cancel</Button>
         </div>
+        {saveError && <p role="alert" className="text-error">{saveError}</p>}
       </div>
     );
 
@@ -73,7 +92,7 @@ export function ProfileView() {
   return (
     <div className="flex flex-col gap-6">
       <div className="flex items-start justify-between gap-4">
-        <PageTitle sub="Your goal and food preferences shape your suggestions.">{profile.displayName}</PageTitle>
+        <PageTitle sub="Your goal and food preferences shape your suggestions.">{profile.displayName || "Your profile"}</PageTitle>
         <Button variant="secondary" onClick={() => { setDraft(profile); setEditing(true); }}>Edit</Button>
       </div>
       <section aria-labelledby="goal-title">
@@ -99,6 +118,9 @@ export function ProfileView() {
       <Link href="/settings" className="flex min-h-14 items-center gap-3 rounded-[var(--radius-md)] border border-line bg-surface px-4 font-semibold hover:border-accent">
         <Settings size={20} aria-hidden="true" className="text-accent" /> <span className="flex-1">Settings</span> <ChevronRight size={20} aria-hidden="true" />
       </Link>
+      <Button variant="secondary" onClick={handleSignOut}>
+        <LogOut size={18} aria-hidden="true" /> Sign out
+      </Button>
     </div>
   );
 }

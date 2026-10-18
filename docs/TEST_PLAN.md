@@ -6,7 +6,7 @@
 |---|---|---|---|
 | Unit | Vitest | Pure domain logic: unit conversion, filtering, formatting; later nutrition, recommendations, shopping lists | 1 |
 | Component | Vitest + Testing Library | Plate illustration determinism and labels; later forms | 1 |
-| Database / RLS | SQL tests against local Supabase (Docker), two synthetic users | Owner-only access on every user table | 2 |
+| Database / RLS | SQL tests run against the real `mealwise-dev` database, two synthetic users, auto-rolled back (`supabase/tests/`) | Owner-only access on every user table | 2 |
 | End-to-end | Playwright, Chromium phone (390×844) + desktop (1280×800) | User journeys | 1 |
 | Accessibility | axe-core in Playwright + Lighthouse | WCAG 2.1 AA | 1 |
 | Performance | Lighthouse mobile (throttled) | JS budget, LCP, blocking time | 1 baseline, 6 audit |
@@ -69,6 +69,77 @@ All checks re-run after the redesign: unit 34/34, E2E 72/72, axe zero serious is
 | R-04 | Lighthouse | Landing performance 68: grain overlay was the slowest-painting element; ~4,000 page elements | Removed grain; tiny plates skip textures (DOM 4,085 → 2,415); headline no longer starts transparent. Now 85–88 |
 | R-06 | E2E (flaky 1 in 3) | Contrast check sometimes ran mid fade-in on the landing page | Accessibility checks now run with reduced motion (final state); suite passed twice in a row (148/148) |
 | R-05 | E2E | Tests matched text in the previous page, which Next.js 16 keeps hidden in memory | Tests scoped to the visible page (not an app defect) |
+
+---
+
+## Phase 2 automated results (run 2026-10-18)
+
+| Check | Result |
+|---|---|
+| `npm run typecheck` / `npm run lint` / `npm run build` | Pass / Pass / Pass |
+| Unit tests | **52 passed, 0 failed** (Phase 1: 34; new: profile mapping, safe redirects, error messages, session-cookie check: 18) |
+| E2E tests | **108 passed, 0 failed** (54 per viewport), against the Supabase stand-in |
+| Database access tests (`supabase/tests/rls_profiles.sql`) on the real database | **18/18 passed**; data rolled back (0 users, 0 profiles afterwards) |
+| Supabase security + performance advisors | No warnings |
+| axe (in E2E) | Zero serious/critical issues on 18 screens + the delete-account dialog |
+| Lighthouse mobile (public pages) | Accessibility 100 on `/`, `/sign-up`, `/sign-in`; performance 88 / 95 / 97 |
+
+**What the stand-in does and doesn't prove.** This workspace has no network route to supabase.co, so the browser tests answer Supabase's calls with an in-memory copy (`tests/e2e/supabase-mock.ts`) that follows the same rules (own profile only, 18+, protected consent fields). They prove the app's screens, sessions, redirects and error handling. They do **not** prove real email delivery, real email links, or the deployed delete-account function — those are your manual tests M2-01 to M2-10 below. The database rules themselves are proven by the SQL tests on the real database.
+
+### Database access checks (real database)
+01 sign-up trigger creates profile with consent · 02 user reads own profile · 03 user sees only one row · 04 can't read another user · 05 updates own profile · 06 can't update another user · 07 can't insert profiles · 08 consent fields can't be changed · 09 id can't be changed · 10 under-18 birth year rejected · 11 over-long dislike rejected · 12 out-of-range height rejected · 13 internal trigger function not callable · 14 signed-out visitor can't read · 15 signed-out visitor can't update · 16 other user's row unchanged after attempts · 17 RLS switched on · 18 only "read own" and "update own" policies exist (so removal and insertion are refused).
+
+### New E2E coverage (each at phone and desktop size)
+- A1 signed-out visitors to any app screen go to sign-in, then back where they were going.
+- A2 sign-in validation; the same message for wrong password and unknown email.
+- A3 unconfirmed account: told to confirm; resend works with a 60-second cooldown.
+- A4 sign-up checks email, 8+ character password and consent before sending anything.
+- A5 signing up with an existing email looks identical to a new sign-up.
+- A6 forgotten password → link → reusing the old password refused → new password saved → "Password updated".
+- A7 expired or invalid email links explain what to do.
+- A8 sign-in ignores links to other websites (`?next=//evil.example`).
+- A9 "Email me a sign-in link" never reveals whether an account exists.
+- A10 signed-in visitors skip the sign-in and sign-up pages.
+- A11 sign out clears the session and locks the app.
+- A12 the app only requests the signed-in user's own profile.
+- A13 an account that hasn't finished setup is sent to setup.
+- A14 "Download my data" gives a JSON file with the account and profile only, no tokens.
+- A15 delete account: confirmation required (type DELETE), account and profile removed, signed out, other users untouched, old password no longer works.
+- A16 delete dialog passes accessibility checks.
+- J1 (updated) sign up → confirm link → setup → answers saved, consent recorded, still there after reload.
+- J8 / J8b (updated) profile edits save to the account and survive reload; a failed save shows an error, keeps the edit, and can be retried.
+
+### Defects found and fixed during Phase 2 testing
+| ID | Found by | Issue | Fix |
+|---|---|---|---|
+| P2-01 | E2E A7 | An expired email link said "Enter a valid email address" (Supabase's wording "link is invalid or has expired" matched the email check first) | Link errors are checked first; unit test U2-17 |
+| P2-02 | E2E A6 | Reusing your current password said "Choose a stronger password" (Supabase's wording "should be different" matched the weak-password check) | Same-password checked first; unit test U2-18 |
+| P2-03 | E2E A11, A15 | After "Sign out" or "Delete my account", you landed on the sign-in page instead of the welcome page (the screen guard reacted before the planned redirect) | The app remembers the sign-out was deliberate and lets the screen choose where to go |
+
+---
+
+## Phase 2 manual tests (for you)
+
+Do these on the test link (https://mealwise-flame.vercel.app, Vercel login first) **using your own email address** (it must be a member of the Supabase organisation — see M2-00). Use your phone for at least M2-01 to M2-05. Open every email link on the **same phone/browser** where you started.
+
+| ID | Feature | Steps | Expected |
+|---|---|---|---|
+| M2-00 | Setup (once) | Supabase dashboard → project `mealwise-dev` → Authentication → URL Configuration. Site URL: `https://mealwise-flame.vercel.app`. Redirect URLs: add `https://mealwise-flame.vercel.app/**` and `http://localhost:3000/**`. Save | Saved. Without this, email links point to localhost and fail |
+| M2-01 | Sign up | Welcome page → Get started → your email, a password of 8+ characters, tick the agreement → Create account | "Check your email". An email from Supabase arrives within a few minutes (check spam) |
+| M2-02 | Confirm | Open the email's link on the same device | After Vercel login if asked, you land on setup ("onboarding") |
+| M2-03 | Setup saves | Complete setup with a peanut allergy → Save and show me meals. Then close the browser fully and reopen the link | Home greets you by name; after reopening you're still signed in and your name is still there |
+| M2-04 | Edit profile | Profile → Edit → change name and add Shellfish → Save changes. Refresh | Toast "Changes saved"; the change is still there after refresh |
+| M2-05 | Second device | Sign in on a laptop with the same email/password | Same name and preferences appear |
+| M2-06 | Wrong password | Sign out, then sign in with a wrong password | "That email and password don't match…" — no hint whether the account exists |
+| M2-07 | Reset password | Sign in → Forgot your password? → your email → open the email link → choose a new password | Home with "Password updated"; the new password works next sign-in |
+| M2-08 | Sign-in link | Sign in → "Email me a sign-in link instead" → open the email | You're signed in without a password |
+| M2-09 | Download | Profile → Settings → Download my data → open the file | A `.json` file with your email and your profile answers; nothing about anyone else |
+| M2-10 | Delete | Settings → Delete my account → type DELETE → Delete permanently. Then try to sign in | Welcome page says the account was deleted; signing in fails. (Sign up again afterwards if you want to keep testing) |
+| M2-11 | Signed-out lock | Sign out, then open `https://mealwise-flame.vercel.app/progress` | Sent to sign-in; after signing in you land on Progress |
+| M2-12 | Banner | Look at any app screen | Banner says account and preferences are saved; meals, logs and weights are still sample data |
+| M2-13 | Tone | Read the sign-up, error and delete messages | Clear, calm, no blame; nothing technical |
+
+Record Pass/Fail and any issue against each ID when you reply.
 
 ---
 

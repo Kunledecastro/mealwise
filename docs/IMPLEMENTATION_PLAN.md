@@ -1,13 +1,13 @@
 # Mealwise — Phased Implementation Plan
 
-Status: APPROVED 2026-10-17. Phase 1 complete pending your testing.
+Status: APPROVED 2026-10-17. Phase 1 approved 2026-10-18. Phase 2 built, awaiting your testing.
 Rule: one phase at a time; each ends with automated tests, a manual test checklist, a completion report, and a stop for your decision.
 
 | Phase | Name | Main outputs | Rough effort* |
 |---|---|---|---|
 | 0 | Discovery & plan | These docs | **Approved 2026-10-17** |
-| 1 | UI & navigation prototype (**built, awaiting your test**) | Next.js app, design system, all MVP screens with **labelled sample data**, onboarding flow (local state only), responsive layouts, loading/empty/error states, PWA manifest, Vercel preview URL | 2–3 sessions |
-| 2 | Auth & profiles | Supabase dev project, migrations for profile/preference tables + RLS, sign-up/in/out, magic link, reset, onboarding persisted, profile edit, RLS tests | 2 sessions |
+| 1 | UI & navigation prototype (**approved 2026-10-18**) | Next.js app, design system, all MVP screens with **labelled sample data**, onboarding flow (local state only), responsive layouts, loading/empty/error states, PWA manifest, Vercel preview URL | 2–3 sessions |
+| 2 | Auth & profiles (**built, awaiting your test**) | Supabase dev project, migrations for profile/preference tables + RLS, sign-up/in/out, magic link, reset, onboarding persisted, profile edit, RLS tests. Also delivered early: data download and account deletion | 2 sessions |
 | 3 | Catalogue & recommendations | Catalogue schema, 60–80 seeded meals with provenance, nutrition/cost views, deterministic engine, search/filter, save/reject/alternatives wired to real data | 3–4 sessions (content curation is the long pole) |
 | 4 | Targets & tracking | Target calculator + safety rules, weight log/chart, meal logging, daily totals, unit conversion | 2 sessions |
 | 5 | Planning & shopping | Day/week plans, swap, servings, shopping list aggregation, checklist, ₦ estimate | 2 sessions |

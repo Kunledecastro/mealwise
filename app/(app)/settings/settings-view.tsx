@@ -1,9 +1,14 @@
 "use client";
 
 import Link from "next/link";
-import { ArrowLeft } from "lucide-react";
-import { Button, PageTitle, Segmented } from "@/components/ui";
+import { useRouter } from "next/navigation";
+import { useRef, useState } from "react";
+import { ArrowLeft, LogOut } from "lucide-react";
+import { Button, Field, PageTitle, Segmented, inputClass } from "@/components/ui";
+import { useAuth } from "@/lib/auth";
+import { friendlyError } from "@/lib/domain/auth-errors";
 import { useStore } from "@/lib/prototype-store";
+import { getSupabase } from "@/lib/supabase/client";
 import { PHOTO_CREDITS } from "@/lib/sample-data";
 import type { Units } from "@/lib/types";
 
@@ -31,17 +36,7 @@ export function SettingsView() {
           options={[{ value: "metric", label: "kg and cm" }, { value: "imperial", label: "lb and ft" }]} />
       </section>
 
-      <section aria-labelledby="data-title" className="flex flex-col gap-3">
-        <h2 id="data-title" className="text-xl">Your data</h2>
-        <p className="max-w-prose text-muted">
-          Downloading a copy of your data and deleting your account will be available once accounts are added.
-        </p>
-        <div className="flex flex-wrap gap-2">
-          <Button variant="secondary" disabled aria-describedby="data-note">Download my data</Button>
-          <Button variant="danger" disabled aria-describedby="data-note">Delete my account</Button>
-        </div>
-        <p id="data-note" className="text-sm text-muted">Not available in this prototype.</p>
-      </section>
+      <YourData />
 
       <section aria-labelledby="proto-title" className="flex flex-col gap-4 rounded-[var(--radius-lg)] border border-accent/25 bg-plantain-soft p-5">
         <h2 id="proto-title" className="text-xl">Prototype tools</h2>
@@ -80,7 +75,7 @@ export function SettingsView() {
           Mealwise offers general guidance about food and weight. It isn&apos;t medical advice and doesn&apos;t replace a doctor
           or registered dietitian. Nutrition figures and prices are estimates.
         </p>
-        <p className="text-sm text-muted">Version 0.1, Phase 1 prototype</p>
+        <p className="text-sm text-muted">Version 0.2, Phase 2 test version</p>
       </section>
 
       <section aria-labelledby="credits-title" className="flex flex-col gap-3">
@@ -101,5 +96,105 @@ export function SettingsView() {
         </ul>
       </section>
     </div>
+  );
+}
+
+/** Download a copy of everything stored about the user, sign out, or delete the account. */
+function YourData() {
+  const { user, signOut } = useAuth();
+  const router = useRouter();
+  const dialog = useRef<HTMLDialogElement>(null);
+  const [busy, setBusy] = useState<"download" | "delete" | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  const [confirmText, setConfirmText] = useState("");
+  const [deleteError, setDeleteError] = useState<string | null>(null);
+
+  async function download() {
+    if (!user) return;
+    setBusy("download");
+    setError(null);
+    const { data, error: err } = await getSupabase().from("profiles").select("*").eq("id", user.id).maybeSingle();
+    setBusy(null);
+    if (err) {
+      setError(friendlyError(err));
+      return;
+    }
+    const exportData = {
+      exported_at: new Date().toISOString(),
+      note: "Everything Mealwise stores about you at this stage: your account and your profile. Meals, logs and weights in this test version are sample data and are not stored.",
+      account: { id: user.id, email: user.email, created_at: user.created_at },
+      profile: data,
+    };
+    const url = URL.createObjectURL(new Blob([JSON.stringify(exportData, null, 2)], { type: "application/json" }));
+    const a = document.createElement("a");
+    a.href = url;
+    a.download = `mealwise-my-data-${new Date().toISOString().slice(0, 10)}.json`;
+    document.body.append(a);
+    a.click();
+    a.remove();
+    URL.revokeObjectURL(url);
+  }
+
+  async function deleteAccount() {
+    setBusy("delete");
+    setDeleteError(null);
+    const { data, error: err } = await getSupabase().functions.invoke<{ deleted?: boolean }>("delete-account", { method: "POST" });
+    if (err || !data?.deleted) {
+      setBusy(null);
+      setDeleteError("Your account wasn't deleted. Check your connection and try again.");
+      return;
+    }
+    await signOut();
+    router.replace("/?account=deleted");
+  }
+
+  async function handleSignOut() {
+    await signOut();
+    router.replace("/");
+  }
+
+  return (
+    <section aria-labelledby="data-title" className="flex flex-col gap-3">
+      <h2 id="data-title" className="text-xl">Your account and data</h2>
+      {user?.email && <p className="text-muted">Signed in as <span className="font-semibold text-ink">{user.email}</span></p>}
+      <p className="max-w-prose text-muted">
+        Download a copy of what Mealwise stores about you, or delete your account and everything linked to it.
+      </p>
+      <div className="flex flex-wrap gap-2">
+        <Button variant="secondary" onClick={download} disabled={busy !== null}>
+          {busy === "download" ? "Preparing…" : "Download my data"}
+        </Button>
+        <Button variant="secondary" onClick={handleSignOut} disabled={busy !== null}>
+          <LogOut size={18} aria-hidden="true" /> Sign out
+        </Button>
+        <Button variant="danger" disabled={busy !== null} onClick={() => { setConfirmText(""); setDeleteError(null); dialog.current?.showModal(); }}>
+          Delete my account
+        </Button>
+      </div>
+      {error && <p role="alert" className="text-error">{error}</p>}
+
+      <dialog ref={dialog} aria-labelledby="delete-title"
+        className="mx-auto mb-0 mt-auto w-full max-w-none rounded-t-[1.75rem] border border-line bg-surface-2 p-0 text-ink backdrop:bg-black/65 backdrop:backdrop-blur-sm sm:m-auto sm:w-[28rem] sm:rounded-[1.75rem]">
+        <form method="dialog" className="sheet-up flex flex-col gap-5 p-6 pb-8 sm:pb-6"
+          onSubmit={(e) => { e.preventDefault(); if (confirmText.trim().toUpperCase() === "DELETE") deleteAccount(); }}>
+          <h2 id="delete-title" className="text-2xl">Delete your account?</h2>
+          <p className="text-muted">
+            This permanently removes your account and your saved profile. It can&apos;t be undone. If you want a copy, download
+            your data first.
+          </p>
+          <Field id="confirm-delete" label="Type DELETE to confirm">
+            <input id="confirm-delete" className={inputClass} value={confirmText} autoComplete="off"
+              onChange={(e) => setConfirmText(e.target.value)} />
+          </Field>
+          {deleteError && <p role="alert" className="text-error">{deleteError}</p>}
+          <div className="flex flex-wrap gap-2">
+            <Button type="submit" variant="danger" disabled={busy === "delete" || confirmText.trim().toUpperCase() !== "DELETE"}>
+              {busy === "delete" ? "Deleting…" : "Delete permanently"}
+            </Button>
+            <Button type="button" variant="ghost" disabled={busy === "delete"} onClick={() => dialog.current?.close()}>Cancel</Button>
+          </div>
+        </form>
+      </dialog>
+    </section>
   );
 }

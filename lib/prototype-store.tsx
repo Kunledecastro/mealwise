@@ -1,12 +1,14 @@
 "use client";
 
 /**
- * PROTOTYPE STATE (Phase 1)
- * Everything here lives in browser memory only and resets on refresh.
- * Real persistence (accounts + database) arrives in Phase 2.
+ * APP STATE
+ * - Profile: saved to the database for the signed-in user (Phase 2), via lib/auth.tsx.
+ * - Saved meals, "not for me", meal logs and weights: still SAMPLE data in browser memory,
+ *   reset on refresh. They become real in Phases 3–4.
  */
 import { createContext, useCallback, useContext, useMemo, useRef, useState, type ReactNode } from "react";
-import { SAMPLE_PROFILE, fromISODate, sampleLogs, sampleWeights, toISODate } from "./sample-data";
+import { useAuth, type SaveResult } from "./auth";
+import { fromISODate, sampleLogs, sampleWeights, toISODate } from "./sample-data";
 import type { MealLog, MealType, Profile, WeightEntry } from "./types";
 import { useToday } from "./use-today";
 
@@ -16,7 +18,8 @@ interface Store {
   /** Today's date on the user's clock; null until the page has loaded in the browser. */
   today: string | null;
   profile: Profile;
-  setProfile: (p: Profile) => void;
+  /** Saves the profile to the database; shows a message if it fails. */
+  setProfile: (p: Profile) => Promise<SaveResult>;
   saved: string[];
   toggleSaved: (slug: string) => boolean;
   rejected: Record<string, RejectReason>;
@@ -36,7 +39,6 @@ interface Store {
 const Ctx = createContext<Store | null>(null);
 
 interface State {
-  profile: Profile;
   saved: string[];
   rejected: Record<string, RejectReason>;
   /** null = still showing the dated sample entries, which are derived from today's date. */
@@ -45,7 +47,6 @@ interface State {
 }
 
 const initial = (): State => ({
-  profile: SAMPLE_PROFILE,
   saved: ["jollof-rice-chicken", "fish-pepper-soup"],
   rejected: {},
   logs: null,
@@ -57,6 +58,7 @@ const newId = (prefix: string) => `${prefix}-${Date.now().toString(36)}-${(idCou
 
 export function PrototypeProvider({ children }: { children: ReactNode }) {
   const today = useToday();
+  const { profile, saveProfile } = useAuth();
   const [state, setState] = useState(initial);
   const [toast, setToast] = useState<string | null>(null);
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -75,12 +77,16 @@ export function PrototypeProvider({ children }: { children: ReactNode }) {
     const now = () => new Date();
     return {
       today,
-      profile: state.profile,
+      profile,
       saved: state.saved,
       rejected: state.rejected,
       logs,
       weights,
-      setProfile: (profile) => setState((s) => ({ ...s, profile })),
+      setProfile: async (p) => {
+        const result = await saveProfile(p);
+        if (!result.ok) showToast(result.error);
+        return result;
+      },
       toggleSaved: (slug) => {
         const willSave = !state.saved.includes(slug);
         setState((s) => ({
@@ -115,7 +121,7 @@ export function PrototypeProvider({ children }: { children: ReactNode }) {
       showToast,
       reset: () => setState(initial()),
     };
-  }, [state, today, toast, showToast]);
+  }, [state, today, toast, showToast, profile, saveProfile]);
 
   return <Ctx.Provider value={store}>{children}</Ctx.Provider>;
 }

@@ -6,8 +6,10 @@ import { useState } from "react";
 import { ArrowLeft } from "lucide-react";
 import { Logo, PrototypeBanner } from "@/components/app-shell";
 import { Button, Chip, Field, Segmented, inputClass } from "@/components/ui";
-import { feetInchesToCm, parseWeight, round } from "@/lib/domain/units";
+import { cmToFeetInches, feetInchesToCm, kgToLb, parseWeight, round } from "@/lib/domain/units";
+import { useAuth } from "@/lib/auth";
 import { useStore } from "@/lib/prototype-store";
+import { SkeletonRows } from "@/components/ui";
 import { ACTIVITY, ALLERGENS, BUDGET_LABELS, CUISINES, DIETS, GOALS, PREP_LABELS } from "@/lib/options";
 import type { Profile, Units } from "@/lib/types";
 
@@ -29,13 +31,57 @@ function toggle(list: string[], v: string) {
   return list.includes(v) ? list.filter((x) => x !== v) : [...list, v];
 }
 
+/** Turns a saved profile back into the text the setup form shows, so returning users see their answers. */
+function rawFrom(p: Profile) {
+  const w = (kg?: number) => (kg === undefined ? "" : String(round(p.units === "metric" ? kg : kgToLb(kg), 1)));
+  const fi = p.heightCm ? cmToFeetInches(p.heightCm) : undefined;
+  return {
+    birthYear: p.birthYear ? String(p.birthYear) : "",
+    cm: p.heightCm ? String(p.heightCm) : "",
+    ft: fi ? String(fi.feet) : "",
+    inch: fi ? String(fi.inches) : "",
+    weight: w(p.weightKg),
+    target: w(p.targetWeightKg),
+    dislikes: p.dislikes.join(", "),
+  };
+}
+
 export function OnboardingFlow() {
+  const { status, profile, profileStatus, profileError, reloadProfile } = useAuth();
+  if (status === "signed-out")
+    return (
+      <div className="mx-auto flex max-w-md flex-col gap-4 px-5 py-16">
+        <PrototypeBanner />
+        <p>Please sign in to set up Mealwise.</p>
+        <Link href="/sign-in?next=/onboarding" className="font-semibold text-accent hover:underline">Sign in</Link>
+      </div>
+    );
+  if (profileStatus === "error")
+    return (
+      <div className="mx-auto flex max-w-md flex-col gap-4 px-5 py-16" role="alert">
+        <p>{profileError}</p>
+        <Button variant="secondary" onClick={reloadProfile}>Try again</Button>
+      </div>
+    );
+  if (profileStatus !== "ready")
+    return (
+      <div className="mx-auto max-w-xl px-5 py-16" aria-busy="true">
+        <SkeletonRows count={3} />
+      </div>
+    );
+  return <OnboardingSteps initial={profile} />;
+}
+
+function OnboardingSteps({ initial }: { initial: Profile }) {
   const router = useRouter();
-  const { setProfile, showToast, today } = useStore();
+  const { saveProfile } = useAuth();
+  const { showToast, today } = useStore();
   const thisYear = today ? Number(today.slice(0, 4)) : 2100;
   const [step, setStep] = useState(0);
-  const [p, setP] = useState<Profile>({ displayName: "", units: "metric", diet: [], allergies: [], dislikes: [], cuisines: [] });
-  const [raw, setRaw] = useState({ birthYear: "", cm: "", ft: "", inch: "", weight: "", target: "", dislikes: "" });
+  const [p, setP] = useState<Profile>(initial);
+  const [raw, setRaw] = useState(() => rawFrom(initial));
+  const [saving, setSaving] = useState(false);
+  const [saveError, setSaveError] = useState<string | null>(null);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const update = (patch: Partial<Profile>) => setP((x) => ({ ...x, ...patch }));
   const wUnit = p.units === "metric" ? "kg" : "lb";
@@ -89,10 +135,17 @@ export function OnboardingFlow() {
     window.scrollTo({ top: 0 });
   }
 
-  function finish() {
-    setProfile({ ...p, displayName: p.displayName.trim() || "Friend" });
-    showToast("Setup complete. Showing sample meals.");
-    router.push("/home");
+  async function finish() {
+    setSaving(true);
+    setSaveError(null);
+    const result = await saveProfile(p, { completeOnboarding: true });
+    setSaving(false);
+    if (!result.ok) {
+      setSaveError(result.error);
+      return;
+    }
+    showToast("Setup saved");
+    router.replace("/home");
   }
 
   const skippable = step === 3 || step === 4;
@@ -236,9 +289,14 @@ export function OnboardingFlow() {
                 ))}
               </dl>
               <p className="rounded-[var(--radius-md)] bg-plantain-soft p-4 text-sm">
-                In the full app, your daily calorie target is worked out from these answers and explained step by step.
-                This prototype doesn&apos;t calculate it yet, so you&apos;ll see sample figures.
+                Your answers are saved to your account and you can change them any time in Profile. Your daily calorie
+                target will be worked out from them in a later version; until then you&apos;ll see sample figures.
               </p>
+              {saveError && (
+                <p role="alert" className="rounded-[var(--radius-sm)] border border-error/40 bg-error-soft px-4 py-3 text-sm font-medium text-error">
+                  {saveError}
+                </p>
+              )}
             </div>
           )}
         </main>
@@ -254,7 +312,7 @@ export function OnboardingFlow() {
           {step < STEPS.length - 1 ? (
             <Button onClick={next} disabled={step === 1 && isMinor}>Continue</Button>
           ) : (
-            <Button onClick={finish}>Show me meals</Button>
+            <Button onClick={finish} disabled={saving}>{saving ? "Saving…" : "Save and show me meals"}</Button>
           )}
         </div>
       </div>

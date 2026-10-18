@@ -79,6 +79,8 @@ export interface Profile {
   cuisines: string[];
   budget?: "low" | "medium" | "high";
   maxPrepMinutes?: number;
+  /** Set once the user finishes setup. Until then the app sends them to /onboarding. */
+  onboarded?: boolean;
 }
 
 export interface WeightEntry {
