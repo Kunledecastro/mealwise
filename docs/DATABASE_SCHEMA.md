@@ -1,6 +1,6 @@
 # Mealwise — Database Model
 
-Status: Phase 2 — `profiles` is **built and live** (see §0). Everything else below is still the logical design; catalogue tables arrive in Phase 3, logs/weights in Phase 4, plans in Phase 5.
+Status: Phase 3 — `profiles` and `meal_preferences` are **built and live** (§0). The meal catalogue is **not** in the database: it lives in the repo (`catalogue/`, DECISION_LOG 033), so §2 below is kept only as the logical model the catalogue files follow. Logs/weights arrive in Phase 4, plans in Phase 5.
 Engine: PostgreSQL (Supabase). All ids are UUID unless stated. All timestamps `timestamptz`.
 
 ## 0. What is actually built (Phase 2, 2026-10-18)
@@ -21,6 +21,10 @@ Supabase project `mealwise-dev` (ref `naaoigrhzfivantuysxl`, region eu-west-2 Lo
 - `current_weight_kg` added (setup asks for it). Full weight history is still `weight_entries` in Phase 4.
 - `sex` **not collected yet** — only needed for calorie targets (Phase 4); we ask when it's needed (data minimisation).
 - `preferred_units` is named `units`. `meal_schedule`, `cooking_facilities`, `safety_flags`, `max_meal_cost_ngn` not built yet.
+
+**`meal_preferences`** (Phase 3, migration `…090001_phase3_meal_preferences.sql`) — `user_id` (→ profiles, cascade), `meal_slug` (format-checked), `saved_at`, `rejected_at`, `reject_reason` (dislike | too_expensive | too_long | allergy | other; only allowed while rejected), `updated_at` (trigger). PK (user_id, meal_slug). RLS: read/add/change own rows only; no removal policy (users clear timestamps instead); anon has no access. Replaces the planned `saved_meals` and `meal_feedback` tables (DECISION_LOG 040). Tests: `supabase/tests/rls_meal_preferences.sql`, 15/15 pass (2026-10-18).
+
+**Catalogue (in the repo, not the database)** — `catalogue/ingredients.generated.ts` (70 ingredients, generated from FAO WAFCT 2019 and USDA FDC by `scripts/catalogue/build_ingredients.py`), `catalogue/meals.ts` (40 meals), `catalogue/prices.ts` (from `docs/PRICE_SHEET.csv`), compiled by `lib/domain/catalogue.ts`.
 
 **Account deletion** — edge function `delete-account` (Deno, deployed): verifies the caller's own token with Supabase Auth, then deletes exactly that user with the secret key, which exists only inside Supabase. `profiles` (and every future user table) cascades.
 

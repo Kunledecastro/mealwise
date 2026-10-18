@@ -21,8 +21,15 @@ export interface PlatePart {
 }
 
 export interface Ingredient {
+  /** Catalogue ingredient id (absent in Phase 1 sample data). */
+  id?: string;
   name: string;
+  aliases?: string[];
   quantity: string;
+  /** Grams per serving as used in the nutrition calculation. */
+  grams?: number;
+  /** Optional ingredients are not counted in nutrition, allergens or diet labels. */
+  optional?: boolean;
 }
 
 export interface MealPhoto {
@@ -43,21 +50,44 @@ export interface Meal {
   cuisine: string;
   serving: string;
   prepMinutes: number;
-  /** SAMPLE values for the prototype — not real nutrition data. */
+  /** Per serving, calculated from ingredients (estimate). */
   kcal: number;
   protein: number;
   carbs: number;
   fat: number;
-  /** SAMPLE naira range — not a real price estimate. */
-  costLow: number;
-  costHigh: number;
+  fibre?: number;
+  /** Per-serving ₦ range; null when not every ingredient has a price yet. */
+  costLow: number | null;
+  costHigh: number | null;
+  /** Date of the oldest price used (YYYY-MM-DD). */
+  priceDate?: string | null;
+  /** True when that price is older than 90 days. */
+  priceStale?: boolean;
+  /** Short labels shown on cards ("Vegetarian", "Vegan"). */
   tags: string[];
+  /** Every diet the meal fits, derived from ingredients. */
+  diets?: string[];
+  /** Allergen labels the meal contains (same wording as onboarding). */
   allergens: string[];
+  /** Allergens it may contain (treated as "contains" for allergic users). */
+  mayContain?: string[];
+  /** Some ingredient's allergen content isn't reliably known: hidden from anyone with allergies. */
+  allergenUnknown?: boolean;
+  /** Contains red meat or poultry (used for the halal note). */
+  containsMeat?: boolean;
   ingredients: Ingredient[];
   steps: string[];
+  /** Plain-language assumptions behind the estimates. */
+  assumptions?: string[];
   plate: PlatePart[];
   /** Real photo, when a verified licensed match exists. Otherwise the plate illustration is shown. */
   photo?: MealPhoto;
+  /** Short names of the nutrition sources used. */
+  sources?: string[];
+  /** Uses a source whose licence allows non-commercial use only (resolve before a paid launch). */
+  licenceToConfirm?: boolean;
+  /** Ingredients whose figures come from a close stand-in food. */
+  substitutes?: string[];
 }
 
 export type Goal = "lose" | "gain" | "maintain";

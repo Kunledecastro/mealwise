@@ -6,7 +6,7 @@ import { ScrollStory } from "@/components/landing/scroll-story";
 import { AccountDeletedNotice } from "@/components/landing/account-notice";
 import { RevealRoot, SpotlightGroup } from "@/components/motion";
 import { ButtonLink } from "@/components/ui";
-import { SAMPLE_MEALS } from "@/lib/sample-data";
+import { MEALS, getMeal } from "@/catalogue";
 import { MealVisual } from "@/components/meal-visual";
 
 const FEATURES = [
@@ -29,7 +29,9 @@ const FEATURES = [
 ];
 
 function DishMarquee({ reverse = false }: { reverse?: boolean }) {
-  const meals = reverse ? [...SAMPLE_MEALS].reverse() : SAMPLE_MEALS;
+  // A selection keeps the page light on phones.
+  const pick = MEALS.filter((_, i) => i % 2 === 0).slice(0, 18);
+  const meals = reverse ? [...pick].reverse() : pick;
   const row = (hidden: boolean) =>
     meals.map((m) => (
       <li key={`${m.slug}-${hidden}`} aria-hidden={hidden || undefined}
@@ -130,7 +132,7 @@ export default function LandingPage() {
             <div className="relative mx-auto flex w-full max-w-4xl flex-col items-center gap-8 px-5 py-24 text-center lg:py-32">
               <div data-reveal className="flex -space-x-6" aria-hidden="true">
                 {["akara-and-pap", "jollof-rice-chicken", "egusi-pounded-yam"].map((s, i) => {
-                  const m = SAMPLE_MEALS.find((x) => x.slug === s)!;
+                  const m = getMeal(s)!;
                   return (
                     <div key={s} className="float" style={{ "--delay": `${i * 700}ms` } as React.CSSProperties}>
                       <MealVisual meal={m} size={i === 1 ? 150 : 116} shape="circle" decorative />
@@ -152,8 +154,8 @@ export default function LandingPage() {
           <div className="mx-auto flex w-full max-w-6xl flex-col gap-4 px-5 py-10 text-sm text-muted sm:flex-row sm:items-center sm:justify-between">
             <Logo />
             <p className="max-w-xl">
-              Mealwise gives general food guidance and is not a substitute for advice from a doctor or dietitian. This
-              prototype uses sample meals, figures and prices.
+              Mealwise gives general food guidance and is not a substitute for advice from a doctor or dietitian. Calories
+              and prices are estimates calculated from ingredient data.
             </p>
           </div>
         </footer>

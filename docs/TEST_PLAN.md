@@ -72,6 +72,50 @@ All checks re-run after the redesign: unit 34/34, E2E 72/72, axe zero serious is
 
 ---
 
+## Phase 3 (batch 1) automated results (run 2026-10-18)
+
+| Check | Result |
+|---|---|
+| `npm run typecheck` / `npm run lint` / `npm run build` | Pass / Pass / Pass (40 meal pages pre-built) |
+| Unit tests | **95 passed, 0 failed** (new: catalogue maths 16, engine 19, real-catalogue integrity 11, search 8) |
+| E2E tests | **122 passed, 0 failed** (61 per viewport), Supabase stand-in |
+| Database access tests, `meal_preferences` (real database) | **15/15 passed**, rolled back |
+| Supabase advisors | Performance: none. Security: 1 warning, leaked-password protection off (I12) |
+| Lighthouse mobile | Accessibility 100 on `/` and `/sign-in`; performance 86 / 93. JS 259 KB compressed, over the 200 KB budget (I11) |
+
+### What the new tests prove
+- **Every figure is traceable:** each of the 70 ingredients cites a source table, code and source food name; energy agrees with protein/fat/carbs/fibre within 4% for all of them (catches copy errors).
+- **Allergy safety:** for each of the 9 allergens, across every meal slot of the real catalogue, no suggestion contains or *may contain* it; meals with unknown allergen content are hidden from anyone with an allergy; search applies the same rule.
+- **Diet labels** are derived from ingredients: crayfish or a beef stock cube makes a dish non-vegetarian.
+- **Engine:** deterministic order, lighter/high-protein meals rank first for "lose", energy-dense for "gain"; time, budget, cuisine, variety and saved each move a meal; reasons only state what the data shows.
+- **Saved / Not for me** persist in the account across reloads; a failed save rolls back with a message.
+
+### Defects found and fixed during Phase 3 testing
+| ID | Found by | Issue | Fix |
+|---|---|---|---|
+| P3-01 | axe (E2E) | The new "Prices from …" note sat inside the meal facts list in a way screen readers can't parse | Moved inside the value it describes |
+
+## Phase 3 manual tests (for you)
+
+On the test link after the deploy, signed in. M3-01 is the main one: please review the meals themselves.
+
+| ID | Feature | Steps | Expected |
+|---|---|---|---|
+| M3-01 | **Catalogue review** | Open `docs/CATALOGUE_REVIEW.md` in the Project. For each meal check serving size, ingredient amounts (especially oil), and that nothing is missing | Reply with slug + change for anything that looks wrong. Pay special attention to I14 (roasted corn, okpa, akara fibre) |
+| M3-02 | Meal page | Open any meal → "How these figures are estimated" | Fibre shown; assumptions, close matches and sources (FAO/USDA) listed; allergens split into "Contains" and "May contain" |
+| M3-03 | Personal ranking | Profile → set goal "Lose weight" → Home → Lunch; then set "Gain weight" | Different top suggestion; reasons such as "High in protein…" or "Good protein for gaining" |
+| M3-04 | Allergy | Profile → add Peanuts → Home → Snack and Meal ideas | No groundnut meals; a note says some meals are hidden. Open `/meals/plantain-groundnuts`: red allergy warning |
+| M3-05 | Diet | Set Vegetarian | No meat, fish or crayfish meals in any list (e.g. Red red, Okpa, Akara and pap stay) |
+| M3-06 | Dislikes | Add "ogbono" and "okro" to dislikes | Ogbono and okra soups disappear from suggestions (search still finds them) |
+| M3-07 | Saved persists | Save two meals, close the browser, reopen, open Saved; try on a second device | Both still saved |
+| M3-08 | Not for me persists | "Not for me" on a meal → reload → Meal ideas | Listed under "Meals you said weren't for you"; "Show again" brings it back |
+| M3-09 | Prices | Look at any meal | "Price not yet estimated" (until prices are added, I13) |
+| M3-10 | Search | Search "elubo", "egusi", "beans" | Finds amala, egusi soup, bean dishes |
+| M3-11 | Data download | Settings → Download my data | File now includes `meal_choices` |
+| M3-12 | Tone | Read meal descriptions, reasons, allergy warnings | Clear, no guilt language; estimates labelled |
+
+---
+
 ## Phase 2 automated results (run 2026-10-18)
 
 | Check | Result |

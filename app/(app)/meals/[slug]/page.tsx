@@ -1,26 +1,29 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ArrowLeft } from "lucide-react";
-import { SampleTag } from "@/components/ui";
+import { EstimateTag } from "@/components/ui";
+import { CATALOGUE_VERSION, MEALS, getMeal } from "@/catalogue";
+import { NUTRITION_SOURCES } from "@/catalogue/sources";
 import { formatMinutes, formatNairaRange } from "@/lib/domain/meals";
-import { SAMPLE_MEALS } from "@/lib/sample-data";
 import { MEAL_TYPE_LABEL } from "@/lib/types";
-import { MealActions, WhyThisSuits } from "./meal-actions";
+import { MealActions, PriceNote, ProfileClashFor, WhyThisSuits } from "./meal-actions";
 import { MealVisual, PhotoCredit } from "@/components/meal-visual";
 
 export function generateStaticParams() {
-  return SAMPLE_MEALS.map((m) => ({ slug: m.slug }));
+  return MEALS.map((m) => ({ slug: m.slug }));
 }
 
 export async function generateMetadata(props: PageProps<"/meals/[slug]">) {
   const { slug } = await props.params;
-  return { title: SAMPLE_MEALS.find((m) => m.slug === slug)?.name ?? "Meal not found" };
+  return { title: getMeal(slug)?.name ?? "Meal not found" };
 }
 
 export default async function MealPage(props: PageProps<"/meals/[slug]">) {
   const { slug } = await props.params;
-  const meal = SAMPLE_MEALS.find((m) => m.slug === slug);
+  const meal = getMeal(slug);
   if (!meal) notFound();
+  const sources = NUTRITION_SOURCES.filter((s) => meal.sources?.includes(s.shortName));
+  const halalNote = meal.containsMeat;
 
   const macros = [
     { label: "Protein", g: meal.protein, kcal: meal.protein * 4, color: "bg-fresh" },
@@ -51,6 +54,7 @@ export default async function MealPage(props: PageProps<"/meals/[slug]">) {
             {[meal.cuisine, ...meal.tags].map((t) => <li key={t} className="rounded-full border border-line bg-surface px-3 py-1 text-sm">{t}</li>)}
           </ul>
           <MealActions slug={meal.slug} />
+          <ProfileClashFor slug={meal.slug} />
         </div>
       </header>
 
@@ -59,12 +63,12 @@ export default async function MealPage(props: PageProps<"/meals/[slug]">) {
       <section aria-labelledby="facts-title" className="rounded-[var(--radius-lg)] border border-line bg-surface p-5 sm:p-6">
         <div className="mb-4 flex flex-wrap items-center justify-between gap-2">
           <h2 id="facts-title" className="text-xl">Per serving</h2>
-          <SampleTag />
+          <EstimateTag />
         </div>
         <dl className="grid grid-cols-2 gap-4 sm:grid-cols-4">
           <div><dt className="text-sm text-muted">Serving</dt><dd className="font-semibold">{meal.serving}</dd></div>
           <div><dt className="text-sm text-muted">Time</dt><dd className="font-semibold">{formatMinutes(meal.prepMinutes)}</dd></div>
-          <div><dt className="text-sm text-muted">Estimated cost</dt><dd className="font-semibold">{formatNairaRange(meal.costLow, meal.costHigh)}</dd></div>
+          <div><dt className="text-sm text-muted">Estimated cost</dt><dd className="font-semibold">{formatNairaRange(meal.costLow, meal.costHigh)}<PriceNote priceDate={meal.priceDate ?? null} /></dd></div>
           <div><dt className="text-sm text-muted">Estimated energy</dt><dd className="font-semibold">about {meal.kcal} kcal</dd></div>
         </dl>
         <div className="mt-5 flex h-3 overflow-hidden rounded-full" aria-hidden="true">
@@ -74,18 +78,49 @@ export default async function MealPage(props: PageProps<"/meals/[slug]">) {
           {macros.map((m) => (
             <li key={m.label} className="flex items-center gap-2">
               <span className={`size-2.5 rounded-full ${m.color}`} aria-hidden="true" />
-              {m.label} <span className="font-semibold">about {m.g} g</span>
+              {m.label} <span className="font-semibold">about {Math.round(m.g)} g</span>
             </li>
           ))}
+          {meal.fibre !== undefined && (
+            <li className="flex items-center gap-2">
+              <span className="size-2.5 rounded-full border border-muted" aria-hidden="true" />
+              Fibre <span className="font-semibold">about {Math.round(meal.fibre)} g</span>
+            </li>
+          )}
         </ul>
         <details className="mt-4 text-sm">
           <summary className="cursor-pointer font-semibold text-accent">How these figures are estimated</summary>
-          <p className="mt-2 max-w-prose text-muted">
-            In this prototype, these numbers are placeholders. In the full app they are calculated from each
-            ingredient&apos;s weight and published food-composition data, with the source shown here. Cooking oil, portion
-            size and recipe differences can change the real values, so treat them as estimates. Prices are ranges with
-            the date they were checked.
-          </p>
+          <div className="mt-2 flex max-w-prose flex-col gap-3 text-muted">
+            <p>
+              We add up each ingredient&apos;s weight multiplied by its published food-composition values. Real meals vary
+              with portion size, cooking oil and recipe, so treat these as estimates, not exact counts. Optional
+              ingredients aren&apos;t counted.
+            </p>
+            {meal.assumptions && meal.assumptions.length > 0 && (
+              <div>
+                <p className="font-semibold text-ink">Assumptions for this meal</p>
+                <ul className="mt-1 list-disc pl-5">{meal.assumptions.map((a) => <li key={a}>{a}</li>)}</ul>
+              </div>
+            )}
+            {meal.substitutes && meal.substitutes.length > 0 && (
+              <div>
+                <p className="font-semibold text-ink">Close matches used</p>
+                <ul className="mt-1 list-disc pl-5">{meal.substitutes.map((a) => <li key={a}>{a}</li>)}</ul>
+              </div>
+            )}
+            <div>
+              <p className="font-semibold text-ink">Sources</p>
+              <ul className="mt-1 list-disc pl-5">
+                {sources.map((s) => (
+                  <li key={s.id}>
+                    <a href={s.url} target="_blank" rel="noopener noreferrer" className="underline underline-offset-2 hover:text-ink">{s.shortName}</a>
+                    {s.id === "wafct" ? " (© FAO, used with acknowledgement for non-commercial purposes)" : ""}
+                  </li>
+                ))}
+              </ul>
+            </div>
+            <p className="text-xs">Catalogue edition {CATALOGUE_VERSION}.</p>
+          </div>
         </details>
       </section>
 
@@ -94,16 +129,20 @@ export default async function MealPage(props: PageProps<"/meals/[slug]">) {
           <h2 id="ing-title" className="mb-3 text-xl">Ingredients</h2>
           <ul className="divide-y divide-line">
             {meal.ingredients.map((i) => (
-              <li key={i.name} className="flex justify-between gap-4 py-2.5">
-                <span>{i.name}</span>
+              <li key={i.id ?? i.name} className="flex justify-between gap-4 py-2.5">
+                <span>{i.name}{i.optional && <span className="text-muted"> (optional)</span>}</span>
                 <span className="text-right text-muted">{i.quantity}</span>
               </li>
             ))}
           </ul>
-          <p className="mt-3 text-sm text-muted">
-            {meal.allergens.length ? `Contains: ${meal.allergens.join(", ")}.` : "No common allergens listed in this sample."}{" "}
-            Always check labels if you have an allergy.
-          </p>
+          <div className="mt-3 flex flex-col gap-1 text-sm text-muted">
+            <p>
+              {meal.allergens.length ? <>Contains: <span className="font-semibold text-ink">{meal.allergens.join(", ")}</span>.</> : "Contains none of the 9 common allergens we track."}
+              {meal.mayContain && meal.mayContain.length > 0 && <> May contain: <span className="font-semibold text-ink">{meal.mayContain.join(", ")}</span> (from seasoning, bread or similar).</>}
+            </p>
+            {halalNote && <p>If you eat halal, check the meat is from a halal source.</p>}
+            <p>Always check product labels if you have an allergy.</p>
+          </div>
         </section>
         <section aria-labelledby="steps-title">
           <h2 id="steps-title" className="mb-3 text-xl">How to make it</h2>

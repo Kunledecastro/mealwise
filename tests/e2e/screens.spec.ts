@@ -66,9 +66,9 @@ for (const path of ["/meals", "/search", "/saved", "/today", "/progress"]) {
   });
 }
 
-test("sample data is labelled on every data screen", async ({ page }) => {
+test("estimates and remaining sample data are labelled on every data screen", async ({ page }) => {
   for (const path of ["/home", "/meals?slot=lunch", "/meals/akara-and-pap", "/search", "/today", "/progress"]) {
     await page.goto(path);
-    await expect(page.getByText(/^Sample (meals|figures|entries|target and figures)$/).first()).toBeVisible();
+    await expect(page.getByText(/^(Estimates|Sample (entries|target|target and figures))$/).first()).toBeVisible();
   }
 });

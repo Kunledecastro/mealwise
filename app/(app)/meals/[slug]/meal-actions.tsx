@@ -3,11 +3,13 @@
 import { useRouter } from "next/navigation";
 import { useRef, useState } from "react";
 import { Bookmark, BookmarkCheck, Check } from "lucide-react";
-import { NotForMe, sampleReasons } from "@/components/meal-bits";
+import { NotForMe, ProfileClash, useRecommendContext } from "@/components/meal-bits";
 import { Button, Chip } from "@/components/ui";
 import { slotForHour } from "@/lib/domain/meals";
 import { useStore } from "@/lib/prototype-store";
-import { SAMPLE_MEALS } from "@/lib/sample-data";
+import { getMeal } from "@/catalogue";
+import { PRICE_STALE_DAYS } from "@/lib/domain/catalogue";
+import { checkMeal, factorsFor, reasonsFor } from "@/lib/domain/recommend";
 import { MEAL_TYPES, MEAL_TYPE_LABEL, type MealType } from "@/lib/types";
 
 const PORTIONS = [0.5, 1, 1.5, 2];
@@ -16,7 +18,7 @@ const portionSpoken = (p: number) =>
   p === 0.5 ? "Half a serving" : p === 1.5 ? "One and a half servings" : p === 1 ? "1 serving" : `${p} servings`;
 
 export function MealActions({ slug }: { slug: string }) {
-  const meal = SAMPLE_MEALS.find((m) => m.slug === slug)!;
+  const meal = getMeal(slug)!;
   const router = useRouter();
   const { saved, toggleSaved, addLog, showToast } = useStore();
   const isSaved = saved.includes(slug);
@@ -64,7 +66,7 @@ export function MealActions({ slug }: { slug: string }) {
                 </Chip>
               ))}
             </div>
-            <p className="text-sm text-muted">One serving is {meal.serving.toLowerCase()}. That&apos;s about {Math.round(meal.kcal * portion)} kcal (sample figure).</p>
+            <p className="text-sm text-muted">One serving is {meal.serving.toLowerCase()}. That&apos;s about {Math.round(meal.kcal * portion)} kcal (estimate).</p>
           </fieldset>
           <fieldset className="flex flex-col gap-2">
             <legend className="mb-2 font-semibold">Which meal was it?</legend>
@@ -74,7 +76,7 @@ export function MealActions({ slug }: { slug: string }) {
               ))}
             </div>
           </fieldset>
-          <p className="text-sm text-muted">Prototype: this log stays in this browser tab only.</p>
+          <p className="text-sm text-muted">Test version: meal logs stay in this browser tab only until Phase 4.</p>
           <div className="flex justify-end gap-2">
             <Button type="button" variant="ghost" onClick={() => dialog.current?.close()}>Cancel</Button>
             <Button type="submit">Log meal</Button>
@@ -86,9 +88,11 @@ export function MealActions({ slug }: { slug: string }) {
 }
 
 export function WhyThisSuits({ slug }: { slug: string }) {
-  const meal = SAMPLE_MEALS.find((m) => m.slug === slug)!;
+  const meal = getMeal(slug)!;
   const { profile } = useStore();
-  const reasons = sampleReasons(meal, profile);
+  const ctx = useRecommendContext(meal.mealTypes[0]);
+  if (!checkMeal(meal, profile).ok) return null;
+  const reasons = reasonsFor(meal, factorsFor(meal, ctx), ctx);
   if (!reasons.length) return null;
   return (
     <section aria-labelledby="why-title" className="flex flex-col gap-3">
@@ -97,5 +101,22 @@ export function WhyThisSuits({ slug }: { slug: string }) {
         {reasons.map((r) => <li key={r} className="rounded-full bg-fresh-soft px-3 py-1.5 font-semibold text-fresh">{r}</li>)}
       </ul>
     </section>
+  );
+}
+
+export function ProfileClashFor({ slug }: { slug: string }) {
+  return <ProfileClash meal={getMeal(slug)!} />;
+}
+
+/** "Prices checked <date>", flagged when older than 90 days. Uses the user's clock. */
+export function PriceNote({ priceDate }: { priceDate: string | null }) {
+  const { today } = useStore();
+  if (!priceDate) return <span className="block text-xs font-normal text-muted">Prices for some ingredients haven&apos;t been collected yet.</span>;
+  const days = today ? Math.round((Date.parse(today) - Date.parse(priceDate)) / 86_400_000) : 0;
+  const label = new Date(priceDate).toLocaleDateString("en-NG", { month: "short", year: "numeric" });
+  return (
+    <span className={`block text-xs font-normal ${days > PRICE_STALE_DAYS ? "text-error" : "text-muted"}`}>
+      Prices from {label}{days > PRICE_STALE_DAYS ? ", may be out of date" : ""}
+    </span>
   );
 }

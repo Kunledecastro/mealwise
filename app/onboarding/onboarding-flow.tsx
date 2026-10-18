@@ -289,8 +289,8 @@ function OnboardingSteps({ initial }: { initial: Profile }) {
                 ))}
               </dl>
               <p className="rounded-[var(--radius-md)] bg-plantain-soft p-4 text-sm">
-                Your answers are saved to your account and you can change them any time in Profile. Your daily calorie
-                target will be worked out from them in a later version; until then you&apos;ll see sample figures.
+                Your answers are saved to your account and you can change them any time in Profile. Suggestions use them
+                straight away. Your personal daily calorie target arrives in a later version; until then it&apos;s a sample.
               </p>
               {saveError && (
                 <p role="alert" className="rounded-[var(--radius-sm)] border border-error/40 bg-error-soft px-4 py-3 text-sm font-medium text-error">

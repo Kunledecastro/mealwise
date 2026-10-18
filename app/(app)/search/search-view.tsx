@@ -3,10 +3,10 @@
 import { useMemo, useState } from "react";
 import { Search as SearchIcon } from "lucide-react";
 import { DemoStateView, MealRow, useDemoState } from "@/components/meal-bits";
-import { Button, Chip, EmptyState, PageTitle, SampleTag } from "@/components/ui";
+import { Button, Chip, EmptyState, EstimateTag, PageTitle } from "@/components/ui";
 import { filterMeals } from "@/lib/domain/meals";
 import { useStore } from "@/lib/prototype-store";
-import { SAMPLE_MEALS } from "@/lib/sample-data";
+import { MEALS } from "@/catalogue";
 import { MEAL_TYPES, MEAL_TYPE_LABEL, type MealType } from "@/lib/types";
 
 const TIMES = [15, 30, 45];
@@ -24,7 +24,7 @@ export function SearchView() {
   const [hideAllergens, setHideAllergens] = useState(true);
 
   const results = useMemo(
-    () => (demo === "empty" ? [] : filterMeals(SAMPLE_MEALS, {
+    () => (demo === "empty" ? [] : filterMeals(MEALS, {
       query, mealType, maxPrep, maxCost, tags,
       excludeAllergens: hideAllergens ? profile.allergies : [],
     })),
@@ -95,7 +95,7 @@ export function SearchView() {
           <>
             <p className="flex flex-wrap items-center gap-2 text-sm text-muted">
               {results.length} {results.length === 1 ? "meal" : "meals"}{filtersOn || query ? " match" : ""}
-              <SampleTag>Sample meals</SampleTag>
+              <EstimateTag />
             </p>
             <ul className="divide-y divide-line">{results.map((m) => <MealRow key={m.slug} meal={m} />)}</ul>
           </>

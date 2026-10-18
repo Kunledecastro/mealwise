@@ -5,7 +5,8 @@ import { Trash2 } from "lucide-react";
 import { DemoStateView, useDemoState } from "@/components/meal-bits";
 import { ButtonLink, EmptyState, PageTitle, SampleTag, SkeletonRows } from "@/components/ui";
 import { useStore } from "@/lib/prototype-store";
-import { SAMPLE_DAILY_TARGET, SAMPLE_MEALS, fromISODate } from "@/lib/sample-data";
+import { getMeal } from "@/catalogue";
+import { SAMPLE_DAILY_TARGET, fromISODate } from "@/lib/sample-data";
 import { MEAL_TYPES, MEAL_TYPE_LABEL } from "@/lib/types";
 import { MealVisual } from "@/components/meal-visual";
 
@@ -14,7 +15,7 @@ export function TodayView() {
   const { logs, removeLog, showToast, today } = useStore();
   const entries = (demo === "empty" ? [] : logs.filter((l) => l.date === today)).map((l) => ({
     log: l,
-    meal: SAMPLE_MEALS.find((m) => m.slug === l.slug)!,
+    meal: getMeal(l.slug)!,
   }));
 
   const total = (k: "kcal" | "protein" | "carbs" | "fat") =>

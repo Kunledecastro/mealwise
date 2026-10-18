@@ -77,12 +77,24 @@ function profileRow(id: string, consent: string | null, onboarded: boolean, now:
 export class SupabaseMock {
   users = new Map<string, MockUser>(); // by email
   profiles = new Map<string, Row>(); // by user id
+  /** meal_preferences rows keyed "userId|slug". */
+  mealPrefs = new Map<string, Row & { user_id: string; meal_slug: string }>();
   /** Every request the app made, for assertions ("METHOD path"). */
   calls: string[] = [];
   /** Emails the real service would have sent. */
   emails: { to: string; kind: string }[] = [];
   /** Set to make the next profile save fail, to test error handling. */
   failNextProfileSave = false;
+  /** Set to make the next saved / "Not for me" change fail. */
+  failNextChoiceSave = false;
+
+  /** Pre-saves meals for a user (as if saved earlier). */
+  seedSaved(userId: string, slugs: string[]) {
+    slugs.forEach((slug, i) => {
+      const key = `${userId}|${slug}`;
+      this.mealPrefs.set(key, { id: key, user_id: userId, meal_slug: slug, saved_at: new Date(Date.now() - i * 60_000).toISOString(), rejected_at: null, reject_reason: null });
+    });
+  }
 
   constructor() {
     this.addUser(TESTER, { onboarded: true });
@@ -241,12 +253,36 @@ export class SupabaseMock {
       return this.reply(route, 403, { code: "42501", message: "permission denied for table profiles" });
     }
 
+    // ---- Database: public.meal_preferences (owner-only; no row removal by users) ----
+    if (p === "/rest/v1/meal_preferences") {
+      const u = this.byToken(route);
+      if (!u) return this.reply(route, 401, { code: "42501", message: "permission denied" });
+      if (method === "GET") return this.reply(route, 200, [...this.mealPrefs.values()].filter((r) => r.user_id === u.id));
+      if (method === "POST") {
+        if (this.failNextChoiceSave) {
+          this.failNextChoiceSave = false;
+          return this.reply(route, 503, { code: "", message: "Failed to fetch (simulated outage)" });
+        }
+        const rows = (Array.isArray(body) ? body : [body]) as Record<string, unknown>[];
+        for (const r of rows) {
+          if (r.user_id !== u.id) return this.reply(route, 403, { code: "42501", message: "new row violates row-level security policy" });
+          if (!/^[a-z0-9]+(-[a-z0-9]+)*$/.test(String(r.meal_slug))) return this.reply(route, 400, { code: "23514", message: "violates check constraint" });
+          const key = `${u.id}|${r.meal_slug}`;
+          const prev = this.mealPrefs.get(key) ?? { id: key, user_id: u.id, meal_slug: String(r.meal_slug), saved_at: null, rejected_at: null, reject_reason: null };
+          this.mealPrefs.set(key, { ...prev, ...r, id: key, user_id: u.id, meal_slug: String(r.meal_slug), updated_at: new Date().toISOString() });
+        }
+        return this.reply(route, 201);
+      }
+      return this.reply(route, 403, { code: "42501", message: "permission denied for table meal_preferences" });
+    }
+
     // ---- Edge function ----
     if (p === "/functions/v1/delete-account" && method === "POST") {
       const u = this.byToken(route);
       if (!u) return this.reply(route, 401, { error: "Not signed in" });
       this.users.delete(u.email);
       this.profiles.delete(u.id);
+      for (const k of [...this.mealPrefs.keys()]) if (k.startsWith(`${u.id}|`)) this.mealPrefs.delete(k);
       return this.reply(route, 200, { deleted: true });
     }
 

@@ -3,11 +3,12 @@
 import Link from "next/link";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { Bookmark, BookmarkCheck, Clock, Flame, Wallet, X } from "lucide-react";
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import { Button, ErrorState, SkeletonRows } from "./ui";
 import { formatMinutes, formatNairaRange } from "@/lib/domain/meals";
 import { useStore, type RejectReason } from "@/lib/prototype-store";
-import type { Meal, Profile } from "@/lib/types";
+import { checkMeal, type RecommendContext } from "@/lib/domain/recommend";
+import type { Meal, MealType } from "@/lib/types";
 import { MealVisual } from "./meal-visual";
 
 export type DemoState = "loading" | "empty" | "error" | null;
@@ -56,27 +57,34 @@ export function MealFacts({ meal, className = "" }: { meal: Meal; className?: st
   );
 }
 
-/** Plain-language reasons computed from the sample meal and the profile. */
-export function sampleReasons(meal: Meal, profile: Profile): string[] {
-  const r: string[] = [];
-  const budgetCap = profile.budget === "low" ? 1500 : profile.budget === "medium" ? 3000 : undefined;
-  if (budgetCap && meal.costHigh <= budgetCap) r.push("Fits your budget");
-  if (profile.maxPrepMinutes && meal.prepMinutes <= profile.maxPrepMinutes) r.push(`Ready in ${formatMinutes(meal.prepMinutes)}`);
-  if (profile.goal === "gain" && meal.protein >= 25) r.push("Good protein for gaining");
-  if (profile.goal === "lose" && meal.kcal <= 450) r.push("Lighter option for your goal");
-  if (profile.goal === "lose" && meal.protein >= 30) r.push("High protein keeps you full");
-  if (profile.cuisines.includes(meal.cuisine.split(" ")[0])) r.push(`${meal.cuisine.split(" ")[0]} food you enjoy`);
-  return r.slice(0, 3);
+/** Recommendation context from the signed-in user's profile, choices and (sample) logs. */
+export function useRecommendContext(slot: MealType): RecommendContext {
+  const { profile, rejected, saved, logs, today } = useStore();
+  return useMemo(() => {
+    const recent = new Map<string, number>();
+    if (today) {
+      const t = Date.parse(today);
+      for (const l of logs) {
+        const days = Math.round((t - Date.parse(l.date)) / 86_400_000);
+        if (days >= 0 && days < 7 && (recent.get(l.slug) ?? 99) > days) recent.set(l.slug, days);
+      }
+    }
+    return { profile, slot, rejected: new Set(Object.keys(rejected)), saved: new Set(saved), recent };
+  }, [profile, slot, rejected, saved, logs, today]);
 }
 
-/** Meals that clash with the profile's allergies, diet or dislikes are hidden. */
-export function suitsProfile(meal: Meal, profile: Profile): boolean {
-  if (meal.allergens.some((a) => profile.allergies.includes(a))) return false;
-  const text = `${meal.name} ${meal.ingredients.map((i) => i.name).join(" ")}`.toLowerCase();
-  if (profile.dislikes.some((d) => d && text.includes(d.toLowerCase()))) return false;
-  if (profile.diet.includes("Vegetarian") && !meal.tags.some((t) => t.startsWith("Vegetarian") || t === "Vegan")) return false;
-  if (profile.diet.includes("Vegan") && !meal.tags.includes("Vegan")) return false;
-  return true;
+/** Warns when a meal clashes with the user's allergies, diet or dislikes (e.g. opened from search or a link). */
+export function ProfileClash({ meal }: { meal: Meal }) {
+  const { profile } = useStore();
+  const v = checkMeal(meal, profile);
+  if (v.ok) return null;
+  const allergy = v.reason === "allergy" || v.reason === "allergy_unknown";
+  return (
+    <p role="alert" className={`rounded-[var(--radius-md)] border px-4 py-3 font-semibold ${allergy ? "border-error/50 bg-error/10 text-error" : "border-line bg-surface text-ink"}`}>
+      {allergy ? "Allergy warning: " : "Heads up: "}
+      {v.detail}. We don&apos;t suggest this meal to you.
+    </p>
+  );
 }
 
 export function MealRow({ meal, actions = true }: { meal: Meal; actions?: boolean }) {

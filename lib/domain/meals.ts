@@ -17,17 +17,34 @@ export interface MealFilters {
   excludeAllergens?: string[];
 }
 
-/** Simple filtering over the catalogue. Used by search in the prototype. */
+/** Search filter labels that are derived from the figures rather than stored on the meal. */
+export const DERIVED_TAGS: Record<string, (m: Meal) => boolean> = {
+  "High protein": (m) => m.protein >= 25 || (m.kcal > 0 && (m.protein * 4) / m.kcal >= 0.2),
+  Lighter: (m) => m.kcal <= 450,
+  Quick: (m) => m.prepMinutes <= 20,
+};
+
+export function hasTag(m: Meal, tag: string): boolean {
+  const derived = DERIVED_TAGS[tag];
+  return derived ? derived(m) : m.tags.includes(tag) || !!m.diets?.includes(tag);
+}
+
+/** Filtering over the catalogue for the search screen. */
 export function filterMeals(meals: Meal[], f: MealFilters): Meal[] {
   const q = f.query?.trim().toLowerCase() ?? "";
   return meals.filter((m) => {
     if (f.mealType && f.mealType !== "any" && !m.mealTypes.includes(f.mealType)) return false;
     if (f.maxPrep && m.prepMinutes > f.maxPrep) return false;
-    if (f.maxCost && m.costLow > f.maxCost) return false;
-    if (f.tags?.length && !f.tags.every((t) => m.tags.includes(t))) return false;
-    if (f.excludeAllergens?.length && m.allergens.some((a) => f.excludeAllergens!.includes(a))) return false;
+    // Meals without a price estimate stay in results (we can't say they're over budget).
+    if (f.maxCost && m.costLow !== null && m.costLow > f.maxCost) return false;
+    if (f.tags?.length && !f.tags.every((t) => hasTag(m, t))) return false;
+    if (f.excludeAllergens?.length) {
+      // Same safety rule as suggestions: "may contain" and unknown allergen content count too.
+      if ([...m.allergens, ...(m.mayContain ?? [])].some((a) => f.excludeAllergens!.includes(a))) return false;
+      if (m.allergenUnknown) return false;
+    }
     if (q) {
-      const hay = [m.name, m.description, m.cuisine, ...m.ingredients.map((i) => i.name)].join(" ").toLowerCase();
+      const hay = [m.name, m.description, m.cuisine, ...m.ingredients.flatMap((i) => [i.name, ...(i.aliases ?? [])])].join(" ").toLowerCase();
       if (!q.split(/\s+/).every((word) => hay.includes(word))) return false;
     }
     return true;
@@ -38,7 +55,8 @@ export function formatNaira(n: number): string {
   return `₦${n.toLocaleString("en-NG")}`;
 }
 
-export function formatNairaRange(low: number, high: number): string {
+export function formatNairaRange(low: number | null, high: number | null): string {
+  if (low === null || high === null) return "Price not yet estimated";
   return `${formatNaira(low)}–${formatNaira(high).slice(1)}`;
 }
 

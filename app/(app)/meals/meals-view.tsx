@@ -2,25 +2,32 @@
 
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
-import { DemoStateView, MealRow, suitsProfile, useDemoState } from "@/components/meal-bits";
-import { ButtonLink, EmptyState, PageTitle, SampleTag } from "@/components/ui";
+import { useMemo } from "react";
+import { DemoStateView, MealRow, useDemoState, useRecommendContext } from "@/components/meal-bits";
+import { ButtonLink, EmptyState, EstimateTag, PageTitle, SkeletonRows } from "@/components/ui";
+import { MEALS } from "@/catalogue";
+import { checkMeal, rankMeals } from "@/lib/domain/recommend";
 import { useStore } from "@/lib/prototype-store";
-import { SAMPLE_MEALS } from "@/lib/sample-data";
 import { MEAL_TYPES, MEAL_TYPE_LABEL, type MealType } from "@/lib/types";
 
 export function MealsView() {
   const params = useSearchParams();
   const demo = useDemoState();
-  const { profile, rejected, undoReject } = useStore();
+  const { profile, rejected, undoReject, choicesStatus } = useStore();
   const raw = params.get("slot");
   const slot: MealType = MEAL_TYPES.includes(raw as MealType) ? (raw as MealType) : "breakfast";
 
-  const meals = demo === "empty" ? [] : SAMPLE_MEALS.filter((m) => m.mealTypes.includes(slot) && !rejected[m.slug] && suitsProfile(m, profile));
-  const hidden = SAMPLE_MEALS.filter((m) => m.mealTypes.includes(slot) && rejected[m.slug]);
+  const ctx = useRecommendContext(slot);
+  const ranked = useMemo(() => rankMeals(MEALS, ctx), [ctx]);
+  const meals = demo === "empty" ? [] : ranked.map((r) => r.meal);
+  const inSlot = MEALS.filter((m) => m.mealTypes.includes(slot));
+  const hidden = inSlot.filter((m) => rejected[m.slug]);
+  // Meals left out by allergies, diet or dislikes (not by "Not for me").
+  const filteredOut = inSlot.filter((m) => !rejected[m.slug] && !checkMeal(m, profile).ok).length;
 
   return (
     <div>
-      <PageTitle sub={<span className="flex flex-wrap items-center gap-2">Ideas that match your preferences. <SampleTag>Sample meals</SampleTag></span>}>
+      <PageTitle sub={<span className="flex flex-wrap items-center gap-2">Best matches for your goal and preferences first. <EstimateTag /></span>}>
         Meal ideas
       </PageTitle>
       <nav aria-label="Meal times" className="mb-4 flex gap-1 overflow-x-auto border-b border-line">
@@ -34,7 +41,9 @@ export function MealsView() {
         ))}
       </nav>
 
-      {demo && demo !== "empty" ? (
+      {choicesStatus === "loading" && !demo ? (
+        <div aria-busy="true"><SkeletonRows count={4} /></div>
+      ) : demo && demo !== "empty" ? (
         <DemoStateView state={demo} />
       ) : meals.length === 0 ? (
         <EmptyState
@@ -46,6 +55,13 @@ export function MealsView() {
         <ul className="divide-y divide-line" aria-label={`${MEAL_TYPE_LABEL[slot]} ideas`}>
           {meals.map((m) => <MealRow key={m.slug} meal={m} />)}
         </ul>
+      )}
+
+      {filteredOut > 0 && !demo && (
+        <p className="mt-4 text-sm text-muted">
+          {filteredOut} {filteredOut === 1 ? "meal is" : "meals are"} not shown because of your allergies, diet or dislikes.{" "}
+          <Link href="/profile" className="font-semibold text-accent hover:underline">Review preferences</Link>
+        </p>
       )}
 
       {hidden.length > 0 && !demo && (

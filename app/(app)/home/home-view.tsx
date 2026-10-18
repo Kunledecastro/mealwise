@@ -4,11 +4,13 @@ import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { RefreshCw } from "lucide-react";
-import { MealFacts, MealRow, NotForMe, sampleReasons, suitsProfile } from "@/components/meal-bits";
-import { Button, ButtonLink, Chip, EmptyState, SampleTag } from "@/components/ui";
+import { MealFacts, MealRow, NotForMe, useRecommendContext } from "@/components/meal-bits";
+import { Button, ButtonLink, Chip, EmptyState, EstimateTag, SampleTag, SkeletonRows } from "@/components/ui";
 import { slotForHour } from "@/lib/domain/meals";
 import { useStore } from "@/lib/prototype-store";
-import { SAMPLE_DAILY_TARGET, SAMPLE_MEALS } from "@/lib/sample-data";
+import { MEALS, getMeal } from "@/catalogue";
+import { rankMeals } from "@/lib/domain/recommend";
+import { SAMPLE_DAILY_TARGET } from "@/lib/sample-data";
 import { useHour } from "@/lib/use-today";
 import { MEAL_TYPES, MEAL_TYPE_LABEL, type MealType } from "@/lib/types";
 import { MealVisual } from "@/components/meal-visual";
@@ -20,7 +22,7 @@ function greeting(hour: number) {
 }
 
 export function HomeView() {
-  const { profile, rejected, logs, today, showToast } = useStore();
+  const { profile, logs, today, showToast, choicesStatus } = useStore();
   const router = useRouter();
 
   // Arriving from the "set a new password" screen.
@@ -36,16 +38,16 @@ export function HomeView() {
   const slot: MealType = chosenSlot ?? (hour === null ? "lunch" : slotForHour(hour));
   const [index, setIndex] = useState(0);
 
-  const meals = useMemo(
-    () => SAMPLE_MEALS.filter((m) => m.mealTypes.includes(slot) && !rejected[m.slug] && suitsProfile(m, profile)),
-    [slot, rejected, profile],
-  );
-  const hero = meals.length ? meals[index % meals.length] : undefined;
+  const ctx = useRecommendContext(slot);
+  const ranked = useMemo(() => rankMeals(MEALS, ctx), [ctx]);
+  const meals = ranked.map((r) => r.meal);
+  const heroRank = ranked.length ? ranked[index % ranked.length] : undefined;
+  const hero = heroRank?.meal;
   const others = meals.filter((m) => m !== hero).slice(0, 3);
 
   const kcalToday = logs
     .filter((l) => l.date === today)
-    .reduce((sum, l) => sum + (SAMPLE_MEALS.find((m) => m.slug === l.slug)?.kcal ?? 0) * l.portion, 0);
+    .reduce((sum, l) => sum + (getMeal(l.slug)?.kcal ?? 0) * l.portion, 0);
 
   return (
     <div className="flex flex-col gap-10">
@@ -63,7 +65,9 @@ export function HomeView() {
           ))}
         </div>
 
-        {hero ? (
+        {choicesStatus === "loading" ? (
+          <div aria-busy="true" className="rounded-[var(--radius-lg)] border border-line bg-surface p-5"><SkeletonRows count={2} /></div>
+        ) : hero ? (
           <div className="relative grid items-center gap-6 overflow-hidden rounded-[var(--radius-lg)] border border-line bg-surface p-5 sm:grid-cols-[minmax(0,1fr)_minmax(0,1.1fr)] sm:p-7">
             <Link href={`/meals/${hero.slug}`} className="relative mx-auto block w-full max-w-72" tabIndex={-1} aria-hidden="true">
               <div className="aura" />
@@ -76,9 +80,9 @@ export function HomeView() {
               </h2>
               <p className="text-muted">{hero.description}</p>
               <MealFacts meal={hero} />
-              {sampleReasons(hero, profile).length > 0 && (
+              {heroRank!.reasons.length > 0 && (
                 <ul className="flex flex-wrap gap-2" aria-label="Why this may suit you">
-                  {sampleReasons(hero, profile).map((r) => (
+                  {heroRank!.reasons.map((r) => (
                     <li key={r} className="rounded-full bg-fresh-soft px-3 py-1 text-sm font-semibold text-fresh">{r}</li>
                   ))}
                 </ul>
@@ -95,12 +99,12 @@ export function HomeView() {
         ) : (
           <EmptyState
             title={`No ${MEAL_TYPE_LABEL[slot].toLowerCase()} ideas left`}
-            body="You've ruled out every sample meal for this time, or none match your food preferences. Try another meal time or adjust your preferences."
+            body="Every meal for this time is ruled out by your allergies, diet, dislikes or “Not for me” choices. Try another meal time or review your preferences."
             action={<ButtonLink href="/profile" variant="secondary">Review preferences</ButtonLink>}
           />
         )}
         <p className="flex items-center gap-2 text-sm text-muted">
-          <SampleTag>Sample meals</SampleTag> Suggestions and figures are examples, not yet personalised.
+          <EstimateTag /> Calories and prices are estimates from ingredient data.
         </p>
       </section>
 
@@ -128,7 +132,7 @@ export function HomeView() {
         <div className="h-2 rounded-full bg-line" aria-hidden="true">
           <div className="bg-glow h-full rounded-full transition-[width] duration-700" style={{ width: `${Math.min(100, (kcalToday / SAMPLE_DAILY_TARGET.kcal) * 100)}%` }} />
         </div>
-        <SampleTag />
+        <SampleTag>Sample target</SampleTag>
       </section>
     </div>
   );

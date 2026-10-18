@@ -3,11 +3,13 @@
 /**
  * APP STATE
  * - Profile: saved to the database for the signed-in user (Phase 2), via lib/auth.tsx.
- * - Saved meals, "not for me", meal logs and weights: still SAMPLE data in browser memory,
- *   reset on refresh. They become real in Phases 3–4.
+ * - Saved meals and "Not for me": saved to the database (Phase 3, table meal_preferences).
+ * - Meal logs and weights: still SAMPLE data in browser memory, reset on refresh (Phase 4).
  */
-import { createContext, useCallback, useContext, useMemo, useRef, useState, type ReactNode } from "react";
+import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { useAuth, type SaveResult } from "./auth";
+import { friendlyError } from "./domain/auth-errors";
+import { getSupabase } from "./supabase/client";
 import { fromISODate, sampleLogs, sampleWeights, toISODate } from "./sample-data";
 import type { MealLog, MealType, Profile, WeightEntry } from "./types";
 import { useToday } from "./use-today";
@@ -20,7 +22,10 @@ interface Store {
   profile: Profile;
   /** Saves the profile to the database; shows a message if it fails. */
   setProfile: (p: Profile) => Promise<SaveResult>;
+  /** Saved meal slugs, most recent first. */
   saved: string[];
+  /** "ready" once the user's saved and hidden meals have loaded from their account. */
+  choicesStatus: "loading" | "ready" | "error";
   toggleSaved: (slug: string) => boolean;
   rejected: Record<string, RejectReason>;
   reject: (slug: string, reason: RejectReason) => void;
@@ -39,16 +44,12 @@ interface Store {
 const Ctx = createContext<Store | null>(null);
 
 interface State {
-  saved: string[];
-  rejected: Record<string, RejectReason>;
-  /** null = still showing the dated sample entries, which are derived from today's date. */
+  /** null = still showing the dated sample entries = still showing the dated sample entries, which are derived from today's date. */
   logs: MealLog[] | null;
   weights: WeightEntry[] | null;
 }
 
 const initial = (): State => ({
-  saved: ["jollof-rice-chicken", "fish-pepper-soup"],
-  rejected: {},
   logs: null,
   weights: null,
 });
@@ -56,10 +57,27 @@ const initial = (): State => ({
 let idCounter = 0;
 const newId = (prefix: string) => `${prefix}-${Date.now().toString(36)}-${(idCounter++).toString(36)}`;
 
+interface Choices {
+  saved: string[];
+  rejected: Record<string, RejectReason>;
+}
+
+interface ChoiceRow {
+  meal_slug: string;
+  saved_at: string | null;
+  rejected_at: string | null;
+  reject_reason: RejectReason | null;
+}
+
+const NO_CHOICES: Choices = { saved: [], rejected: {} };
+
 export function PrototypeProvider({ children }: { children: ReactNode }) {
   const today = useToday();
-  const { profile, saveProfile } = useAuth();
+  const { profile, saveProfile, user } = useAuth();
+  const userId = user?.id ?? null;
   const [state, setState] = useState(initial);
+  const [choices, setChoices] = useState<Choices>(NO_CHOICES);
+  const [choicesStatus, setChoicesStatus] = useState<Store["choicesStatus"]>("loading");
   const [toast, setToast] = useState<string | null>(null);
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -68,6 +86,57 @@ export function PrototypeProvider({ children }: { children: ReactNode }) {
     if (timer.current) clearTimeout(timer.current);
     timer.current = setTimeout(() => setToast(null), 3500);
   }, []);
+
+  // Load the signed-in user's saved and hidden meals; forget them on sign-out.
+  useEffect(() => {
+    if (!userId) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- reset local copy when the user changes
+      setChoices(NO_CHOICES);
+      setChoicesStatus("loading");
+      return;
+    }
+    let active = true;
+    getSupabase()
+      .from("meal_preferences")
+      .select("meal_slug, saved_at, rejected_at, reject_reason")
+      .eq("user_id", userId)
+      .then(({ data, error }) => {
+        if (!active) return;
+        if (error) {
+          setChoicesStatus("error");
+          showToast("Your saved meals didn't load. " + friendlyError(error));
+          return;
+        }
+        const rows = (data ?? []) as ChoiceRow[];
+        setChoices({
+          saved: rows
+            .filter((r) => r.saved_at)
+            .sort((a, b) => b.saved_at!.localeCompare(a.saved_at!))
+            .map((r) => r.meal_slug),
+          rejected: Object.fromEntries(rows.filter((r) => r.rejected_at).map((r) => [r.meal_slug, r.reject_reason ?? "other"])),
+        });
+        setChoicesStatus("ready");
+      });
+    return () => {
+      active = false;
+    };
+  }, [userId, showToast]);
+
+  /** Optimistic update: change the screen now, save, and undo with a message if saving fails. */
+  const writeChoice = useCallback(
+    async (slug: string, change: Partial<Omit<ChoiceRow, "meal_slug">>, next: (c: Choices) => Choices, before: Choices) => {
+      if (!userId) return;
+      setChoices(next);
+      const { error } = await getSupabase()
+        .from("meal_preferences")
+        .upsert({ user_id: userId, meal_slug: slug, ...change }, { onConflict: "user_id,meal_slug" });
+      if (error) {
+        setChoices(before);
+        showToast("That wasn't saved. " + friendlyError(error));
+      }
+    },
+    [userId, showToast],
+  );
 
   const store = useMemo<Store>(() => {
     const todayDate = today ? fromISODate(today) : null;
@@ -78,8 +147,9 @@ export function PrototypeProvider({ children }: { children: ReactNode }) {
     return {
       today,
       profile,
-      saved: state.saved,
-      rejected: state.rejected,
+      saved: choices.saved,
+      rejected: choices.rejected,
+      choicesStatus,
       logs,
       weights,
       setProfile: async (p) => {
@@ -88,20 +158,24 @@ export function PrototypeProvider({ children }: { children: ReactNode }) {
         return result;
       },
       toggleSaved: (slug) => {
-        const willSave = !state.saved.includes(slug);
-        setState((s) => ({
-          ...s,
-          saved: willSave ? [slug, ...s.saved.filter((x) => x !== slug)] : s.saved.filter((x) => x !== slug),
-        }));
+        const willSave = !choices.saved.includes(slug);
+        void writeChoice(slug, { saved_at: willSave ? now().toISOString() : null }, (c) => ({
+          ...c,
+          saved: willSave ? [slug, ...c.saved.filter((x) => x !== slug)] : c.saved.filter((x) => x !== slug),
+        }), choices);
         return willSave;
       },
-      reject: (slug, reason) => setState((s) => ({ ...s, rejected: { ...s.rejected, [slug]: reason } })),
+      reject: (slug, reason) =>
+        void writeChoice(slug, { rejected_at: now().toISOString(), reject_reason: reason }, (c) => ({
+          ...c,
+          rejected: { ...c.rejected, [slug]: reason },
+        }), choices),
       undoReject: (slug) =>
-        setState((s) => {
-          const rest = { ...s.rejected };
+        void writeChoice(slug, { rejected_at: null, reject_reason: null }, (c) => {
+          const rest = { ...c.rejected };
           delete rest[slug];
-          return { ...s, rejected: rest };
-        }),
+          return { ...c, rejected: rest };
+        }, choices),
       addLog: (slug, mealType, portion) =>
         setState((s) => ({
           ...s,
@@ -121,7 +195,7 @@ export function PrototypeProvider({ children }: { children: ReactNode }) {
       showToast,
       reset: () => setState(initial()),
     };
-  }, [state, today, toast, showToast, profile, saveProfile]);
+  }, [state, choices, choicesStatus, writeChoice, today, toast, showToast, profile, saveProfile]);
 
   return <Ctx.Provider value={store}>{children}</Ctx.Provider>;
 }

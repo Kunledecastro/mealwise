@@ -167,6 +167,15 @@ export function SampleTag({ children = "Sample figures" }: { children?: ReactNod
   );
 }
 
+/** Marks calculated estimates (real catalogue figures), as opposed to placeholder sample data. */
+export function EstimateTag({ children = "Estimates" }: { children?: ReactNode }) {
+  return (
+    <span className="inline-flex w-fit shrink-0 items-center whitespace-nowrap rounded-full border border-fresh/30 bg-fresh-soft px-2.5 py-0.5 text-xs font-semibold text-fresh">
+      {children}
+    </span>
+  );
+}
+
 export function PageTitle({ children, sub }: { children: ReactNode; sub?: ReactNode }) {
   return (
     <div className="mb-7 flex flex-col gap-2">

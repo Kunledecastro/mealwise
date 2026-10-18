@@ -39,7 +39,7 @@ export function Logo({ className = "" }: { className?: string }) {
 export function PrototypeBanner() {
   return (
     <div className="border-b border-accent/25 bg-accent-soft px-4 py-1.5 text-center text-sm font-semibold text-accent" data-testid="prototype-banner">
-      Test version. Your account and preferences are saved; meals, logs and weights are still sample data.
+      Test version. Meals and figures are real estimates; your meal log, weights and daily target are still sample data.
     </div>
   );
 }

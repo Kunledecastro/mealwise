@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { SAMPLE_MEALS } from "@/lib/sample-data";
+import { getMeal } from "@/catalogue";
 import { MealVisual } from "@/components/meal-visual";
 
 const STEPS = [
@@ -19,7 +19,7 @@ const STEPS = [
   },
 ];
 
-const jollof = SAMPLE_MEALS.find((m) => m.slug === "jollof-rice-chicken")!;
+const jollof = getMeal("jollof-rice-chicken")!;
 
 function PhoneScreen({ step, id = "a" }: { step: number; id?: string }) {
   return (

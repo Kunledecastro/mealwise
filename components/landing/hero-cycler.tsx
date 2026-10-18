@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { Clock, Flame, Pause, Play, Wallet } from "lucide-react";
 import { MealVisual, PhotoCredit } from "@/components/meal-visual";
 import { formatMinutes, formatNairaRange } from "@/lib/domain/meals";
-import { SAMPLE_MEALS } from "@/lib/sample-data";
+import { getMeal } from "@/catalogue";
 
 const SEQUENCE = [
   { slug: "jollof-rice-chicken", when: "Lunch" },
@@ -13,7 +13,7 @@ const SEQUENCE = [
   { slug: "yam-and-egg-sauce", when: "Breakfast" },
   { slug: "plantain-groundnuts", when: "Snack" },
   { slug: "efo-riro-eba", when: "Dinner" },
-].map((s) => ({ ...s, meal: SAMPLE_MEALS.find((m) => m.slug === s.slug)! }));
+].map((s) => ({ ...s, meal: getMeal(s.slug)! }));
 
 const INTERVAL = 3800;
 
@@ -49,7 +49,7 @@ export function HeroCycler() {
             <span className="inline-flex items-center gap-1.5"><Wallet size={15} aria-hidden="true" />{formatNairaRange(meal.costLow, meal.costHigh)}</span>
           </p>
           <div className="flex flex-wrap gap-x-3 text-xs text-muted/80">
-            <span>Sample meals and figures.</span>
+            <span>Estimated figures.</span>
             <PhotoCredit key={`${meal.slug}-credit`} meal={meal} className="swap-in !text-muted/80" />
           </div>
         </div>

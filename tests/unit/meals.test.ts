@@ -1,7 +1,8 @@
 import { describe, expect, it } from "vitest";
-import { filterMeals, formatMinutes, formatNairaRange, slotForHour } from "@/lib/domain/meals";
-import { SAMPLE_MEALS, SAMPLE_PROFILE, fromISODate, toISODate } from "@/lib/sample-data";
-import { suitsProfile } from "@/components/meal-bits";
+import { MEALS } from "@/catalogue";
+import { filterMeals, formatMinutes, formatNairaRange, hasTag, slotForHour } from "@/lib/domain/meals";
+import { fromISODate, toISODate } from "@/lib/sample-data";
+import type { Meal } from "@/lib/types";
 
 describe("slotForHour", () => {
   it.each([
@@ -12,62 +13,62 @@ describe("slotForHour", () => {
   });
 });
 
-describe("filterMeals", () => {
+describe("filterMeals (search) on the real catalogue", () => {
   it("filters by meal type", () => {
-    const r = filterMeals(SAMPLE_MEALS, { mealType: "snack" });
+    const r = filterMeals(MEALS, { mealType: "snack" });
     expect(r.length).toBeGreaterThan(0);
     expect(r.every((m) => m.mealTypes.includes("snack"))).toBe(true);
   });
 
-  it("matches words in name and ingredients, case-insensitive", () => {
-    expect(filterMeals(SAMPLE_MEALS, { query: "PLANTAIN" }).map((m) => m.slug)).toEqual(
-      expect.arrayContaining(["plantain-egg-frittata", "beans-and-plantain"]),
+  it("matches words in name, ingredients and local names, case-insensitive", () => {
+    expect(filterMeals(MEALS, { query: "PLANTAIN" }).map((m) => m.slug)).toEqual(
+      expect.arrayContaining(["plantain-egg-frittata", "beans-and-plantain", "red-red"]),
     );
-    expect(filterMeals(SAMPLE_MEALS, { query: "catfish" }).map((m) => m.slug)).toEqual(["fish-pepper-soup"]);
+    expect(filterMeals(MEALS, { query: "catfish" }).map((m) => m.slug)).toEqual(["fish-pepper-soup"]);
+    expect(filterMeals(MEALS, { query: "elubo" }).map((m) => m.slug)).toEqual(["amala-ewedu-gbegiri"]);
   });
 
   it("returns nothing for an unknown word", () => {
-    expect(filterMeals(SAMPLE_MEALS, { query: "pizza" })).toEqual([]);
+    expect(filterMeals(MEALS, { query: "pizza" })).toEqual([]);
   });
 
-  it("applies time, budget and tag limits together", () => {
-    const r = filterMeals(SAMPLE_MEALS, { maxPrep: 30, maxCost: 1000, tags: ["Vegan"] });
+  it("applies time and tag limits together", () => {
+    const r = filterMeals(MEALS, { maxPrep: 30, tags: ["Vegetarian"] });
     expect(r.length).toBeGreaterThan(0);
     for (const m of r) {
       expect(m.prepMinutes).toBeLessThanOrEqual(30);
-      expect(m.costLow).toBeLessThanOrEqual(1000);
-      expect(m.tags).toContain("Vegan");
+      expect(m.diets).toContain("Vegetarian");
     }
   });
 
-  it("never returns a meal containing an excluded allergen", () => {
-    for (const allergen of ["Peanuts", "Fish", "Eggs", "Milk", "Wheat", "Shellfish"]) {
-      const r = filterMeals(SAMPLE_MEALS, { excludeAllergens: [allergen] });
-      expect(r.some((m) => m.allergens.includes(allergen))).toBe(false);
+  it("derives High protein, Lighter and Quick from the figures", () => {
+    const base = MEALS[0];
+    const m = (o: Partial<Meal>): Meal => ({ ...base, ...o });
+    expect(hasTag(m({ protein: 30, kcal: 600 }), "High protein")).toBe(true);
+    expect(hasTag(m({ protein: 8, kcal: 600 }), "High protein")).toBe(false);
+    expect(hasTag(m({ kcal: 400 }), "Lighter")).toBe(true);
+    expect(hasTag(m({ prepMinutes: 15 }), "Quick")).toBe(true);
+  });
+
+  it("keeps meals without a price when filtering by cost (we can't say they're over budget)", () => {
+    const priced = { ...MEALS[0], slug: "x", costLow: 5000, costHigh: 6000 };
+    const unpriced = { ...MEALS[0], slug: "y", costLow: null, costHigh: null };
+    expect(filterMeals([priced, unpriced], { maxCost: 1000 }).map((m) => m.slug)).toEqual(["y"]);
+  });
+
+  it("never returns a meal that contains or may contain an excluded allergen", () => {
+    for (const allergen of ["Peanuts", "Tree nuts", "Fish", "Eggs", "Milk", "Wheat", "Soy", "Shellfish", "Sesame"]) {
+      for (const m of filterMeals(MEALS, { excludeAllergens: [allergen] })) {
+        expect([...m.allergens, ...(m.mayContain ?? [])]).not.toContain(allergen);
+      }
     }
-  });
-});
-
-describe("suitsProfile (prototype preference filter)", () => {
-  it("hides meals with the user's allergens", () => {
-    const p = { ...SAMPLE_PROFILE, allergies: ["Peanuts"] };
-    expect(SAMPLE_MEALS.filter((m) => suitsProfile(m, p)).some((m) => m.allergens.includes("Peanuts"))).toBe(false);
-  });
-
-  it("hides meals with disliked ingredients", () => {
-    const p = { ...SAMPLE_PROFILE, dislikes: ["egusi"] };
-    expect(suitsProfile(SAMPLE_MEALS.find((m) => m.slug === "egusi-pounded-yam")!, p)).toBe(false);
-  });
-
-  it("keeps only vegan meals for vegans", () => {
-    const p = { ...SAMPLE_PROFILE, diet: ["Vegan"] };
-    expect(SAMPLE_MEALS.filter((m) => suitsProfile(m, p)).every((m) => m.tags.includes("Vegan"))).toBe(true);
   });
 });
 
 describe("formatting", () => {
-  it("formats naira ranges", () => {
+  it("formats naira ranges, and says when there's no price yet", () => {
     expect(formatNairaRange(1800, 2800)).toBe("₦1,800–2,800");
+    expect(formatNairaRange(null, null)).toBe("Price not yet estimated");
   });
 
   it("formats minutes", () => {
@@ -78,23 +79,5 @@ describe("formatting", () => {
 
   it("round-trips ISO dates without timezone shift", () => {
     expect(toISODate(fromISODate("2026-01-31"))).toBe("2026-01-31");
-  });
-});
-
-describe("sample catalogue integrity", () => {
-  it("has unique slugs and at least two meals per slot", () => {
-    const slugs = SAMPLE_MEALS.map((m) => m.slug);
-    expect(new Set(slugs).size).toBe(slugs.length);
-    for (const t of ["breakfast", "lunch", "dinner", "snack"] as const) {
-      expect(SAMPLE_MEALS.filter((m) => m.mealTypes.includes(t)).length).toBeGreaterThanOrEqual(2);
-    }
-  });
-
-  it("has sensible sample values", () => {
-    for (const m of SAMPLE_MEALS) {
-      expect(m.costLow).toBeLessThanOrEqual(m.costHigh);
-      expect(m.kcal).toBeGreaterThan(0);
-      expect(m.plate.length).toBeGreaterThan(0);
-    }
   });
 });

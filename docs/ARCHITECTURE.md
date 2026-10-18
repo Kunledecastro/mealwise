@@ -116,6 +116,12 @@ An LLM is not used. A later AI assistant would be proposed separately with cost,
 - **Consent** recorded at sign-up through Auth user metadata → `handle_new_user` trigger → `profiles.consent_version/consent_at`, then locked against edits.
 - Not built yet: security headers/CSP (Phase 6), custom email sender (decision 030).
 
+### As built in Phase 3 (2026-10-18)
+- **Catalogue as code** (`catalogue/`): ingredients generated from the source tables by script; meals hand-written (recipe, grams, steps, assumptions); prices from a sheet. `lib/domain/catalogue.ts` compiles them into meals at build time: nutrition, allergens (contains / may contain / unknown), diet labels, cost range, sources, licence flag. Meal pages are pre-rendered.
+- **Engine** (`lib/domain/recommend.ts`): pure functions, runs in the browser. Hard rules → weighted score → reasons; alternatives = closest calories in the same slot. Weights and calorie bands documented in DECISION_LOG 039.
+- **User choices** (`meal_preferences`) loaded once per sign-in, updated optimistically with rollback.
+- Scripts: `scripts/catalogue/build_ingredients.py` (needs the WAFCT file and an `FDC_API_KEY` in the environment, never committed), `scripts/catalogue/price_sheet.py`, `npm run catalogue:report` (writes docs/CATALOGUE_REVIEW.md).
+
 ## 9. Environments and deployment
 
 - **Local**: Next.js dev server against the `mealwise-dev` project (`.env.local`, git-ignored). Local Supabase via Docker remains an option on your machine; this workspace can't download its images.

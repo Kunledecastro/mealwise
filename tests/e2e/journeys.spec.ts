@@ -124,9 +124,10 @@ test("J3: Not for me hides a meal and Show again restores it", async ({ page }) 
   await expect(list.getByRole("link", { name: "Akara and pap" })).toBeVisible();
 });
 
-test("save and unsave meals, with an empty Saved screen", async ({ page }) => {
+test("save and unsave meals, with an empty Saved screen, saved to the account", async ({ page, mock }) => {
+  mock.seedSaved(TESTER.id, ["jollof-rice-chicken", "fish-pepper-soup"]);
   await page.goto("/saved");
-  for (const n of ["Jollof rice with chicken", "Fish pepper soup"]) {
+  for (const n of ["Jollof rice with chicken", "Catfish pepper soup"]) {
     await page.getByRole("button", { name: `Remove ${n} from saved` }).click();
   }
   await expect(page.getByRole("heading", { name: "Nothing saved yet" })).toBeVisible();
@@ -134,6 +135,12 @@ test("save and unsave meals, with an empty Saved screen", async ({ page }) => {
   await page.getByRole("button", { name: "Save Fresh fruit bowl" }).click();
   await nav(page).getByRole("link", { name: "Saved", exact: true }).click();
   await expect(page.getByRole("link", { name: "Fresh fruit bowl" })).toBeVisible();
+  // Stored in the account: still there after a full reload.
+  await page.reload();
+  await expect(page.getByRole("link", { name: "Fresh fruit bowl" })).toBeVisible();
+  await expect(page.getByRole("link", { name: "Jollof rice with chicken" })).toHaveCount(0);
+  expect(mock.mealPrefs.get(`${TESTER.id}|fruit-bowl`)?.saved_at).toBeTruthy();
+  expect(mock.mealPrefs.get(`${TESTER.id}|jollof-rice-chicken`)?.saved_at).toBeNull();
 });
 
 test("J4: search with filters, empty result, and clearing", async ({ page }) => {
@@ -141,7 +148,7 @@ test("J4: search with filters, empty result, and clearing", async ({ page }) => 
   await page.getByRole("searchbox").fill("pizza");
   await expect(page.getByRole("heading", { name: "No meals match" })).toBeVisible();
   await page.getByRole("button", { name: "Clear search and filters" }).click();
-  await expect(page.getByText(/^17 meals/)).toBeVisible();
+  await expect(page.getByText(/^40 meals/)).toBeVisible();
   await page.getByRole("searchbox").fill("beans");
   await page.getByRole("group", { name: "Time" }).getByRole("button", { name: "Under 45 min" }).click();
   await expect(page.getByRole("link", { name: "Akara and pap" })).toBeVisible();

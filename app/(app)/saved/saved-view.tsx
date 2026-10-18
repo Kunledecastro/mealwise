@@ -3,12 +3,12 @@
 import { DemoStateView, MealRow, useDemoState } from "@/components/meal-bits";
 import { ButtonLink, EmptyState, PageTitle } from "@/components/ui";
 import { useStore } from "@/lib/prototype-store";
-import { SAMPLE_MEALS } from "@/lib/sample-data";
+import { getMeal } from "@/catalogue";
 
 export function SavedView() {
   const demo = useDemoState();
   const { saved } = useStore();
-  const meals = demo === "empty" ? [] : saved.map((s) => SAMPLE_MEALS.find((m) => m.slug === s)).filter((m) => !!m);
+  const meals = demo === "empty" ? [] : saved.map((s) => getMeal(s)).filter((m) => !!m);
 
   return (
     <div>
