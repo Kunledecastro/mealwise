@@ -1,12 +1,12 @@
 # Mealwise — Project Status
 
-**Current phase:** Phase 6 — QA, security and release readiness
-**Last completed phase:** Phase 5 (approved 2026-10-19)
-**Implementation status:** Phase 6 **complete and tested. Awaiting your approval.** All six build phases are then done.
+**Current phase:** None. All build phases (0–6) are complete and approved.
+**Last completed phase:** Phase 6 (approved 2026-10-19)
+**Implementation status:** MVP complete. Next: closed beta preparation (below).
 **Last updated:** 2026-10-19
 
 ## Completed
-- Phases 0–5 (approved): catalogue of 70 meals, recommendations, accounts, targets, meal log, weights, plans, shopping list.
+- Phases 0–6 (approved): catalogue of 70 meals, recommendations, accounts, targets, meal log, weights, plans, shopping list.
 - Phase 6:
   - **Security**:
     - Content Security Policy and security headers on every page.
@@ -25,6 +25,7 @@
     - NDPA gap analysis (PRIVACY_REVIEW.md).
   - **Guides**: DEPLOYMENT_GUIDE.md and RELEASE_READINESS.md.
   - Regression: unit 148/148, end-to-end 184/184, Lighthouse accessibility 100.
+- Photos (2026-10-19, after Phase 6): 31 of 70 meals have real, visually checked photos (21 added from Unsplash, free licence, credited). Fixed a bug where photos only attached to the first batch of meals. The other 39 show illustrations.
 
 ## Recommendation
 **Closed beta: go** after four steps:
@@ -52,4 +53,6 @@ I2, I3, I11, I12, I13, I14, I16, I18 (= M6-02), I19, I20, I21, I22, I23, I24. No
 - Guides: docs/DEPLOYMENT_GUIDE.md, docs/BACKUP_AND_RESTORE.md, docs/PRIVACY_REVIEW.md, docs/RELEASE_READINESS.md.
 
 ## Exact next step
-Run M6-01 (backup and restore test) and M6-02, then try M6-03 to M6-07. Reply **"Phase 6 approved"** or list changes. After approval: set up the email sender and invite the first testers.
+1. Run M6-01 (backup and restore test) and M6-02 (`rls_tracking_removal.sql`) if not done yet; paste the output so it can be recorded.
+2. Set up the email sender (decision 030), then decide how testers get access (Vercel login admits only the owner on Hobby).
+3. Invite the first 10–30 testers. Any new features would be a Phase 7, agreed separately.
