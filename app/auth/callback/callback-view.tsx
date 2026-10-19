@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useRef, useState } from "react";
-import type { EmailOtpType } from "@supabase/supabase-js";
+import type { EmailOtpType } from "@supabase/auth-js";
 import { AuthShell } from "@/components/auth-form";
 import { SkeletonRows } from "@/components/ui";
 import { safeNext } from "@/lib/auth";

@@ -5,7 +5,7 @@
  * Data protection is enforced by the database (Row Level Security); this provider only
  * reads/writes the current user's own row.
  */
-import type { Session, User } from "@supabase/supabase-js";
+import type { Session, User } from "@supabase/auth-js";
 import { createContext, useCallback, useContext, useEffect, useMemo, useState, type ReactNode } from "react";
 import { friendlyError } from "./domain/auth-errors";
 import { EMPTY_PROFILE, profileToUpdate, rowToProfile, type ProfileRow } from "./domain/profile";

@@ -206,3 +206,16 @@ test("A16: Settings shows the delete dialog without accessibility problems", asy
   const axe = await new AxeBuilder({ page }).withTags(["wcag2a", "wcag2aa", "wcag21aa"]).analyze();
   expect(axe.violations.filter((v) => v.impact === "serious" || v.impact === "critical").map((v) => v.id)).toEqual([]);
 });
+
+test("A17: every request carries the API key; data requests carry the user's own token, never the key as a token", async ({ page, mock }) => {
+  await page.goto("/today");
+  await expect(page.getByRole("heading", { name: "Nothing logged today" })).toBeVisible();
+  const data = mock.requests.filter((r) => r.path.startsWith("/rest/v1/"));
+  expect(data.length).toBeGreaterThanOrEqual(3);
+  for (const r of mock.requests) expect(r.apikey, r.path).toBeTruthy();
+  for (const r of data) {
+    expect(r.authorization, r.path).toMatch(/^Bearer [\w-]+\.[\w-]+\./); // a signed-in user's token (JWT)
+    const payload = JSON.parse(Buffer.from(r.authorization!.split(".")[1], "base64url").toString());
+    expect(payload.sub).toBe(TESTER.id);
+  }
+});

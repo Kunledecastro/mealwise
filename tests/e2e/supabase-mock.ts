@@ -89,6 +89,8 @@ export class SupabaseMock {
   failNextTrackingWrite = false;
   /** Every request the app made, for assertions ("METHOD path"). */
   calls: string[] = [];
+  /** The key and token headers of every request, for checking the client sends them correctly. */
+  requests: { method: string; path: string; apikey?: string; authorization?: string }[] = [];
   /** Emails the real service would have sent. */
   emails: { to: string; kind: string }[] = [];
   /** Set to make the next profile save fail, to test error handling. */
@@ -175,6 +177,8 @@ export class SupabaseMock {
     const method = req.method();
     if (method === "OPTIONS") return this.reply(route, 204);
     this.calls.push(`${method} ${url.pathname}`);
+    const h = req.headers();
+    this.requests.push({ method, path: url.pathname, apikey: h["apikey"], authorization: h["authorization"] });
     const body = (() => {
       try {
         return req.postDataJSON() ?? {};
