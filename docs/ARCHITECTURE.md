@@ -127,6 +127,11 @@ An LLM is not used. A later AI assistant would be proposed separately with cost,
 - **Tracking** (`lib/domain/tracking.ts`, `lib/prototype-store.tsx`): meal log (last 60 days) and all weights load once per sign-in; adds/edits/removals update the screen at once and roll back with a message if the save fails.
 - **Account route group**: sign-in, setup and app screens live under `app/(account)/`, whose layout holds the session and data providers. The public landing page doesn't load any account code (decision 056).
 
+### As built in Phase 5 (2026-10-19)
+- **Supabase client** (`lib/supabase/client.ts`): sign-in, database and functions parts only, same cookie session (decision 057).
+- **Plans** (`lib/domain/plan.ts`): generated in the browser from the recommendation engine (decision 059); stored in `meal_plans` via `lib/use-plan.ts` (optimistic, with rollback).
+- **Shopping list** (`lib/domain/shopping.ts`): computed from the plan and the catalogue each time; only the ticks are stored. Buying units generated into `catalogue/buying-units.ts` by `price_sheet.py units`; sections in `catalogue/shop-sections.ts`.
+
 ## 9. Environments and deployment
 
 - **Local**: Next.js dev server against the `mealwise-dev` project (`.env.local`, git-ignored). Local Supabase via Docker remains an option on your machine; this workspace can't download its images.

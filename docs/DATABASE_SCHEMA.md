@@ -1,6 +1,6 @@
 # Mealwise — Database Model
 
-Status: Phase 4 — `profiles`, `meal_preferences`, `weight_entries` and `meal_logs` are **built and live** (§0). The meal catalogue is **not** in the database: it lives in the repo (`catalogue/`, DECISION_LOG 033), so §2 below is kept only as the logical model the catalogue files follow. Plans arrive in Phase 5.
+Status: Phase 5 — `profiles`, `meal_preferences`, `weight_entries`, `meal_logs` and `meal_plans` are **built and live** (§0). The meal catalogue is **not** in the database: it lives in the repo (`catalogue/`, DECISION_LOG 033), so §2 below is kept only as the logical model the catalogue files follow. The planned `meal_plan_items` / `shopping_lists` tables were replaced by one `meal_plans` row per user (decision 058).
 Engine: PostgreSQL (Supabase). All ids are UUID unless stated. All timestamps `timestamptz`.
 
 ## 0. What is actually built (Phase 2, 2026-10-18)
@@ -29,6 +29,8 @@ Supabase project `mealwise-dev` (ref `naaoigrhzfivantuysxl`, region eu-west-2 Lo
 - **`weight_entries`** — `id`, `user_id` (→ profiles, cascade), `measured_on` (2000-01-01 to tomorrow), `weight_kg` numeric(5,2) 20–400, `entered_unit` kg|lb, `created_at`, `updated_at` (trigger). Unique (user_id, measured_on): one per day, edits replace.
 - **`meal_logs`** — `id`, `user_id` (→ profiles, cascade), `meal_slug` (format-checked), `logged_for` date, `meal_type` breakfast|lunch|dinner|snack, `portion` 0.25–4, and the figures copied at logging time: `kcal`, `protein_g`, `carbs_g`, `fat_g` (range-checked). Index (user_id, logged_for).
 - RLS on both: read, add, change and remove **own rows only**; anon no access; truncate/references/trigger revoked. Tests: `supabase/tests/rls_tracking.sql` 23/23 pass (2026-10-19); removal checks in `rls_tracking_removal.sql` to be run by the owner (I18).
+
+**Phase 5** (migration `…120001_phase5_meal_plans.sql`) — **`meal_plans`**: `user_id` (PK, → profiles, cascade), `start_date` (2020-01-01 to today + 31), `days` 1–7, `include_snacks`, `items` jsonb, `shopping` jsonb, `created_at`, `updated_at` (trigger). `items` = up to 28 entries `{day, slot, slug, servings}`, validated by `meal_plan_items_valid()` (exact keys, day within the plan, known slot, slug format, servings 0.5–8 in halves, one meal per day and slot). `shopping` = `{ingredient id: "have" | "bought"}`, ≤ 300 entries, validated by `meal_plan_shopping_valid()`. RLS: read, create and change own row only; no removal policy (a new plan or clearing is an update; the row goes with the account). Tests: `supabase/tests/rls_meal_plans.sql` 20/20 pass (2026-10-19).
 
 **Catalogue (in the repo, not the database)** — `catalogue/ingredients.generated.ts` (97 ingredients, generated from FAO WAFCT 2019 and USDA FDC by `scripts/catalogue/build_ingredients.py`), `catalogue/meals*.ts` (70 meals), `catalogue/prices.ts` (from `docs/PRICE_SHEET.csv`), `catalogue/ready-made.ts` (from `docs/READY_MADE_PRICE_SHEET.csv`), compiled by `lib/domain/catalogue.ts`.
 

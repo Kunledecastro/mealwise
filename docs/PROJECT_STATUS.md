@@ -1,44 +1,44 @@
 # Mealwise — Project Status
 
-**Current phase:** Phase 4 — Targets and tracking
-**Last completed phase:** Phase 3 (approved 2026-10-19)
-**Implementation status:** Phase 4 **complete and tested. Awaiting your approval.**
+**Current phase:** Phase 5 — Planning and shopping
+**Last completed phase:** Phase 4 (approved 2026-10-19)
+**Implementation status:** Phase 5 **complete and tested. Awaiting your approval.**
 **Last updated:** 2026-10-19
 
 ## Completed
-- Phases 0–3 (approved).
-- Phase 4:
-  - **Personal daily target**: calories, protein, carbs and fat from your profile and latest weight (Mifflin-St Jeor, activity, goal), with safety rules:
-    - never below 1,200 kcal (1,500 for men);
-    - loss no faster than about 1% of body weight a week;
-    - no target for under-18s, for a weight-loss goal when already underweight, or for anyone pregnant, breastfeeding or with a condition affecting diet (a referral message instead).
-  - "How we worked this out" shows every step in plain words.
-  - **Sex** (optional) and the **pregnancy/medical yes-no** question added to setup and profile. Only the yes/no is stored, never the condition.
-  - **Real meal log**: saved to your account; ½, ¾, 1, 1½ or 2 servings; today or yesterday; Today shows totals against your target and can look back 60 days.
-  - **Weight history**: saved to your account; edit and delete; kg/lb; weekly trend, with a gentle caution if losing faster than ~1% a week.
-  - **Portion guide**: big plates suggest ¾ or ½ a serving for your target, and suggestions rank against your own target.
-  - All sample data removed. Data download now includes your meal log and weights.
-  - Landing page lighter: 187 KB of code (was 286 KB), inside the 200 KB budget.
+- Phases 0–4 (approved).
+- Phase 5:
+  - **Plan tab** in the navigation.
+  - **Meal plans** for today, 3 days or a week, snacks optional. Every allergy, diet, dislike and "Not for me" rule applies. Meals vary across the week, and each day is fitted to your daily target.
+  - **Swap** any meal from a list of suitable ones; **"Cooking for"** ½ to 8 servings; **"I ate this"** logs today's planned meals.
+  - **Shopping list**:
+    - added up across the plan and servings;
+    - shown in buying units (kg, bunch, crate…), grouped like a market trip;
+    - "Have it" and bought ticks saved to your account;
+    - ₦ estimate for what's still to buy, with unpriced items listed;
+    - share as text to WhatsApp or notes.
+  - Optional extras that contain your allergens are left off the list.
+  - **Lighter Supabase code** (approved): about 32 KB less on every app screen.
+  - Data download now includes your plan.
 
 ## Incomplete / carried forward
-- **Removal checks on the real database** (I18): 6 checks you run once in the Supabase SQL editor (manual test M4-12).
-- Cooking prices for 56 meals (I13); ready-made price per dish (I16).
-- Signed-in screens 257–294 KB of code vs 200 KB budget (I11).
+- **M4-12** removal checks (one paste in the Supabase SQL editor), still to do.
+- Cooking prices: about half of a week's shopping items are unpriced (I13, I21).
+- App screens 224–261 KB of code vs 200 KB budget (I11), for Phase 6.
 
 ## Known defects / limitations
-No open defects. Open issues (BUGS_AND_ISSUES.md): I7, I11, I12, I13, I14, I16, I18, I19.
+No open defects. Open issues (BUGS_AND_ISSUES.md): I7, I11, I12, I13, I14, I16, I18, I19, I20, I21.
 
 ## Latest test results (2026-10-19)
 - Type check, lint, build: pass.
-- Unit 123/123; end-to-end 150/150 (phone + desktop, fresh build); database access 23/23 (new tables).
-- Lighthouse: `/` performance 90, accessibility 100; `/sign-in` 93 / 100.
+- Unit 144/144; end-to-end 176/176 (phone + desktop, fresh build); database 20/20 (plans).
+- Lighthouse: `/` performance 90, accessibility 100; `/sign-in` 94 / 100.
 
 ## Decisions requiring your input
 | ID | Decision | Recommendation |
 |---|---|---|
-| I11 | Replace the all-in-one Supabase client with its smaller parts (sign-in + database), saving ~25–30 KB on app screens | Approve, or leave until Phase 6 |
-| 047 | +15% on NBS prices for Lagos / small quantities | Keep, or tell me a figure from your experience |
-| I13 | Six missing everyday prices | Add to docs/PRICE_SHEET.csv or tell me in chat |
+| I20 | Avoid two similar staples on one day (e.g. two eba soups) | Try the plans first; add the rule if it bothers you |
+| 047 / I13 | +15% NBS markup; six missing everyday prices | Keep +15%, or give a figure; add prices to docs/PRICE_SHEET.csv |
 | 030 | Email for outside testers | Decide before inviting others |
 | 035 | FAO licence | Fine for the free test; request a licence before any paid launch |
 
@@ -49,4 +49,4 @@ No open defects. Open issues (BUGS_AND_ISSUES.md): I7, I11, I12, I13, I14, I16, 
 - Database: Supabase `mealwise-dev`.
 
 ## Exact next step
-Run manual test M4-12 (one paste in the Supabase SQL editor), try M4-01 to M4-14, then reply **"Phase 4 approved"** or list changes. Phase 5 (day and week plans, shopping list with ₦ estimate) starts only after approval.
+Sign in on the test link first (M5-12, the first real check of the lighter Supabase code), run M4-12, try M5-01 to M5-11, then reply **"Phase 5 approved"** or list changes. Phase 6 (QA, security, privacy review, release readiness) starts only after approval.

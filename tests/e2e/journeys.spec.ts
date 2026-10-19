@@ -13,7 +13,7 @@ const nav = (page: Page) => page.locator('nav[aria-label="Main"]:visible');
 test("main navigation reaches every tab and marks the current one", async ({ page }) => {
   await page.goto("/home");
   // The desktop rail also has a logo link to /home, so match tab names exactly.
-  for (const [label, url] of [["Search", /\/search$/], ["Progress", /\/progress$/], ["Saved", /\/saved$/], ["Profile", /\/profile$/], ["Home", /\/home$/]] as const) {
+  for (const [label, url] of [["Plan", /\/plan$/], ["Search", /\/search$/], ["Progress", /\/progress$/], ["Saved", /\/saved$/], ["Profile", /\/profile$/], ["Home", /\/home$/]] as const) {
     await nav(page).getByRole("link", { name: label, exact: true }).click();
     await expect(page).toHaveURL(url);
     await expect(nav(page).getByRole("link", { name: label, exact: true })).toHaveAttribute("aria-current", "page");

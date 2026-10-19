@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
-import { Bookmark, Home, LineChart, Search, UserRound } from "lucide-react";
+import { Bookmark, CalendarDays, Home, LineChart, Search, UserRound } from "lucide-react";
 import { useEffect, type ReactNode } from "react";
 import { useAuth } from "@/lib/auth";
 import { useStore } from "@/lib/prototype-store";
@@ -13,6 +13,7 @@ export { Logo, PrototypeBanner };
 
 const NAV = [
   { href: "/home", label: "Home", icon: Home },
+  { href: "/plan", label: "Plan", icon: CalendarDays },
   { href: "/search", label: "Search", icon: Search },
   { href: "/progress", label: "Progress", icon: LineChart },
   { href: "/saved", label: "Saved", icon: Bookmark },
@@ -34,7 +35,7 @@ export function Toast() {
 
 function activeIndex(pathname: string) {
   if (pathname === "/home" || pathname === "/today" || pathname.startsWith("/meals")) return 0;
-  if (pathname.startsWith("/profile") || pathname.startsWith("/settings")) return 4;
+  if (pathname.startsWith("/settings")) return NAV.findIndex((n) => n.href === "/profile");
   return NAV.findIndex((n) => pathname.startsWith(n.href));
 }
 
@@ -115,11 +116,11 @@ export function AppShell({ children }: { children: ReactNode }) {
         </main>
       </div>
       <nav aria-label="Main" className="fixed inset-x-3 bottom-3 z-40 rounded-[1.6rem] border border-line bg-surface/85 shadow-[0_20px_60px_-15px_rgba(0,0,0,0.8)] backdrop-blur-lg lg:hidden">
-        <ul className="relative mx-auto grid max-w-md grid-cols-5">
+        <ul className="relative mx-auto grid max-w-md grid-cols-6">
           {active >= 0 && (
             <span
               aria-hidden="true"
-              className="absolute top-1.5 h-[calc(100%-0.75rem)] w-[20%] px-1.5 transition-transform duration-300 ease-[var(--ease-out-soft)]"
+              className="absolute top-1.5 h-[calc(100%-0.75rem)] w-[16.6667%] px-1 transition-transform duration-300 ease-[var(--ease-out-soft)]"
               style={{ transform: `translateX(${active * 100}%)` }}
             >
               <span className="block h-full rounded-[1.2rem] bg-accent-soft" />
@@ -130,7 +131,7 @@ export function AppShell({ children }: { children: ReactNode }) {
               <Link
                 href={href}
                 aria-current={i === active ? "page" : undefined}
-                className={`flex min-h-16 flex-col items-center justify-center gap-1 text-xs font-semibold transition-colors ${
+                className={`flex min-h-16 flex-col items-center justify-center gap-1 text-[0.7rem] font-semibold tracking-tight transition-colors ${
                   i === active ? "text-accent" : "text-muted"
                 }`}
               >

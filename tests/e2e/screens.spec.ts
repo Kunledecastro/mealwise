@@ -4,7 +4,7 @@ import { expect, test, type Page } from "./fixtures";
 const PUBLIC_ROUTES = ["/", "/sign-in", "/sign-up", "/reset-password"];
 const APP_ROUTES = [
   "/onboarding", "/update-password", "/home", "/today", "/meals?slot=breakfast", "/meals?slot=lunch", "/meals?slot=dinner", "/meals?slot=snack",
-  "/meals/jollof-rice-chicken", "/search", "/saved", "/progress", "/profile", "/settings",
+  "/meals/jollof-rice-chicken", "/search", "/saved", "/progress", "/profile", "/settings", "/plan", "/plan/shopping",
 ];
 
 async function checkScreen(page: Page, route: string) {

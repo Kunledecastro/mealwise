@@ -15,6 +15,9 @@ P3-01 — see TEST_PLAN.md "Defects found and fixed during Phase 3 testing".
 ## Fixed in Phase 4
 P4-01 to P4-04 — see TEST_PLAN.md "Defects found and fixed during Phase 4 testing".
 
+## Fixed in Phase 5
+P5-01 to P5-04 — see TEST_PLAN.md "Defects found and fixed during Phase 5 testing".
+
 ## Known limitations (Phase 1, by design)
 | ID | Limitation | Resolved in |
 |---|---|---|
@@ -33,7 +36,7 @@ P4-01 to P4-04 — see TEST_PLAN.md "Defects found and fixed during Phase 4 test
 | I3 | 5 "high" npm audit findings in dev-only lint tooling (`braces` via `fast-glob` in `eslint-config-next`); 0 in production dependencies | None at runtime | Re-check on next Next.js upgrade |
 | I5 | 7 sample dishes have no real photo yet (moi moi, amala, pepper soup, plantain frittata, beans porridge, jollof spaghetti, oats, groundnuts) — shown as illustrations | Visual only | Product owner supplies photos, or Phase 3 sources them |
 | I6 | Photos are loaded from Pexels/Unsplash servers via Vercel; if a photographer deletes a photo it would disappear | Low | Before launch, copy final photos into our own storage (Supabase Storage, Phase 2+) |
-| I11 | JavaScript budget 200 KB compressed. **Landing now 187 KB** (account code moved off it, decision 056). Signed-in screens 257–294 KB: Supabase library 68 KB (includes a live-updates module we don't use), catalogue 26 KB, React/Next ~120 KB | Slower first load of the app on low-end phones | Option needing your approval: replace the all-in-one Supabase client with its smaller parts (sign-in + database only), saving roughly 25–30 KB. Otherwise accept for testing and revisit in Phase 6 |
+| I11 | JavaScript budget 200 KB compressed. Landing 187 KB (within budget). Sign-in 223 KB; app screens 224–261 KB after the lighter Supabase client (decision 057, saved ~32 KB). The rest is React/Next (~120 KB), catalogue (~26 KB) and the screen itself | Slower first load of the app on low-end phones | Revisit in Phase 6 (e.g. load the catalogue only on screens that need it) |
 | I12 | Supabase "leaked password protection" (check against breached-password lists) is off | Weak/breached passwords accepted (8-character minimum still enforced) | Appears to need a paid Supabase plan; decide before public launch |
 | I13 | Cooking cost shown for 14 of 70 meals: NBS (May 2026) covers 32 ingredients but not everyday soup/stew basics. Most-needed missing prices: scotch bonnet (13 meals), tatashe (12), efo/spinach (11), iru (7), garlic (7), cabbage (5). NBS prices are also over 90 days old, so they show "may be out of date" | Budget filter useful for 34 meals (cook or buy price) | Product owner adds those six to docs/PRICE_SHEET.csv; refresh from each new NBS edition |
 | I14 | A few source values look high and need your sense-check: fresh maize 178 kcal and 16 g fibre per 100 g (roasted corn 420 kcal with coconut); bambara flour fibre 29 g per 100 g (okpa); peeled beans fibre 13 g per 100 g. They are the published FAO figures | Possible over-estimate for 3–4 meals | Product owner / dietitian review; can switch to another FAO entry if agreed |
@@ -46,6 +49,8 @@ P4-01 to P4-04 — see TEST_PLAN.md "Defects found and fixed during Phase 4 test
 | I10 | Signing out uses "this device" scope; other devices stay signed in until their session expires | Low | Add "sign out everywhere" in Phase 6 hardening |
 | I18 | Four database checks that remove rows (user A can't remove B's weights or meal log; A can remove their own) can't be run by Claude's database tool, which cancels statements that remove data | The removal rules are written and applied but not yet proven on the real database | Product owner runs `supabase/tests/rls_tracking_removal.sql` once in the Supabase SQL editor (manual test M4-12) |
 | I19 | Calorie target uses year of birth only, so age can be off by up to a year; the estimate itself has a typical error of ±10% for individuals | Small | Explained in "How we worked this out"; users adjust from their weight trend |
+| I20 | Plans can put two similar dishes on one day (e.g. two eba soups, or yam twice), because the generator looks at calories and scores, not at the main starch | Less varied days | Easy to swap; consider a "different staple" rule after your feedback |
+| I21 | Shopping list ₦ estimate covers only priced ingredients (about half of a typical week's items); the rest are listed as "not priced yet" | Estimate is a lower bound | Grows as docs/PRICE_SHEET.csv is filled in (I13) |
 | I4 | Playwright pinned to 1.56.1 to match the workspace's pre-installed Chromium | None for the product | Unpin when the workspace allows browser downloads |
 
 ## Risk register (from Phase 0)

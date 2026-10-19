@@ -72,7 +72,7 @@ export function SettingsView() {
           Mealwise offers general guidance about food and weight. It isn&apos;t medical advice and doesn&apos;t replace a doctor
           or registered dietitian. Nutrition figures and prices are estimates.
         </p>
-        <p className="text-sm text-muted">Version 0.4, Phase 4 test version</p>
+        <p className="text-sm text-muted">Version 0.5, Phase 5 test version</p>
       </section>
 
       <section aria-labelledby="credits-title" className="flex flex-col gap-3">
@@ -111,26 +111,28 @@ function YourData() {
     setBusy("download");
     setError(null);
     const supabase = getSupabase();
-    const [{ data, error: err }, { data: choices, error: err2 }, { data: mealLog, error: err3 }, { data: weights, error: err4 }] = await Promise.all([
+    const [{ data, error: err }, { data: choices, error: err2 }, { data: mealLog, error: err3 }, { data: weights, error: err4 }, { data: mealPlan, error: err5 }] = await Promise.all([
       supabase.from("profiles").select("*").eq("id", user.id).maybeSingle(),
       supabase.from("meal_preferences").select("meal_slug, saved_at, rejected_at, reject_reason, updated_at").eq("user_id", user.id),
       supabase.from("meal_logs").select("meal_slug, logged_for, meal_type, portion, kcal, protein_g, carbs_g, fat_g, created_at").eq("user_id", user.id).order("logged_for"),
       supabase.from("weight_entries").select("measured_on, weight_kg, entered_unit, created_at, updated_at").eq("user_id", user.id).order("measured_on"),
+      supabase.from("meal_plans").select("start_date, days, include_snacks, items, shopping, created_at, updated_at").eq("user_id", user.id).maybeSingle(),
     ]);
     setBusy(null);
-    const failed = err ?? err2 ?? err3 ?? err4;
+    const failed = err ?? err2 ?? err3 ?? err4 ?? err5;
     if (failed) {
       setError(friendlyError(failed));
       return;
     }
     const exportData = {
       exported_at: new Date().toISOString(),
-      note: "Everything Mealwise stores about you: your account, your profile, your saved / \"Not for me\" meals, your meal log and your weight history. Your daily target isn't stored; it's worked out from your profile each time.",
+      note: "Everything Mealwise stores about you: your account, your profile, your saved / \"Not for me\" meals, your meal log, your weight history and your meal plan with its shopping ticks. Your daily target isn't stored; it's worked out from your profile each time.",
       account: { id: user.id, email: user.email, created_at: user.created_at },
       profile: data,
       meal_choices: choices ?? [],
       meal_log: mealLog ?? [],
       weights: weights ?? [],
+      meal_plan: mealPlan ?? null,
     };
     const url = URL.createObjectURL(new Blob([JSON.stringify(exportData, null, 2)], { type: "application/json" }));
     const a = document.createElement("a");

@@ -85,6 +85,10 @@ export class SupabaseMock {
   /** weight_entries and meal_logs rows (owner-only, like the real policies). */
   weights: (Row & { user_id: string })[] = [];
   mealLogs: (Row & { user_id: string })[] = [];
+  /** meal_plans rows by user id. */
+  plans = new Map<string, Row & { user_id: string }>();
+  /** Set to make the next plan save fail. */
+  failNextPlanSave = false;
   /** Set to make the next weight / meal-log write fail. */
   failNextTrackingWrite = false;
   /** Every request the app made, for assertions ("METHOD path"). */
@@ -303,6 +307,38 @@ export class SupabaseMock {
       return this.reply(route, 403, { code: "42501", message: "permission denied for table meal_preferences" });
     }
 
+    // ---- Database: meal_plans (one row per user; owner-only; same validation as the real table) ----
+    if (p === "/rest/v1/meal_plans") {
+      const u = this.byToken(route);
+      if (!u) return this.reply(route, 401, { code: "42501", message: "permission denied" });
+      const asObject = (req.headers()["accept"] ?? "").includes("vnd.pgrst.object");
+      const mine = this.plans.get(u.id);
+      if (method === "GET") {
+        if (asObject) return mine ? this.reply(route, 200, mine) : this.reply(route, 406, { code: "PGRST116", message: "0 rows" });
+        return this.reply(route, 200, mine ? [mine] : []);
+      }
+      if (method === "POST") {
+        if (this.failNextPlanSave) {
+          this.failNextPlanSave = false;
+          return this.reply(route, 503, { code: "", message: "Failed to fetch (simulated outage)" });
+        }
+        const r = (Array.isArray(body) ? body[0] : body) as Record<string, unknown>;
+        if (r.user_id !== u.id) return this.reply(route, 403, { code: "42501", message: "new row violates row-level security policy" });
+        const days = Number(r.days);
+        const items = r.items as { day: number; slot: string; slug: string; servings: number }[];
+        const slots = new Set(items.map((i) => `${i.day}|${i.slot}`));
+        const valid =
+          days >= 1 && days <= 7 && Array.isArray(items) && items.length <= 28 && slots.size === items.length &&
+          items.every((i) => Object.keys(i).length === 4 && i.day >= 0 && i.day < days && ["breakfast", "lunch", "dinner", "snack"].includes(i.slot) &&
+            /^[a-z0-9]+(-[a-z0-9]+)*$/.test(i.slug) && i.servings >= 0.5 && i.servings <= 8 && Number.isInteger(i.servings * 2)) &&
+          Object.values((r.shopping ?? {}) as Record<string, unknown>).every((v) => v === "have" || v === "bought");
+        if (!valid) return this.reply(route, 400, { code: "23514", message: "violates check constraint" });
+        this.plans.set(u.id, { id: u.id, ...(mine ?? {}), ...r, user_id: u.id, updated_at: new Date().toISOString() });
+        return this.reply(route, 201);
+      }
+      return this.reply(route, 403, { code: "42501", message: "permission denied for table meal_plans" });
+    }
+
     // ---- Database: weight_entries and meal_logs (owner-only; same checks as the real tables) ----
     if (p === "/rest/v1/weight_entries" || p === "/rest/v1/meal_logs") {
       const u = this.byToken(route);
@@ -373,6 +409,7 @@ export class SupabaseMock {
       this.profiles.delete(u.id);
       for (const k of [...this.mealPrefs.keys()]) if (k.startsWith(`${u.id}|`)) this.mealPrefs.delete(k);
       this.weights = this.weights.filter((w) => w.user_id !== u.id);
+      this.plans.delete(u.id);
       this.mealLogs = this.mealLogs.filter((l) => l.user_id !== u.id);
       return this.reply(route, 200, { deleted: true });
     }

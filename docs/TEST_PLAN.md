@@ -72,6 +72,51 @@ All checks re-run after the redesign: unit 34/34, E2E 72/72, axe zero serious is
 
 ---
 
+## Phase 5 automated results (run 2026-10-19)
+
+| Check | Result |
+|---|---|
+| Type check, lint, production build | Pass |
+| Unit tests (Vitest) | **144/144 pass** (new: PL-01–PL-10 plans, SH-01–SH-09 shopping list) |
+| End-to-end (Playwright, phone 390 px + desktop 1280 px, fresh build) | **176/176 pass** (new: P5-01–P5-10, A17; Plan in the navigation test; /plan and /plan/shopping in the screen checks) |
+| Database checks, real database (`supabase/tests/rls_meal_plans.sql`) | **20/20 pass** (owner-only access and data validation) |
+| Supabase advisors | Security: only the known leaked-password warning (I12). Performance: none |
+| Lighthouse (mobile) | `/` performance 90, accessibility 100; `/sign-in` 94 / 100 |
+| JavaScript, compressed | `/` 187 KB; `/sign-in` 223 KB; app screens 224–261 KB (was 257–294 KB before decision 057) |
+
+### What the new tests prove
+- **Plans keep every rule (PL-05, P5-09):** allergies, diet and dislikes hold across a whole week; optional groundnuts never reach the shopping list for a peanut allergy.
+- **Plans are varied and fit the target (PL-03, PL-03b, PL-04):** no repeat within a day or 2 days, 28 different meals in a typical week, each day within 15% of target (sample weeks: within about 7%).
+- **Shopping maths (SH-01–SH-06):** the same ingredient from several meals adds up correctly with servings; quantities are always grams at source, so units are never mixed; amounts shown in buying units; the ₦ estimate drops "already have", optional extras and seasonings, and lists unpriced items.
+- **Saved to the account (P5-01–P5-04, P5-07):** plan, swaps, servings and ticks survive a reload; a new plan resets the ticks after a warning.
+- **Failures are honest (P5-08):** a failed save shows a message and nothing is shown as saved.
+- **Requests carry the right credentials (A17):** after the lighter Supabase client, every request has the API key, and every data request the signed-in user's own token.
+
+### Defects found and fixed during Phase 5 testing
+| ID | Defect | Fix |
+|---|---|---|
+| P5-01 | The first generator repeated a 3-day cycle (days 1, 4 and 7 identical) | Meals not yet used in the plan come first (decision 059) |
+| P5-02 | Optional groundnuts (boli) appeared on the shopping list for a user with a peanut allergy | Optional extras with the user's allergens are left off |
+| P5-03 | On a 360 px phone, the swap sheet couldn't scroll to its Cancel button; the ₦ range wrapped onto two lines | Sheet scrolls; range kept on one line |
+| P5-04 | Amounts read "1 × 1 ball…" and had brackets inside brackets | Now "1 ball (about 250 g)", "3 × bunch…", "about 300 g · sold as…" |
+
+## Phase 5 manual tests (for you)
+| ID | Steps | Expected |
+|---|---|---|
+| M5-01 | Plan tab → A week → tick "Include a snack" → Make my plan | 7 day buttons; today shows breakfast, lunch, dinner and a snack; "About N kcal · target about M" close together |
+| M5-02 | Tap other days | Different meals each day; no meal twice in one day |
+| M5-03 | Swap lunch → pick another | Sheet lists lunches you can eat; your choice replaces it and stays after reload |
+| M5-04 | "Cooking for" + and − | Goes from ½ up to 8; day calories don't change |
+| M5-05 | Shopping list | Sections like a market trip; amounts in kg, bunches, crates; ₦ range with "may need to buy whole packs"; "N items not priced yet" |
+| M5-06 | Tap "Have it" on a priced item | Estimate goes down; item marked "already have" |
+| M5-07 | Tick items as bought, reload | Ticks stay |
+| M5-08 | Share list | Your phone's share sheet (or "List copied"); the text skips ticked items; paste into WhatsApp |
+| M5-09 | Plan → "I ate this" on today's meal | Appears on Today |
+| M5-10 | New plan → Today only | Warning that it replaces the plan and ticks; then a one-day plan |
+| M5-11 | With a peanut allergy in Profile, make a plan | No groundnut dishes; groundnuts not on the list |
+| M5-12 | Sign in on the test link after this update | Sign-in, sign-out and saving all still work (first check of the lighter Supabase client against the real service) |
+| M4-12 | Still open: paste `supabase/tests/rls_tracking_removal.sql` in the Supabase SQL editor | All six values true |
+
 ## Phase 4 automated results (run 2026-10-19)
 
 | Check | Result |
