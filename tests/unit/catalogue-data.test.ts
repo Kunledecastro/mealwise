@@ -63,8 +63,16 @@ describe("catalogue data integrity", () => {
     }
     expect(MEALS.filter((m) => m.diets?.includes("Vegan")).length).toBeGreaterThanOrEqual(4);
   });
-  it("D-09 all ten verified photos are still attached", () => {
-    expect(PHOTO_CREDITS).toHaveLength(10);
+  it("D-09 all 31 verified photos are still attached, each with a credit and a source page", () => {
+    expect(PHOTO_CREDITS).toHaveLength(31);
+    for (const p of PHOTO_CREDITS) {
+      expect(p.credit, p.meal).toBeTruthy();
+      expect(p.alt.length, p.meal).toBeGreaterThan(10);
+      const host = p.source === "Unsplash" ? "images.unsplash.com" : "images.pexels.com";
+      expect(new URL(p.src).host, p.meal).toBe(host);
+      expect(p.page, p.meal).toMatch(p.source === "Unsplash" ? /^https:\/\/unsplash\.com\/photos\// : /^https:\/\/www\.pexels\.com\/photo\//);
+    }
+    expect(new Set(PHOTO_CREDITS.map((p) => p.src)).size).toBe(31);
   });
   it("D-10 allergen leak sweep on the real catalogue: no declared allergen ever reaches a suggestion", () => {
     for (const allergy of ALLERGENS) {

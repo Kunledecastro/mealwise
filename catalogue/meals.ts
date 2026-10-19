@@ -8,7 +8,6 @@
  * serving, not what's left in the pan.
  */
 import { C } from "./colors";
-import { PHOTOS } from "./photos";
 import type { MealDef, MealIngredient } from "./types";
 
 const i = (id: string, grams: number, display: string, optional = false): MealIngredient =>
@@ -1056,8 +1055,5 @@ const DEFS: MealDef[] = [
     plate: [{ label: "Eggs", color: C.boiledEgg, share: 1, texture: "balls" }],
   },
 ];
-
-// Attach verified photos by slug.
-for (const d of DEFS) if (PHOTOS[d.slug]) d.photo = PHOTOS[d.slug];
 
 export const MEAL_DEFS: MealDef[] = DEFS;

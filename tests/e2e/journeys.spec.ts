@@ -261,10 +261,10 @@ test("real photos show a credit; dishes without one say they are illustrations",
   await expect(credit).toHaveAttribute("href", /pexels\.com\/photo\//);
   await expect(page.locator("main img").first()).toBeVisible();
 
-  await page.goto("/meals/fish-pepper-soup");
+  await page.goto("/meals/moi-moi");
   await expect(page.getByText("Illustration. A real photo of this dish is coming.")).toBeVisible();
 
   await page.goto("/settings");
   await expect(page.getByRole("heading", { name: "Photo credits" })).toBeVisible();
-  await expect(page.getByRole("link", { name: /on (Pexels|Unsplash)$/ })).toHaveCount(10);
+  await expect(page.getByRole("link", { name: /on (Pexels|Unsplash)$/ })).toHaveCount(31);
 });

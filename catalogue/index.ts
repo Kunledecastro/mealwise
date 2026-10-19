@@ -10,6 +10,7 @@ import { BATCH_2_MEALS } from "./meals-batch2";
 import { READY_MADE } from "./ready-made";
 import { PRICES } from "./prices";
 import { NUTRITION_SOURCES } from "./sources";
+import { PHOTOS } from "./photos";
 import type { IngredientDef } from "./types";
 
 /** Date of this catalogue edition. Bump when meals, ingredients or prices change. */
@@ -23,8 +24,10 @@ const ctx: CompileContext = {
   today: CATALOGUE_VERSION,
 };
 
-/** Every meal definition, in display order. */
-export const MEAL_DEFS = [...BATCH_1, ...ECOOKBOOK_MEALS, ...RECIPE_FILE_MEALS, ...BATCH_2_MEALS];
+/** Every meal definition, in display order, with its verified photo attached by slug. */
+export const MEAL_DEFS = [...BATCH_1, ...ECOOKBOOK_MEALS, ...RECIPE_FILE_MEALS, ...BATCH_2_MEALS].map((d) =>
+  PHOTOS[d.slug] ? { ...d, photo: PHOTOS[d.slug] } : d,
+);
 
 const compiled = compileCatalogue(MEAL_DEFS, ctx);
 
