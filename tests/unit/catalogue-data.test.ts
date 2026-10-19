@@ -1,7 +1,8 @@
 import { describe, expect, it } from "vitest";
 import { EXCLUDED_MEALS, INGREDIENTS, MEALS, PHOTO_CREDITS } from "@/catalogue";
-import { MEAL_DEFS } from "@/catalogue/meals";
+import { MEAL_DEFS } from "@/catalogue";
 import { NUTRITION_SOURCES } from "@/catalogue/sources";
+import { READY_MADE } from "@/catalogue/ready-made";
 import { atwaterGap } from "@/lib/domain/catalogue";
 import { checkMeal, rankMeals } from "@/lib/domain/recommend";
 import { EMPTY_PROFILE } from "@/lib/domain/profile";
@@ -46,7 +47,8 @@ describe("catalogue data integrity", () => {
   });
   it("D-07 meals have plausible per-serving figures", () => {
     for (const m of MEALS) {
-      expect(m.kcal, m.slug).toBeGreaterThan(100);
+      // Light snacks (side salads) can be small; anything else should be a real portion.
+      expect(m.kcal, m.slug).toBeGreaterThan(m.mealTypes.every((t) => t === "snack") ? 40 : 100);
       expect(m.kcal, m.slug).toBeLessThan(1200);
       expect(m.steps.length, m.slug).toBeGreaterThanOrEqual(1);
       expect(m.assumptions?.length, m.slug).toBeGreaterThanOrEqual(1);
@@ -80,5 +82,21 @@ describe("catalogue data integrity", () => {
     expect(checkMeal(MEALS.find((m) => m.slug === "ogbono-soup-eba")!, p("ogbono")).ok).toBe(false);
     expect(checkMeal(MEALS.find((m) => m.slug === "okra-soup-eba")!, p("okro")).ok).toBe(false);
     expect(checkMeal(MEALS.find((m) => m.slug === "red-red")!, p("beans")).ok).toBe(false);
+  });
+  it("D-12 ready-made prices are sane, dated and only on known meals", () => {
+    const slugs = new Set(MEALS.map((m) => m.slug));
+    for (const [slug, p] of Object.entries(READY_MADE)) {
+      expect(slugs.has(slug), slug).toBe(true);
+      expect(p.low).toBeGreaterThan(0);
+      expect(p.high).toBeGreaterThanOrEqual(p.low);
+      expect(p.observedOn).toMatch(/^\d{4}-\d{2}-\d{2}$/);
+    }
+    expect(MEALS.filter((m) => m.readyMade).length).toBe(Object.keys(READY_MADE).length);
+  });
+  it("D-13 meals based on outside recipes are credited with a licence", () => {
+    for (const slug of ["coconut-rice", "afang-soup-eba", "lentils-and-rice", "herbed-cucumber-salad", "cabbage-carrot-slaw", "fruit-smoothie"]) {
+      const m = MEALS.find((x) => x.slug === slug)!;
+      expect(m.basedOn?.licence, slug).toBeTruthy();
+    }
   });
 });

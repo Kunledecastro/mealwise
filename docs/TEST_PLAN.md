@@ -72,6 +72,16 @@ All checks re-run after the redesign: unit 34/34, E2E 72/72, axe zero serious is
 
 ---
 
+## Phase 3 batch 2a (recipe files + cook or buy) results (run 2026-10-19)
+
+Type check, lint and build pass. Unit **99/99** (new: cook/buy pricing R-20/21, ready-made data D-12, recipe credits D-13). E2E **126/126** (new P3-08 cook-or-buy section, P3-09 buy price in lists). Catalogue: 50 meals, 93 ingredients, all compile; integrity and allergen leak checks pass on the full set.
+
+| ID | Feature | Steps | Expected |
+|---|---|---|---|
+| M3-13 | Cook or buy | Open Egusi soup, Afang soup, then Fruit smoothie | Two cards: cook cost (not yet estimated) and buy price ₦1,500–4,500 with date and source; smoothie says no ready-made price yet |
+| M3-14 | New dishes | Search "afang", "pate", "kuka", "lentils" | Each opens with a "Based on …" credit under the steps |
+| M3-15 | Buy prices | Check the ₦1,500–4,500 range against what you pay in your area | Tell me per dish/area so I can refine (docs/READY_MADE_PRICE_SHEET.csv) |
+
 ## Phase 3 (batch 1) automated results (run 2026-10-18)
 
 | Check | Result |

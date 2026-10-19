@@ -3,7 +3,10 @@
  */
 import { compileCatalogue, type CompileContext } from "@/lib/domain/catalogue";
 import { GENERATED_INGREDIENTS } from "./ingredients.generated";
-import { MEAL_DEFS } from "./meals";
+import { MEAL_DEFS as BATCH_1 } from "./meals";
+import { ECOOKBOOK_MEALS } from "./meals-ecookbook";
+import { RECIPE_FILE_MEALS } from "./meals-recipe-files";
+import { READY_MADE } from "./ready-made";
 import { PRICES } from "./prices";
 import { NUTRITION_SOURCES } from "./sources";
 import type { IngredientDef } from "./types";
@@ -19,10 +22,13 @@ const ctx: CompileContext = {
   today: CATALOGUE_VERSION,
 };
 
+/** Every meal definition, in display order. */
+export const MEAL_DEFS = [...BATCH_1, ...ECOOKBOOK_MEALS, ...RECIPE_FILE_MEALS];
+
 const compiled = compileCatalogue(MEAL_DEFS, ctx);
 
-/** Every published meal. Meals with definition errors are left out (see EXCLUDED_MEALS). */
-export const MEALS = compiled.meals;
+/** Every published meal, with its typical ready-made price when collected. Meals with definition errors are left out (see EXCLUDED_MEALS). */
+export const MEALS = compiled.meals.map((m) => (READY_MADE[m.slug] ? { ...m, readyMade: READY_MADE[m.slug] } : m));
 export const EXCLUDED_MEALS = compiled.excluded;
 export const MEALS_BY_SLUG = new Map(MEALS.map((m) => [m.slug, m]));
 export const getMeal = (slug: string) => MEALS_BY_SLUG.get(slug);

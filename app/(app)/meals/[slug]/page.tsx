@@ -1,12 +1,12 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, ChefHat, ShoppingBag } from "lucide-react";
 import { EstimateTag } from "@/components/ui";
 import { CATALOGUE_VERSION, MEALS, getMeal } from "@/catalogue";
 import { NUTRITION_SOURCES } from "@/catalogue/sources";
 import { formatMinutes, formatNairaRange } from "@/lib/domain/meals";
 import { MEAL_TYPE_LABEL } from "@/lib/types";
-import { MealActions, PriceNote, ProfileClashFor, WhyThisSuits } from "./meal-actions";
+import { MealActions, PriceNote, ProfileClashFor, ReadyMadeNote, WhyThisSuits } from "./meal-actions";
 import { MealVisual, PhotoCredit } from "@/components/meal-visual";
 
 export function generateStaticParams() {
@@ -59,6 +59,32 @@ export default async function MealPage(props: PageProps<"/meals/[slug]">) {
       </header>
 
       <WhyThisSuits slug={meal.slug} />
+
+      <section aria-labelledby="ways-title" className="flex flex-col gap-3">
+        <h2 id="ways-title" className="text-xl">Cook it or buy it</h2>
+        <div className="grid gap-3 sm:grid-cols-2">
+          <div className="flex flex-col gap-1 rounded-[var(--radius-md)] border border-line bg-surface p-4">
+            <p className="flex items-center gap-2 font-semibold"><ChefHat size={18} aria-hidden="true" className="text-accent" /> Cook it</p>
+            <p className="font-display text-xl">{formatNairaRange(meal.costLow, meal.costHigh)}</p>
+            <p className="text-sm text-muted">Ingredients for one serving · about {formatMinutes(meal.prepMinutes)} · recipe below</p>
+          </div>
+          <div className="flex flex-col gap-1 rounded-[var(--radius-md)] border border-line bg-surface p-4">
+            <p className="flex items-center gap-2 font-semibold"><ShoppingBag size={18} aria-hidden="true" className="text-accent" /> Buy it ready-made</p>
+            {meal.readyMade ? (
+              <>
+                <p className="font-display text-xl">{formatNairaRange(meal.readyMade.low, meal.readyMade.high)}</p>
+                <p className="text-sm text-muted">Typical price for {meal.readyMade.portion}. {meal.readyMade.where}.</p>
+                <ReadyMadeNote observedOn={meal.readyMade.observedOn} note={meal.readyMade.note} />
+                <p className="text-sm text-muted">
+                  Bought portions are often bigger and cooked with more oil, so the calories can be higher than shown here.
+                </p>
+              </>
+            ) : (
+              <p className="text-sm text-muted">We haven&apos;t collected typical ready-made prices for this dish yet.</p>
+            )}
+          </div>
+        </div>
+      </section>
 
       <section aria-labelledby="facts-title" className="rounded-[var(--radius-lg)] border border-line bg-surface p-5 sm:p-6">
         <div className="mb-4 flex flex-wrap items-center justify-between gap-2">
@@ -154,6 +180,11 @@ export default async function MealPage(props: PageProps<"/meals/[slug]">) {
               </li>
             ))}
           </ol>
+          {meal.basedOn && (
+            <p className="mt-4 text-sm text-muted">
+              Based on {meal.basedOn.url ? <a href={meal.basedOn.url} target="_blank" rel="noopener noreferrer" className="underline underline-offset-2 hover:text-ink">{meal.basedOn.title}</a> : meal.basedOn.title}, {meal.basedOn.publisher} ({meal.basedOn.licence}). Steps and amounts per serving are Mealwise&apos;s own.
+            </p>
+          )}
         </section>
       </div>
     </article>

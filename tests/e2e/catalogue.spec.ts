@@ -77,3 +77,21 @@ test("P3-07 dislikes match local names (ogbono hides the ogbono soup)", async ({
   await page.getByRole("searchbox").fill("ogbono");
   await expect(page.getByRole("link", { name: "Ogbono soup with eba" })).toBeVisible(); // search still finds it
 });
+
+test("P3-08 meal page offers cook it or buy it, with a dated typical price where collected", async ({ page }) => {
+  await page.goto("/meals/egusi-pounded-yam");
+  const ways = page.locator("section", { has: page.getByRole("heading", { name: "Cook it or buy it" }) });
+  await expect(ways.getByText("Cook it", { exact: true })).toBeVisible();
+  await expect(ways.getByText("₦1,500–4,500")).toBeVisible();
+  await expect(ways.getByText(/Checked .*2026/)).toBeVisible();
+  await expect(ways.getByText(/often bigger and cooked with more oil/)).toBeVisible();
+  await page.goto("/meals/fruit-smoothie");
+  await expect(page.getByText("We haven't collected typical ready-made prices for this dish yet.")).toBeVisible();
+  await expect(page.getByText(/Based on .*Mom’s Best Recipes/)).toBeVisible();
+});
+
+test("P3-09 meal lists show the ready-made price when the cooking cost isn't known", async ({ page }) => {
+  await page.goto("/search");
+  await page.getByRole("searchbox").fill("afang");
+  await expect(page.getByText(/Buy\s*₦1,500–4,500/).first()).toBeVisible();
+});

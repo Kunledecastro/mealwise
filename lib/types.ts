@@ -88,6 +88,21 @@ export interface Meal {
   licenceToConfirm?: boolean;
   /** Ingredients whose figures come from a close stand-in food. */
   substitutes?: string[];
+  /** Credit when the dish and proportions are based on a published recipe. */
+  basedOn?: { title: string; publisher: string; url?: string; licence: string };
+  /** Typical price to buy one plate ready-made (no vendor names). */
+  readyMade?: ReadyMadePrice;
+}
+
+export interface ReadyMadePrice {
+  /** What one bought portion usually is, e.g. "1 plate with 1 piece of chicken". */
+  portion: string;
+  low: number;
+  high: number;
+  /** Where this kind of price applies, e.g. "Buka or eatery, Lagos". */
+  where: string;
+  observedOn: string;
+  note?: string;
 }
 
 export type Goal = "lose" | "gain" | "maintain";

@@ -1,0 +1,251 @@
+/**
+ * Batch 2a — dishes based on The Nigeria eCookbook (product owner supplied the file, 2026-10-18).
+ *
+ * The eCookbook is CC BY-NC-ND: it may be shared unchanged for non-commercial use, but not adapted.
+ * We therefore use only facts from it — which dishes, and the weights of ingredients in the
+ * cooks' pots, scaled to one serving — and write every description and step in our own words.
+ * The original recipes give whole-pot quantities without a serving count, so the number of
+ * servings per pot is our assumption, stated on each meal.
+ */
+import { C } from "./colors";
+import type { MealDef, MealIngredient, RecipeCredit } from "./types";
+
+const i = (id: string, grams: number, display: string, optional = false): MealIngredient =>
+  optional ? { id, grams, display, optional } : { id, grams, display };
+
+export const ECOOKBOOK: RecipeCredit = {
+  title: "The Nigeria eCookbook (2024)",
+  publisher: "Tovero Energy with Modern Energy Cooking Services (MECS), funded by UK Aid",
+  url: "https://mecs.org.uk",
+  licence: "CC BY-NC-ND 4.0",
+};
+
+export const ECOOKBOOK_MEALS: MealDef[] = [
+  {
+    slug: "coconut-rice",
+    name: "Coconut rice with beef and fish",
+    description: "Rice simmered in fresh coconut milk with beef, dried fish, carrots and green beans.",
+    mealTypes: ["lunch", "dinner"],
+    cuisine: "Nigerian",
+    serving: "1 plate",
+    prepMinutes: 60,
+    ingredients: [
+      i("rice-white", 90, "½ cup rice (raw)"),
+      i("coconut-milk", 80, "⅓ cup coconut milk (from about ¼ coconut)"),
+      i("beef", 40, "1 small piece beef"),
+      i("fish-dried", 25, "1 small piece dried fish"),
+      i("green-beans", 15, "a few green beans"),
+      i("carrot", 15, "a little carrot"),
+      i("onion", 17, "a little onion"),
+      i("scotch-bonnet", 8, "1 scotch bonnet"),
+      i("crayfish", 5, "1 tsp ground crayfish"),
+      i("stock-cube", 4, "1 seasoning cube"),
+      i("salt", 1, "pinch of salt"),
+    ],
+    steps: [
+      "Grate or chop the coconut flesh, blend with warm water and squeeze through a sieve to get the coconut milk.",
+      "Cook the beef with onion, pepper, a little salt and seasoning; keep the stock.",
+      "Put the washed rice in a pot with the coconut milk, beef stock, beef, boned dried fish, crayfish and seasoning, and cook covered until the rice is soft.",
+      "Stir in the chopped carrots and green beans for the last few minutes.",
+    ],
+    assumptions: [
+      "The eCookbook pot serves about 5; amounts here are one fifth.",
+      "Rice amount isn't given in the source; ½ cup raw rice per plate is our assumption.",
+      "Homemade coconut juice is weaker than canned; we count it as 80 g of coconut milk per plate.",
+    ],
+    plate: [
+      { label: "Coconut rice", color: C.coconutRice, share: 0.75, texture: "grains" },
+      { label: "Beef and fish", color: C.chicken, share: 0.25, texture: "chunks" },
+    ],
+    basedOn: ECOOKBOOK,
+  },
+  {
+    slug: "ofe-onugbu-fufu",
+    name: "Ofe onugbu (bitterleaf soup) with fufu",
+    description: "Igbo bitterleaf soup thickened with cocoyam, with beef and dried fish, served with fufu.",
+    mealTypes: ["lunch", "dinner"],
+    cuisine: "Nigerian",
+    serving: "1 medium wrap fufu + 1 ladle soup",
+    prepMinutes: 90,
+    ingredients: [
+      i("fufu", 250, "1 medium wrap fufu (akpu)"),
+      i("cocoyam", 68, "1 small cocoyam, for thickening"),
+      i("bitterleaf", 19, "a handful washed bitterleaf"),
+      i("palm-oil", 15, "palm fruit juice (counted as 1 tbsp palm oil)"),
+      i("beef", 60, "2 small pieces beef"),
+      i("fish-dried", 60, "1 piece dried fish and stockfish"),
+      i("crayfish", 3, "½ tsp ground crayfish"),
+      i("iru", 1, "a little ogiri"),
+      i("onion", 11, "a little onion"),
+      i("stock-cube", 3, "¾ seasoning cube"),
+      i("salt", 1, "pinch of salt"),
+    ],
+    steps: [
+      "Wash the bitterleaf several times, squeezing out the bitter juice until it's only mildly bitter.",
+      "Boil and pound the cocoyam into a soft paste.",
+      "Cook the beef with onion, seasoning and pepper; add the palm fruit juice, fish, stockfish, ogiri and crayfish and simmer.",
+      "Add small lumps of cocoyam paste to thicken, then the bitterleaf; cook a few minutes more and serve with fufu.",
+    ],
+    assumptions: [
+      "The eCookbook pot serves about 8; soup amounts here are one eighth.",
+      "Palm fruit juice from fresh fruit is counted as 1 tbsp of palm oil per serving.",
+      "Cow skin (ponmo) in the original isn't counted; the food table doesn't list it.",
+      "A medium wrap of fufu is about 250 g cooked.",
+    ],
+    plate: [
+      { label: "Fufu", color: C.fufu, share: 0.5, texture: "smooth" },
+      { label: "Onugbu soup", color: C.bitterleaf, share: 0.5, texture: "leafy" },
+    ],
+    basedOn: ECOOKBOOK,
+  },
+  {
+    slug: "afang-soup-eba",
+    name: "Afang soup with eba",
+    description: "Efik and Ibibio soup of afang and waterleaf with goat meat, fish and periwinkle, served with eba.",
+    mealTypes: ["lunch", "dinner"],
+    cuisine: "Nigerian",
+    serving: "1 medium wrap eba + 1 ladle soup",
+    prepMinutes: 75,
+    ingredients: [
+      i("gari", 100, "1 cup gari (for eba)"),
+      i("afang", 14, "a handful pounded afang leaves"),
+      i("waterleaf", 88, "a large handful waterleaf"),
+      i("palm-oil", 22, "1½ tbsp palm oil"),
+      i("goat", 62, "2 small pieces goat meat"),
+      i("fish-dried", 75, "dried fish and stockfish"),
+      i("periwinkle", 20, "a spoon of periwinkle meat"),
+      i("snail", 8, "1 small piece snail"),
+      i("crayfish", 4, "1 tsp ground crayfish"),
+      i("onion", 10, "a little onion"),
+      i("scotch-bonnet", 3, "½ scotch bonnet"),
+      i("stock-cube", 3, "¾ seasoning cube"),
+    ],
+    steps: [
+      "Slice the afang and waterleaf finely; pound or blend the afang.",
+      "Clean the periwinkle well in salted water; wash the meat, fish and snail.",
+      "Cook the meats and fish with onion, pepper, crayfish and seasoning.",
+      "Cook the waterleaf with the periwinkle and palm oil, add the meats and stock, then stir in the afang and cook 5 minutes. Serve with eba.",
+    ],
+    assumptions: [
+      "The eCookbook pot serves about 8; soup amounts here are one eighth.",
+      "Periwinkle weight is the meat only (the shells are most of what you buy).",
+      "Cow skin (ponmo) in the original isn't counted.",
+      "Eba uses 100 g dry gari.",
+    ],
+    plate: [
+      { label: "Eba", color: C.eba, share: 0.5, texture: "smooth" },
+      { label: "Afang", color: C.afang, share: 0.5, texture: "leafy" },
+    ],
+    basedOn: ECOOKBOOK,
+  },
+  {
+    slug: "pate",
+    name: "Pate (maize and vegetable porridge)",
+    description: "North-Central porridge of crushed maize with groundnuts, tomatoes, greens and beef.",
+    mealTypes: ["lunch", "dinner"],
+    cuisine: "Nigerian",
+    serving: "1 bowl",
+    prepMinutes: 60,
+    ingredients: [
+      i("maize-grits", 50, "¼ cup crushed dried maize (saaki)"),
+      i("groundnuts", 31, "2 tbsp crushed groundnuts"),
+      i("beef", 83, "2 pieces beef"),
+      i("fish-dried", 17, "a little dried catfish"),
+      i("tomato", 92, "1 medium tomato"),
+      i("amaranth", 22, "a handful alefo (green leaves)"),
+      i("yakuwa", 22, "a handful yakuwa (sorrel leaves)"),
+      i("cabbage", 21, "a little cabbage"),
+      i("onion", 37, "onion and spring onion"),
+      i("scotch-bonnet", 15, "2 scotch bonnets"),
+      i("iru", 5, "1 tsp dawadawa"),
+      i("palm-oil", 15, "1 tbsp palm oil"),
+      i("stock-cube", 5, "1 seasoning cube"),
+      i("salt", 1, "pinch of salt"),
+    ],
+    steps: [
+      "Cook the beef with onion, salt and seasoning.",
+      "Add the crushed maize and groundnuts to the stock with dawadawa and water; cook until thick.",
+      "Add the dried fish, blended pepper, diced tomato and palm oil; cook 10 minutes.",
+      "Stir in the chopped greens, sorrel leaves, cabbage and spring onion and cook 3 minutes.",
+    ],
+    assumptions: [
+      "The eCookbook pot serves about 6; amounts here are one sixth.",
+      "The original uses about 39 g of pepper per serving; we use 15 g. Spice level doesn't change the figures much.",
+    ],
+    plate: [{ label: "Pate", color: C.pate, share: 1, texture: "chunks" }],
+    basedOn: ECOOKBOOK,
+  },
+  {
+    slug: "margi-special-tuwo",
+    name: "Margi special with tuwo masara",
+    description: "Adamawa fish steamed between layers of greens and sorrel leaves, with tuwo masara.",
+    mealTypes: ["lunch", "dinner"],
+    cuisine: "Nigerian",
+    serving: "1 piece fish with greens + 1 wrap tuwo",
+    prepMinutes: 45,
+    ingredients: [
+      i("maize-flour", 100, "1 cup white maize flour (for tuwo)"),
+      i("tilapia", 125, "1 piece fresh fish"),
+      i("amaranth", 49, "a large handful alefo"),
+      i("yakuwa", 43, "a handful yakuwa (sorrel leaves)"),
+      i("tomato", 95, "1 medium tomato"),
+      i("onion", 60, "onion and spring onion"),
+      i("scotch-bonnet", 12, "1–2 scotch bonnets"),
+      i("vegetable-oil", 23, "1½ tbsp oil"),
+      i("stock-cube", 7, "2 seasoning cubes"),
+    ],
+    steps: [
+      "Blend the pepper with some tomato and onion and mix in the seasoning.",
+      "Layer greens, sorrel leaves and onion in a pot, lay the cleaned fish on top and cover with more greens.",
+      "Add the oil and the pepper mix, cover and steam for 8–10 minutes without stirring so the fish stays whole.",
+      "For tuwo, stir a paste of maize flour into boiling water, then add dry flour and turn until thick and smooth.",
+    ],
+    assumptions: [
+      "The eCookbook pot serves about 4; amounts here are one quarter.",
+      "Any firm fresh fish works; tilapia figures are used.",
+      "Tuwo uses 100 g of maize flour per wrap.",
+      "A pinch of potash in the original isn't counted (no energy).",
+    ],
+    plate: [
+      { label: "Tuwo", color: C.tuwo, share: 0.5, texture: "smooth" },
+      { label: "Fish and greens", color: C.margi, share: 0.5, texture: "leafy" },
+    ],
+    basedOn: ECOOKBOOK,
+  },
+  {
+    slug: "tuwo-miyan-kuka",
+    name: "Tuwo masara with miyan kuka",
+    description: "Hausa baobab-leaf soup with beef and dawadawa, served with smooth maize tuwo.",
+    mealTypes: ["lunch", "dinner"],
+    cuisine: "Nigerian",
+    serving: "1 wrap tuwo + 1 ladle soup",
+    prepMinutes: 60,
+    ingredients: [
+      i("maize-flour", 100, "1 cup white maize flour (for tuwo)"),
+      i("kuka", 10, "1 tbsp kuka powder"),
+      i("beef", 125, "3 pieces beef"),
+      i("iru", 5, "1 tsp dawadawa"),
+      i("palm-oil", 11, "2 tsp palm oil"),
+      i("onion", 17, "onion and spring onion"),
+      i("scotch-bonnet", 13, "1–2 scotch bonnets"),
+      i("crayfish", 2, "a pinch of crayfish"),
+      i("ginger", 3, "a little ginger"),
+      i("stock-cube", 3, "¾ seasoning cube"),
+    ],
+    steps: [
+      "Cook the beef with onion, salt and seasoning.",
+      "Add blended pepper, crayfish, palm oil, dawadawa, garlic and ginger; cook 3 minutes.",
+      "Add water and whisk in the kuka powder so it doesn't form lumps; cook 2 minutes.",
+      "Make tuwo by stirring a maize-flour paste into boiling water, then adding dry flour and turning until smooth.",
+    ],
+    assumptions: [
+      "The eCookbook pot serves about 8; amounts here are one eighth.",
+      "Tuwo uses 100 g of maize flour per wrap.",
+    ],
+    plate: [
+      { label: "Tuwo", color: C.tuwo, share: 0.5, texture: "smooth" },
+      { label: "Miyan kuka", color: C.kuka, share: 0.5, texture: "smooth" },
+    ],
+    basedOn: ECOOKBOOK,
+  },
+];

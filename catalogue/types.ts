@@ -24,7 +24,8 @@ export type FoodGroup =
   | "egg"
   | "dairy"
   | "plant"
-  | "other_animal"; // e.g. beef stock cube, honey
+  | "other_meat" // land animals that are meat but not halal-by-default, e.g. snail
+  | "other_animal"; // animal products that aren't meat, e.g. honey
 
 export interface NutritionSource {
   id: string;
@@ -124,4 +125,13 @@ export interface MealDef {
   assumptions: string[];
   plate: PlatePart[];
   photo?: MealPhoto;
+  /** Where the dish and its proportions come from, when based on a published recipe. Steps are always our own words. */
+  basedOn?: RecipeCredit;
+}
+
+export interface RecipeCredit {
+  title: string;
+  publisher: string;
+  url?: string;
+  licence: string;
 }

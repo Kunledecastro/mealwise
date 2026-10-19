@@ -9,6 +9,7 @@ source: "wafct" = FAO/INFOODS West Africa 2019 (code like "06_013")
 Allergen policy (conservative; see DECISION_LOG 035):
   - "contains": the ingredient is or includes the allergen.
   - "mayContain": varies by brand or is often cross-contaminated; allergic users never see it.
+  - Snail: a mollusc, so "may contain shellfish"; periwinkle "contains shellfish".
   - Coconut, dika nut (ogbono): botanically debated as tree nuts, so marked "may contain tree nuts".
   - Refined soya and palm oils are not treated as allergens (refined soybean oil is exempt from
     allergen labelling in the EU and US). Groundnut oil is not used anywhere.
@@ -96,12 +97,40 @@ SPEC = [
     dict(id="ogbono", name="Ground ogbono (dika nut)", aliases=["ogbono", "dika"], group="plant", source="wafct", ref="06_008",
          mayContain=["tree_nut"]),
 
+    # ---- Added for the Nigeria eCookbook dishes (batch 2) ----
+    dict(id="bitterleaf", name="Bitterleaf (onugbu)", aliases=["bitterleaf", "onugbu", "ewuro"], group="plant", source="wafct", ref="04_022"),
+    dict(id="cocoyam", name="Cocoyam (ede)", aliases=["cocoyam", "ede", "koko"], group="plant", source="wafct", ref="02_005"),
+    dict(id="waterleaf", name="Waterleaf", aliases=["waterleaf", "gbure"], group="plant", source="wafct", ref="04_078"),
+    dict(id="afang", name="Afang (okazi) leaves", aliases=["afang", "okazi", "ukazi"], group="plant", source="wafct", ref="04_131",
+         substitute="Afang (Gnetum africanum) is not in the table; FAO's average green leafy vegetable is used."),
+    dict(id="periwinkle", name="Periwinkle (meat)", aliases=["periwinkle", "isam"], group="shellfish", source="wafct", ref="09_056",
+         contains=["shellfish"], substitute="Periwinkle is not listed; sea snail (whelk) flesh is the closest match. Molluscs count as shellfish here."),
+    dict(id="snail", name="Snail", aliases=["snail", "igbin"], group="other_meat", source="wafct", ref="07_083", mayContain=["shellfish"]),
+    dict(id="yakuwa", name="Sorrel leaves (yakuwa)", aliases=["yakuwa", "sorrel", "hibiscus leaves"], group="plant", source="wafct", ref="04_016"),
+    dict(id="kuka", name="Baobab leaf powder (kuka)", aliases=["kuka", "baobab"], group="plant", source="wafct", ref="04_002"),
+    dict(id="maize-flour", name="White maize flour (garin tuwo)", aliases=["tuwo", "corn flour", "garin tuwo"], group="plant", source="wafct", ref="01_081"),
+    dict(id="maize-grits", name="Crushed dried maize (saaki)", aliases=["saaki", "corn", "maize"], group="plant", source="wafct", ref="01_055",
+         substitute="Values for degermed yellow maize grits; crushed white maize is similar."),
+    dict(id="coconut-milk", name="Coconut milk", aliases=["coconut", "coconut juice"], group="plant", source="wafct", ref="06_006", mayContain=["tree_nut"]),
+    dict(id="fufu", name="Fufu / akpu (cooked)", aliases=["fufu", "akpu", "santana"], group="plant", source="wafct", ref="02_041"),
+
+    # ---- Added for dishes from the product owner's other recipe files (batch 2) ----
+    dict(id="lentils", name="Lentils", aliases=["lentil"], group="plant", source="wafct", ref="03_030"),
+    dict(id="mint", name="Fresh mint", aliases=["mint", "efirin"], group="plant", source="wafct", ref="04_085"),
+    dict(id="almonds", name="Almonds", aliases=["almond", "nuts"], group="plant", source="usda", ref=170567, contains=["tree_nut"]),
+    dict(id="strawberries", name="Strawberries", aliases=["strawberry"], group="plant", source="usda", ref=167762),
+    dict(id="pineapple-juice", name="Pineapple juice (unsweetened)", aliases=["pineapple", "juice"], group="plant", source="usda", ref=168187),
+
     # ---- Fats, dairy ----
     dict(id="palm-oil", name="Palm oil", aliases=["red oil"], group="plant", source="wafct", ref="11_004"),
     dict(id="vegetable-oil", name="Vegetable oil (soya)", aliases=["oil"], group="plant", source="wafct", ref="11_009"),
     dict(id="evaporated-milk", name="Evaporated milk", aliases=["milk", "peak milk"], group="dairy", source="wafct", ref="10_016",
          contains=["milk"]),
     dict(id="yoghurt", name="Plain yoghurt", aliases=["yogurt", "yoghurt"], group="dairy", source="wafct", ref="10_005", contains=["milk"]),
+
+    dict(id="butter", name="Butter", group="dairy", source="wafct", ref="11_001", contains=["milk"]),
+    dict(id="olive-oil", name="Olive oil", group="plant", source="wafct", ref="11_014"),
+    dict(id="yoghurt-sweet", name="Sweetened yoghurt", aliases=["yogurt", "yoghurt"], group="dairy", source="wafct", ref="10_026", contains=["milk"]),
 
     # ---- Seasonings ----
     dict(id="stock-cube", name="Seasoning cube (beef)", aliases=["maggi", "knorr", "stock cube"], group="beef_goat", source="wafct", ref="13_008",
@@ -114,4 +143,7 @@ SPEC = [
     dict(id="soy-sauce", name="Soy sauce", group="plant", source="usda", ref=174277, contains=["soy", "wheat"]),
     dict(id="sugar", name="Sugar", group="plant", source="wafct", ref="13_002"),
     dict(id="salt", name="Salt", group="plant", source="wafct", ref="13_015", fibreZeroIfMissing=True),
+    dict(id="honey", name="Honey", group="other_animal", source="wafct", ref="13_001"),
+    dict(id="vinegar", name="Vinegar", group="plant", source="wafct", ref="13_003", fibreZeroIfMissing=True),
+    dict(id="mustard", name="Mustard (prepared)", group="plant", source="wafct", ref="13_013"),
 ]

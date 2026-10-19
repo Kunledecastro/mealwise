@@ -26,6 +26,8 @@ it("writes the catalogue review document", () => {
     for (const i of m.ingredients) L.push(`| ${i.name} | ${i.quantity} | ${i.grams} | ${i.optional ? "no (optional)" : "yes"} |`);
     L.push("", "Assumptions: " + (m.assumptions ?? []).join(" "), "");
     if (m.substitutes?.length) L.push("Close matches: " + m.substitutes.join(" "), "");
+    if (m.basedOn) L.push(`Based on: ${m.basedOn.title}, ${m.basedOn.publisher} (${m.basedOn.licence}).`, "");
+    if (m.readyMade) L.push(`Buy it: ₦${m.readyMade.low.toLocaleString()}–${m.readyMade.high.toLocaleString()} for ${m.readyMade.portion} (${m.readyMade.where}; checked ${m.readyMade.observedOn}).`, "");
   }
   L.push("## Ingredients and sources", "");
   L.push("| Ingredient | Source | Code | Source food | kcal/100 g | Note |", "|---|---|---|---|---|---|");

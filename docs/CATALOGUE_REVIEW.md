@@ -52,6 +52,16 @@ For each meal, check: is the **serving size** realistic? Are the **ingredient am
 | Yoghurt with banana (`yoghurt-banana`) | Snack, Breakfast | 212 | 6 | 30 | 7 | 3 | Vegetarian | Milk / — |
 | Moi moi (`moi-moi`) | Snack, Lunch | 445 | 23 | 45 | 17 | 12 | Contains meat | Shellfish / Wheat, Soy, Milk |
 | Two boiled eggs (`boiled-eggs`) | Snack | 150 | 14 | 0 | 11 | 0 | Vegetarian | Eggs / — |
+| Coconut rice with beef and fish (`coconut-rice`) | Lunch, Dinner | 653 | 35 | 78 | 21 | 5 | Contains meat | Fish, Shellfish / Tree nuts, Wheat, Soy, Milk |
+| Ofe onugbu (bitterleaf soup) with fufu (`ofe-onugbu-fufu`) | Lunch, Dinner | 943 | 58 | 119 | 25 | 7 | Contains meat | Fish, Shellfish / Wheat, Soy, Milk |
+| Afang soup with eba (`afang-soup-eba`) | Lunch, Dinner | 955 | 70 | 91 | 33 | 9 | Contains meat | Fish, Shellfish / Wheat, Soy, Milk |
+| Pate (maize and vegetable porridge) (`pate`) | Lunch, Dinner | 740 | 46 | 53 | 36 | 11 | Contains meat | Peanuts, Fish / Wheat, Soy, Milk |
+| Margi special with tuwo masara (`margi-special-tuwo`) | Lunch, Dinner | 774 | 38 | 88 | 28 | 11 | Contains meat | Fish / Wheat, Soy, Milk |
+| Tuwo masara with miyan kuka (`tuwo-miyan-kuka`) | Lunch, Dinner | 690 | 42 | 81 | 20 | 10 | Contains meat | Shellfish / Wheat, Soy, Milk |
+| Lentils with rice and onions (`lentils-and-rice`) | Lunch, Dinner | 476 | 25 | 69 | 8 | 17 | Vegetarian | Milk / — |
+| Herbed cucumber salad (`herbed-cucumber-salad`) | Snack | 59 | 1 | 12 | 0 | 3 | Vegetarian | — / — |
+| Cabbage and carrot slaw with almonds (`cabbage-carrot-slaw`) | Snack, Lunch | 177 | 3 | 16 | 11 | 3 | Vegetarian | Tree nuts, Milk / — |
+| Pineapple, banana and strawberry smoothie (`fruit-smoothie`) | Breakfast, Snack | 297 | 7 | 60 | 2 | 5 | Vegetarian | Milk / — |
 
 ## Meals in detail
 
@@ -217,6 +227,8 @@ Assumptions: Chicken weight is meat and skin without bone (a bone-in piece of ab
 
 Close matches: White rice: Parboiled long-grain rice (most common in Nigeria) is not listed separately; polished white rice is used.
 
+Buy it: ₦1,500–4,500 for 1 plate with stew or soup and a small piece of meat or fish (Buka or local eatery, Lagos (lower on the mainland, higher in Lekki/VI); checked 2026-10-19).
+
 ### Rice and beans with stew and plantain
 
 White rice and beans cooked together, served with tomato stew and fried plantain. Serving: 1 plate. Time: 70 min. Cuisine: Nigerian.
@@ -237,6 +249,8 @@ Assumptions: Fried plantain is weighed after frying (oil included).
 
 Close matches: White rice: Parboiled long-grain rice (most common in Nigeria) is not listed separately; polished white rice is used.
 
+Buy it: ₦1,500–4,500 for 1 plate with stew or soup and a small piece of meat or fish (Buka or local eatery, Lagos (lower on the mainland, higher in Lekki/VI); checked 2026-10-19).
+
 ### White rice and fish stew
 
 Plain boiled rice with tomato stew and fried or grilled mackerel. Serving: 1 plate + 1 piece fish. Time: 55 min. Cuisine: Nigerian.
@@ -256,6 +270,8 @@ Plain boiled rice with tomato stew and fried or grilled mackerel. Serving: 1 pla
 Assumptions: Fish is grilled; deep-frying would add about 10 g of fat.
 
 Close matches: White rice: Parboiled long-grain rice (most common in Nigeria) is not listed separately; polished white rice is used.
+
+Buy it: ₦1,500–4,500 for 1 plate with stew or soup and a small piece of meat or fish (Buka or local eatery, Lagos (lower on the mainland, higher in Lekki/VI); checked 2026-10-19).
 
 ### Nigerian fried rice with chicken
 
@@ -279,6 +295,8 @@ Assumptions: Chicken weight is without bone.
 
 Close matches: White rice: Parboiled long-grain rice (most common in Nigeria) is not listed separately; polished white rice is used.
 
+Buy it: ₦1,500–4,500 for 1 plate with stew or soup and a small piece of meat or fish (Buka or local eatery, Lagos (lower on the mainland, higher in Lekki/VI); checked 2026-10-19).
+
 ### Egusi soup with pounded yam
 
 Rich melon-seed soup with leafy greens and beef, with soft pounded yam. Serving: 1 medium wrap pounded yam + 1 ladle soup. Time: 75 min. Cuisine: Nigerian.
@@ -300,6 +318,8 @@ Rich melon-seed soup with leafy greens and beef, with soft pounded yam. Serving:
 Assumptions: Spinach (efo) stands in for ugu, which the food table doesn't list. One ladle of soup is about 250 g.
 
 Close matches: Spinach (efo tete): Amaranth (efo tete) values; also used where recipes take ugu, which the table doesn't list.
+
+Buy it: ₦1,500–4,500 for 1 plate with stew or soup and a small piece of meat or fish (Buka or local eatery, Lagos (lower on the mainland, higher in Lekki/VI); checked 2026-10-19).
 
 ### Efo riro with eba
 
@@ -323,6 +343,8 @@ Assumptions: Eba portion uses 100 g dry gari (a medium wrap).
 
 Close matches: Spinach (efo tete): Amaranth (efo tete) values; also used where recipes take ugu, which the table doesn't list.
 
+Buy it: ₦1,500–4,500 for 1 plate with stew or soup and a small piece of meat or fish (Buka or local eatery, Lagos (lower on the mainland, higher in Lekki/VI); checked 2026-10-19).
+
 ### Okra soup with eba
 
 Light, drawy okra soup with beef and dried fish, served with eba. Serving: 1 medium wrap eba + 1 ladle soup. Time: 40 min. Cuisine: Nigerian.
@@ -344,6 +366,8 @@ Assumptions: Eba portion uses 100 g dry gari.
 
 Close matches: Spinach (efo tete): Amaranth (efo tete) values; also used where recipes take ugu, which the table doesn't list.
 
+Buy it: ₦1,500–4,500 for 1 plate with stew or soup and a small piece of meat or fish (Buka or local eatery, Lagos (lower on the mainland, higher in Lekki/VI); checked 2026-10-19).
+
 ### Amala with ewedu and gbegiri
 
 Yam-flour amala with silky jute-leaf soup and bean soup, and beef. Serving: 1 medium wrap amala + ewedu + gbegiri. Time: 80 min. Cuisine: Nigerian.
@@ -363,6 +387,8 @@ Yam-flour amala with silky jute-leaf soup and bean soup, and beef. Serving: 1 me
 
 Assumptions: Amala uses 100 g dry yam flour (a medium wrap).
 
+Buy it: ₦1,500–4,500 for 1 plate with stew or soup and a small piece of meat or fish (Buka or local eatery, Lagos (lower on the mainland, higher in Lekki/VI); checked 2026-10-19).
+
 ### Beans porridge with plantain
 
 Soft brown beans cooked in palm oil and pepper with chunks of ripe plantain. Serving: 1 bowl. Time: 90 min. Cuisine: Nigerian.
@@ -379,6 +405,8 @@ Soft brown beans cooked in palm oil and pepper with chunks of ripe plantain. Ser
 | Salt | pinch of salt | 1 | yes |
 
 Assumptions: Beans are weighed dry.
+
+Buy it: ₦1,500–4,500 for 1 plate with stew or soup and a small piece of meat or fish (Buka or local eatery, Lagos (lower on the mainland, higher in Lekki/VI); checked 2026-10-19).
 
 ### Yam porridge (asaro)
 
@@ -399,6 +427,8 @@ Yam cooked down in a peppery palm-oil sauce with spinach. Serving: 1 bowl. Time:
 Assumptions: Yam is weighed raw and peeled.
 
 Close matches: Spinach (efo tete): Amaranth (efo tete) values; also used where recipes take ugu, which the table doesn't list.
+
+Buy it: ₦1,500–4,500 for 1 plate with stew or soup and a small piece of meat or fish (Buka or local eatery, Lagos (lower on the mainland, higher in Lekki/VI); checked 2026-10-19).
 
 ### Jollof spaghetti with minced beef
 
@@ -474,6 +504,8 @@ Assumptions: Ayamase is usually very oily; this uses 2 tbsp palm oil per serving
 
 Close matches: Ofada rice: Ofada rice is not listed; brown (unpolished) rice is the closest match.
 
+Buy it: ₦1,500–4,500 for 1 plate with stew or soup and a small piece of meat or fish (Buka or local eatery, Lagos (lower on the mainland, higher in Lekki/VI); checked 2026-10-19).
+
 ### Ogbono soup with eba
 
 Thick, drawy ogbono soup with greens, beef and dried fish, with eba. Serving: 1 medium wrap eba + 1 ladle soup. Time: 45 min. Cuisine: Nigerian.
@@ -494,6 +526,8 @@ Thick, drawy ogbono soup with greens, beef and dried fish, with eba. Serving: 1 
 Assumptions: Eba portion uses 100 g dry gari.
 
 Close matches: Spinach (efo tete): Amaranth (efo tete) values; also used where recipes take ugu, which the table doesn't list.
+
+Buy it: ₦1,500–4,500 for 1 plate with stew or soup and a small piece of meat or fish (Buka or local eatery, Lagos (lower on the mainland, higher in Lekki/VI); checked 2026-10-19).
 
 ### Waakye with egg
 
@@ -641,6 +675,8 @@ Assumptions: Plantain is weighed peeled.
 
 Close matches: Spinach (efo tete): Amaranth (efo tete) values; also used where recipes take ugu, which the table doesn't list.
 
+Buy it: ₦1,500–4,500 for 1 plate with stew or soup and a small piece of meat or fish (Buka or local eatery, Lagos (lower on the mainland, higher in Lekki/VI); checked 2026-10-19).
+
 ### Boiled yam with garden egg sauce
 
 Boiled yam with a palm-oil sauce of chopped garden eggs and dried fish. Serving: 3 slices yam + sauce. Time: 35 min. Cuisine: Nigerian.
@@ -659,6 +695,8 @@ Boiled yam with a palm-oil sauce of chopped garden eggs and dried fish. Serving:
 Assumptions: Garden egg figures come from a close relative (see sources).
 
 Close matches: Garden egg: Values for native eggplant (Solanum macrocarpon); Nigerian garden egg is a close relative.
+
+Buy it: ₦1,500–4,500 for 1 plate with stew or soup and a small piece of meat or fish (Buka or local eatery, Lagos (lower on the mainland, higher in Lekki/VI); checked 2026-10-19).
 
 ### Roasted corn and coconut
 
@@ -745,6 +783,226 @@ The simplest protein snack. Serving: 2 eggs. Time: 12 min. Cuisine: Nigerian.
 
 Assumptions: Two medium eggs weigh about 100 g without shells.
 
+### Coconut rice with beef and fish
+
+Rice simmered in fresh coconut milk with beef, dried fish, carrots and green beans. Serving: 1 plate. Time: 60 min. Cuisine: Nigerian.
+
+| Ingredient | Amount | g | Counted |
+|---|---|---|---|
+| White rice | ½ cup rice (raw) | 90 | yes |
+| Coconut milk | ⅓ cup coconut milk (from about ¼ coconut) | 80 | yes |
+| Beef (lean) | 1 small piece beef | 40 | yes |
+| Dried fish | 1 small piece dried fish | 25 | yes |
+| Green beans | a few green beans | 15 | yes |
+| Carrot | a little carrot | 15 | yes |
+| Onion | a little onion | 17 | yes |
+| Scotch bonnet pepper (ata rodo) | 1 scotch bonnet | 8 | yes |
+| Ground crayfish | 1 tsp ground crayfish | 5 | yes |
+| Seasoning cube (beef) | 1 seasoning cube | 4 | yes |
+| Salt | pinch of salt | 1 | yes |
+
+Assumptions: The eCookbook pot serves about 5; amounts here are one fifth. Rice amount isn't given in the source; ½ cup raw rice per plate is our assumption. Homemade coconut juice is weaker than canned; we count it as 80 g of coconut milk per plate.
+
+Close matches: White rice: Parboiled long-grain rice (most common in Nigeria) is not listed separately; polished white rice is used.
+
+Based on: The Nigeria eCookbook (2024), Tovero Energy with Modern Energy Cooking Services (MECS), funded by UK Aid (CC BY-NC-ND 4.0).
+
+Buy it: ₦1,500–4,500 for 1 plate with stew or soup and a small piece of meat or fish (Buka or local eatery, Lagos (lower on the mainland, higher in Lekki/VI); checked 2026-10-19).
+
+### Ofe onugbu (bitterleaf soup) with fufu
+
+Igbo bitterleaf soup thickened with cocoyam, with beef and dried fish, served with fufu. Serving: 1 medium wrap fufu + 1 ladle soup. Time: 90 min. Cuisine: Nigerian.
+
+| Ingredient | Amount | g | Counted |
+|---|---|---|---|
+| Fufu / akpu (cooked) | 1 medium wrap fufu (akpu) | 250 | yes |
+| Cocoyam (ede) | 1 small cocoyam, for thickening | 68 | yes |
+| Bitterleaf (onugbu) | a handful washed bitterleaf | 19 | yes |
+| Palm oil | palm fruit juice (counted as 1 tbsp palm oil) | 15 | yes |
+| Beef (lean) | 2 small pieces beef | 60 | yes |
+| Dried fish | 1 piece dried fish and stockfish | 60 | yes |
+| Ground crayfish | ½ tsp ground crayfish | 3 | yes |
+| Locust beans (iru) | a little ogiri | 1 | yes |
+| Onion | a little onion | 11 | yes |
+| Seasoning cube (beef) | ¾ seasoning cube | 3 | yes |
+| Salt | pinch of salt | 1 | yes |
+
+Assumptions: The eCookbook pot serves about 8; soup amounts here are one eighth. Palm fruit juice from fresh fruit is counted as 1 tbsp of palm oil per serving. Cow skin (ponmo) in the original isn't counted; the food table doesn't list it. A medium wrap of fufu is about 250 g cooked.
+
+Based on: The Nigeria eCookbook (2024), Tovero Energy with Modern Energy Cooking Services (MECS), funded by UK Aid (CC BY-NC-ND 4.0).
+
+Buy it: ₦1,500–4,500 for 1 plate with stew or soup and a small piece of meat or fish (Buka or local eatery, Lagos (lower on the mainland, higher in Lekki/VI); checked 2026-10-19).
+
+### Afang soup with eba
+
+Efik and Ibibio soup of afang and waterleaf with goat meat, fish and periwinkle, served with eba. Serving: 1 medium wrap eba + 1 ladle soup. Time: 75 min. Cuisine: Nigerian.
+
+| Ingredient | Amount | g | Counted |
+|---|---|---|---|
+| Gari (for eba) | 1 cup gari (for eba) | 100 | yes |
+| Afang (okazi) leaves | a handful pounded afang leaves | 14 | yes |
+| Waterleaf | a large handful waterleaf | 88 | yes |
+| Palm oil | 1½ tbsp palm oil | 22 | yes |
+| Goat meat | 2 small pieces goat meat | 62 | yes |
+| Dried fish | dried fish and stockfish | 75 | yes |
+| Periwinkle (meat) | a spoon of periwinkle meat | 20 | yes |
+| Snail | 1 small piece snail | 8 | yes |
+| Ground crayfish | 1 tsp ground crayfish | 4 | yes |
+| Onion | a little onion | 10 | yes |
+| Scotch bonnet pepper (ata rodo) | ½ scotch bonnet | 3 | yes |
+| Seasoning cube (beef) | ¾ seasoning cube | 3 | yes |
+
+Assumptions: The eCookbook pot serves about 8; soup amounts here are one eighth. Periwinkle weight is the meat only (the shells are most of what you buy). Cow skin (ponmo) in the original isn't counted. Eba uses 100 g dry gari.
+
+Close matches: Afang (okazi) leaves: Afang (Gnetum africanum) is not in the table; FAO's average green leafy vegetable is used. Periwinkle (meat): Periwinkle is not listed; sea snail (whelk) flesh is the closest match. Molluscs count as shellfish here.
+
+Based on: The Nigeria eCookbook (2024), Tovero Energy with Modern Energy Cooking Services (MECS), funded by UK Aid (CC BY-NC-ND 4.0).
+
+Buy it: ₦1,500–4,500 for 1 plate with stew or soup and a small piece of meat or fish (Buka or local eatery, Lagos (lower on the mainland, higher in Lekki/VI); checked 2026-10-19).
+
+### Pate (maize and vegetable porridge)
+
+North-Central porridge of crushed maize with groundnuts, tomatoes, greens and beef. Serving: 1 bowl. Time: 60 min. Cuisine: Nigerian.
+
+| Ingredient | Amount | g | Counted |
+|---|---|---|---|
+| Crushed dried maize (saaki) | ¼ cup crushed dried maize (saaki) | 50 | yes |
+| Groundnuts (peanuts) | 2 tbsp crushed groundnuts | 31 | yes |
+| Beef (lean) | 2 pieces beef | 83 | yes |
+| Dried fish | a little dried catfish | 17 | yes |
+| Tomatoes | 1 medium tomato | 92 | yes |
+| Spinach (efo tete) | a handful alefo (green leaves) | 22 | yes |
+| Sorrel leaves (yakuwa) | a handful yakuwa (sorrel leaves) | 22 | yes |
+| Cabbage | a little cabbage | 21 | yes |
+| Onion | onion and spring onion | 37 | yes |
+| Scotch bonnet pepper (ata rodo) | 2 scotch bonnets | 15 | yes |
+| Locust beans (iru) | 1 tsp dawadawa | 5 | yes |
+| Palm oil | 1 tbsp palm oil | 15 | yes |
+| Seasoning cube (beef) | 1 seasoning cube | 5 | yes |
+| Salt | pinch of salt | 1 | yes |
+
+Assumptions: The eCookbook pot serves about 6; amounts here are one sixth. The original uses about 39 g of pepper per serving; we use 15 g. Spice level doesn't change the figures much.
+
+Close matches: Crushed dried maize (saaki): Values for degermed yellow maize grits; crushed white maize is similar. Spinach (efo tete): Amaranth (efo tete) values; also used where recipes take ugu, which the table doesn't list.
+
+Based on: The Nigeria eCookbook (2024), Tovero Energy with Modern Energy Cooking Services (MECS), funded by UK Aid (CC BY-NC-ND 4.0).
+
+### Margi special with tuwo masara
+
+Adamawa fish steamed between layers of greens and sorrel leaves, with tuwo masara. Serving: 1 piece fish with greens + 1 wrap tuwo. Time: 45 min. Cuisine: Nigerian.
+
+| Ingredient | Amount | g | Counted |
+|---|---|---|---|
+| White maize flour (garin tuwo) | 1 cup white maize flour (for tuwo) | 100 | yes |
+| Tilapia | 1 piece fresh fish | 125 | yes |
+| Spinach (efo tete) | a large handful alefo | 49 | yes |
+| Sorrel leaves (yakuwa) | a handful yakuwa (sorrel leaves) | 43 | yes |
+| Tomatoes | 1 medium tomato | 95 | yes |
+| Onion | onion and spring onion | 60 | yes |
+| Scotch bonnet pepper (ata rodo) | 1–2 scotch bonnets | 12 | yes |
+| Vegetable oil (soya) | 1½ tbsp oil | 23 | yes |
+| Seasoning cube (beef) | 2 seasoning cubes | 7 | yes |
+
+Assumptions: The eCookbook pot serves about 4; amounts here are one quarter. Any firm fresh fish works; tilapia figures are used. Tuwo uses 100 g of maize flour per wrap. A pinch of potash in the original isn't counted (no energy).
+
+Close matches: Spinach (efo tete): Amaranth (efo tete) values; also used where recipes take ugu, which the table doesn't list.
+
+Based on: The Nigeria eCookbook (2024), Tovero Energy with Modern Energy Cooking Services (MECS), funded by UK Aid (CC BY-NC-ND 4.0).
+
+### Tuwo masara with miyan kuka
+
+Hausa baobab-leaf soup with beef and dawadawa, served with smooth maize tuwo. Serving: 1 wrap tuwo + 1 ladle soup. Time: 60 min. Cuisine: Nigerian.
+
+| Ingredient | Amount | g | Counted |
+|---|---|---|---|
+| White maize flour (garin tuwo) | 1 cup white maize flour (for tuwo) | 100 | yes |
+| Baobab leaf powder (kuka) | 1 tbsp kuka powder | 10 | yes |
+| Beef (lean) | 3 pieces beef | 125 | yes |
+| Locust beans (iru) | 1 tsp dawadawa | 5 | yes |
+| Palm oil | 2 tsp palm oil | 11 | yes |
+| Onion | onion and spring onion | 17 | yes |
+| Scotch bonnet pepper (ata rodo) | 1–2 scotch bonnets | 13 | yes |
+| Ground crayfish | a pinch of crayfish | 2 | yes |
+| Ginger | a little ginger | 3 | yes |
+| Seasoning cube (beef) | ¾ seasoning cube | 3 | yes |
+
+Assumptions: The eCookbook pot serves about 8; amounts here are one eighth. Tuwo uses 100 g of maize flour per wrap.
+
+Based on: The Nigeria eCookbook (2024), Tovero Energy with Modern Energy Cooking Services (MECS), funded by UK Aid (CC BY-NC-ND 4.0).
+
+Buy it: ₦1,500–4,500 for 1 plate with stew or soup and a small piece of meat or fish (Buka or local eatery, Lagos (lower on the mainland, higher in Lekki/VI); checked 2026-10-19).
+
+### Lentils with rice and onions
+
+Tender lentils tossed with rice and slow-cooked onions in a little butter. Simple, filling, meat-free. Serving: 1 bowl. Time: 60 min. Cuisine: Mediterranean.
+
+| Ingredient | Amount | g | Counted |
+|---|---|---|---|
+| Lentils | ½ cup lentils (dry) | 95 | yes |
+| White rice | 2 tbsp rice (raw), or ½ cup cooked | 28 | yes |
+| Onion | ½ onion | 38 | yes |
+| Butter | 1½ tsp butter | 7 | yes |
+| Salt | pinch of salt | 1 | yes |
+
+Assumptions: The original makes about 4 bowls; amounts here are a quarter. Lentils are weighed dry.
+
+Close matches: White rice: Parboiled long-grain rice (most common in Nigeria) is not listed separately; polished white rice is used.
+
+Based on: The Golden Rule Cook Book (1907), “Lentils Egyptian style”, M. R. L. Sharpe; digitised by the Internet Archive (Public domain).
+
+### Herbed cucumber salad
+
+Thin cucumber slices in a mint, garlic and honey vinegar dressing. Crunchy and very light. Serving: 1 small bowl. Time: 20 min. Cuisine: International.
+
+| Ingredient | Amount | g | Counted |
+|---|---|---|---|
+| Cucumber | 1 small cucumber | 113 | yes |
+| Vinegar | ¼ cup vinegar | 60 | yes |
+| Honey | 1½ tsp honey | 10 | yes |
+| Fresh mint | a few mint leaves | 1 | yes |
+| Garlic | a little garlic | 1 | yes |
+| Salt | ½ tsp salt (mostly drained off) | 2 | yes |
+| Plain yoghurt | 2 tbsp plain yoghurt on top | 30 | no (optional) |
+
+Assumptions: The original serves about 4. Much of the dressing stays in the bowl; we count all of it, so the real figure is a little lower. Fresh dill and chives aren't in the food tables and add under 2 kcal; not counted.
+
+Based on: Gourmet Garden Salads: Harvest Goodness from Plant to Plate, Patti Winker (© the author. Ingredient amounts only; steps written by Mealwise).
+
+### Cabbage and carrot slaw with almonds
+
+Shredded cabbage and carrot in a honey-mustard yoghurt dressing with toasted almonds. Serving: 1 side bowl. Time: 20 min. Cuisine: International.
+
+| Ingredient | Amount | g | Counted |
+|---|---|---|---|
+| Cabbage | 1 cup shredded cabbage | 60 | yes |
+| Carrot | ⅓ carrot | 24 | yes |
+| Almonds | 1 tsp sliced almonds | 5 | yes |
+| Olive oil | 2 tsp olive oil | 8 | yes |
+| Vinegar | 2 tsp vinegar | 9 | yes |
+| Honey | 2 tsp honey | 13 | yes |
+| Plain yoghurt | 2 tsp plain yoghurt | 9 | yes |
+| Mustard (prepared) | a dab of mustard | 2 | yes |
+| Salt | pinch of salt | 1 | yes |
+
+Assumptions: The original serves 4–6 and uses broccoli stems, noting cabbage as a substitute; we use cabbage and count 5 servings.
+
+Based on: Gourmet Garden Salads: Harvest Goodness from Plant to Plate, Patti Winker (© the author. Ingredient amounts only; steps written by Mealwise).
+
+### Pineapple, banana and strawberry smoothie
+
+Blended pineapple juice, banana, strawberries and yoghurt. A quick breakfast or snack. Serving: 1 large glass (about 350 ml). Time: 5 min. Cuisine: International.
+
+| Ingredient | Amount | g | Counted |
+|---|---|---|---|
+| Pineapple juice (unsweetened) | ½ cup pineapple juice | 125 | yes |
+| Sweetened yoghurt | ½ cup sweetened yoghurt | 120 | yes |
+| Strawberries | ½ cup strawberries (fresh or frozen) | 75 | yes |
+| Banana | 1 banana | 120 | yes |
+
+Assumptions: The original makes 2 glasses. Plain yoghurt instead of sweetened saves about 25 kcal.
+
+Based on: Mom’s Best Recipes, Volume 2, “Sunrise Smoothie”, Recipe by Shirley McNevich (© the author. Ingredient amounts only; steps written by Mealwise).
+
 ## Ingredients and sources
 
 | Ingredient | Source | Code | Source food | kcal/100 g | Note |
@@ -808,10 +1066,30 @@ Assumptions: Two medium eggs weigh about 100 g without shells.
 | Coconut | FAO/INFOODS West Africa 2019 | 06_002 | Coconut, mature kernel, fresh, raw | 383 |  |
 | Ground melon seeds (egusi) | FAO/INFOODS West Africa 2019 | 06_013 | Melon seed, kernel only, dried, raw | 574 |  |
 | Ground ogbono (dika nut) | FAO/INFOODS West Africa 2019 | 06_008 | Dikanut, kernel, dried, raw | 650 | Source marks fat as estimated. |
+| Bitterleaf (onugbu) | FAO/INFOODS West Africa 2019 | 04_022 | Vernonia, leaves, bitter, fresh, raw | 65 |  |
+| Cocoyam (ede) | FAO/INFOODS West Africa 2019 | 02_005 | Cocoyam, tuber, white, raw | 136 |  |
+| Waterleaf | FAO/INFOODS West Africa 2019 | 04_078 | Waterleaf, leaves, fresh, raw | 40 | Source marks fat as estimated. |
+| Afang (okazi) leaves | FAO/INFOODS West Africa 2019 | 04_131 | Green leafy vegetable, average, fresh, raw | 43 | Afang (Gnetum africanum) is not in the table; FAO's average green leafy vegetable is used. Source marks fat as estimated. |
+| Periwinkle (meat) | FAO/INFOODS West Africa 2019 | 09_056 | Sea snail/whelk, flesh, raw | 130 | Periwinkle is not listed; sea snail (whelk) flesh is the closest match. Molluscs count as shellfish here. |
+| Snail | FAO/INFOODS West Africa 2019 | 07_083 | Snail, raw | 88 | Source marks fat as estimated. |
+| Sorrel leaves (yakuwa) | FAO/INFOODS West Africa 2019 | 04_016 | Hibiscus, leaves, fresh, raw | 40 | Source marks fat as estimated. |
+| Baobab leaf powder (kuka) | FAO/INFOODS West Africa 2019 | 04_002 | Baobab, leaves, dried | 241 |  |
+| White maize flour (garin tuwo) | FAO/INFOODS West Africa 2019 | 01_081 | Maize, white, refined flour (super), unfortified | 358 |  |
+| Crushed dried maize (saaki) | FAO/INFOODS West Africa 2019 | 01_055 | Maize, yellow, grit, degermed, raw | 346 | Values for degermed yellow maize grits; crushed white maize is similar. |
+| Coconut milk | FAO/INFOODS West Africa 2019 | 06_006 | Coconut milk, fresh or canned | 201 |  |
+| Fufu / akpu (cooked) | FAO/INFOODS West Africa 2019 | 02_041 | Cassava, fermented paste from white cassava flour (wet fufu) | 165 | Source marks fat as estimated. |
+| Lentils | FAO/INFOODS West Africa 2019 | 03_030 | Lentil, dry, raw | 328 |  |
+| Fresh mint | FAO/INFOODS West Africa 2019 | 04_085 | Mint, leaves, raw | 46 |  |
+| Almonds | USDA FoodData Central (SR Legacy) | 170567 | Nuts, almonds | 579 |  |
+| Strawberries | USDA FoodData Central (SR Legacy) | 167762 | Strawberries, raw | 32 |  |
+| Pineapple juice (unsweetened) | USDA FoodData Central (SR Legacy) | 168187 | Pineapple juice, canned or bottled, unsweetened, with added ascorbic acid | 53 |  |
 | Palm oil | FAO/INFOODS West Africa 2019 | 11_004 | Palm oil, red | 898 |  |
 | Vegetable oil (soya) | FAO/INFOODS West Africa 2019 | 11_009 | Soya oil, unfortified | 900 |  |
 | Evaporated milk | FAO/INFOODS West Africa 2019 | 10_016 | Milk, cow, canned, evaporated | 157 |  |
 | Plain yoghurt | FAO/INFOODS West Africa 2019 | 10_005 | Yoghurt, plain, from whole cow’s milk | 82 |  |
+| Butter | FAO/INFOODS West Africa 2019 | 11_001 | Butter, from cow’s milk, unsalted | 743 |  |
+| Olive oil | FAO/INFOODS West Africa 2019 | 11_014 | Olive oil | 900 |  |
+| Sweetened yoghurt | FAO/INFOODS West Africa 2019 | 10_026 | Yoghurt, from reduced fat/skimmed cow’s milk, sweetened/with fruit | 83 |  |
 | Seasoning cube (beef) | FAO/INFOODS West Africa 2019 | 13_008 | Cube, beef, dry | 190 |  |
 | Curry powder | FAO/INFOODS West Africa 2019 | 13_022 | Curry powder | 293 |  |
 | Dried thyme | USDA FoodData Central (SR Legacy) | 170938 | Spices, thyme, dried | 276 |  |
@@ -819,3 +1097,6 @@ Assumptions: Two medium eggs weigh about 100 g without shells.
 | Soy sauce | USDA FoodData Central (SR Legacy) | 174277 | Soy sauce made from soy and wheat (shoyu) | 53 |  |
 | Sugar | FAO/INFOODS West Africa 2019 | 13_002 | Sugar, white | 400 |  |
 | Salt | FAO/INFOODS West Africa 2019 | 13_015 | Salt | 0 |  |
+| Honey | FAO/INFOODS West Africa 2019 | 13_001 | Honey | 326 |  |
+| Vinegar | FAO/INFOODS West Africa 2019 | 13_003 | Vinegar | 19 |  |
+| Mustard (prepared) | FAO/INFOODS West Africa 2019 | 13_013 | Mustard, prepared, yellow | 60 |  |

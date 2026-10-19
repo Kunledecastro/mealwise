@@ -23,7 +23,7 @@ export const PRICE_STALE_DAYS = 90;
 /** Seasonings below this weight are ignored for cost (salt, a pinch of spice). */
 export const MIN_COSTED_GRAMS = 5;
 
-const MEAT: FoodGroup[] = ["beef_goat", "pork", "poultry"];
+const MEAT: FoodGroup[] = ["beef_goat", "pork", "poultry", "other_meat"];
 
 /** Diet labels a meal satisfies, derived only from its (non-optional) ingredients' food groups. */
 export function dietsFor(groups: FoodGroup[]): string[] {
@@ -35,8 +35,8 @@ export function dietsFor(groups: FoodGroup[]): string[] {
   if (vegetarian && !has("egg") && !has("dairy") && !has("other_animal")) diets.push("Vegan");
   if (noMeat) diets.push("Pescatarian");
   if (!has("pork")) diets.push("No pork");
-  // Halal: no pork or alcohol in the recipe. Meat must still come from a halal source (shown as a note).
-  if (!has("pork")) diets.push("Halal");
+  // Halal: no pork, snail or alcohol in the recipe. Meat must still come from a halal source (shown as a note).
+  if (!has("pork") && !has("other_meat")) diets.push("Halal");
   return diets;
 }
 
@@ -177,6 +177,7 @@ export function compileMeal(def: MealDef, ctx: CompileContext): Meal {
     sources: sourceShortNames,
     licenceToConfirm,
     substitutes: used.filter((i) => i.nutrition.substituteNote).map((i) => `${i.name}: ${i.nutrition.substituteNote}`),
+    basedOn: def.basedOn,
   };
 }
 

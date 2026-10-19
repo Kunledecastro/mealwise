@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { EMPTY_PROFILE } from "@/lib/domain/profile";
-import { alternativesFor, checkMeal, kcalBand, mentions, rankMeals, reasonsFor, factorsFor, WEIGHTS } from "@/lib/domain/recommend";
+import { alternativesFor, checkMeal, kcalBand, mealPriceRange, mentions, rankMeals, reasonsFor, factorsFor, WEIGHTS } from "@/lib/domain/recommend";
 import type { Meal, Profile } from "@/lib/types";
 
 // Synthetic meals for engine tests — not catalogue data.
@@ -160,3 +160,18 @@ describe("reasons and alternatives", () => {
     expect(alts.map((a) => a.name)).toEqual(["Near", "Far"]);
   });
 });
+
+describe("cook or buy prices", () => {
+  const ready = { portion: "1 plate", low: 1500, high: 2500, where: "Buka, Lagos", observedOn: "2026-10-19" };
+  it("R-20 budget uses the cooking cost when known, else the ready-made price", () => {
+    expect(mealPriceRange(m({ costLow: 800, costHigh: 1000, readyMade: ready }))).toEqual([800, 1000]);
+    expect(mealPriceRange(m({ costLow: null, costHigh: null, readyMade: ready }))).toEqual([1500, 2500]);
+    expect(mealPriceRange(m({ costLow: null, costHigh: null }))).toEqual([null, null]);
+  });
+  it("R-21 a ready-made price within budget scores fully; over budget scores lower", () => {
+    const ctx = { profile: P({ budget: "medium" as const }), slot: "lunch" as const };
+    expect(factorsFor(m({ costLow: null, costHigh: null, readyMade: ready }), ctx).budget).toBe(1);
+    expect(factorsFor(m({ costLow: null, costHigh: null, readyMade: { ...ready, low: 4500, high: 6000 } }), ctx).budget).toBeLessThan(1);
+  });
+});
+

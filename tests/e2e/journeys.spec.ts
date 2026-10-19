@@ -148,7 +148,7 @@ test("J4: search with filters, empty result, and clearing", async ({ page }) => 
   await page.getByRole("searchbox").fill("pizza");
   await expect(page.getByRole("heading", { name: "No meals match" })).toBeVisible();
   await page.getByRole("button", { name: "Clear search and filters" }).click();
-  await expect(page.getByText(/^40 meals/)).toBeVisible();
+  await expect(page.getByText(/^50 meals/)).toBeVisible();
   await page.getByRole("searchbox").fill("beans");
   await page.getByRole("group", { name: "Time" }).getByRole("button", { name: "Under 45 min" }).click();
   await expect(page.getByRole("link", { name: "Akara and pap" })).toBeVisible();

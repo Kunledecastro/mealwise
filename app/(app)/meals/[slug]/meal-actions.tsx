@@ -120,3 +120,15 @@ export function PriceNote({ priceDate }: { priceDate: string | null }) {
     </span>
   );
 }
+
+/** Source and date for a ready-made price; flags it when older than 90 days. */
+export function ReadyMadeNote({ observedOn, note }: { observedOn: string; note?: string }) {
+  const { today } = useStore();
+  const days = today ? Math.round((Date.parse(today) - Date.parse(observedOn)) / 86_400_000) : 0;
+  const label = new Date(observedOn).toLocaleDateString("en-NG", { month: "short", year: "numeric" });
+  return (
+    <p className={`text-xs ${days > PRICE_STALE_DAYS ? "text-error" : "text-muted"}`}>
+      Checked {label}{days > PRICE_STALE_DAYS ? ", may be out of date" : ""}.{note ? ` ${note}` : ""}
+    </p>
+  );
+}

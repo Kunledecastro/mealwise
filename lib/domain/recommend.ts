@@ -27,6 +27,13 @@ const GOAL_SCALE = { lose: 0.85, maintain: 1, gain: 1.2 } as const;
 /** ₦ per serving each budget band allows (matches onboarding labels). */
 export const BUDGET_CAP = { low: 1500, medium: 3000, high: Infinity } as const;
 
+/** The price range used for budget: cooking cost if known, else the ready-made price, else unknown. */
+export function mealPriceRange(meal: Meal): [number | null, number | null] {
+  if (meal.costLow !== null && meal.costHigh !== null) return [meal.costLow, meal.costHigh];
+  if (meal.readyMade) return [meal.readyMade.low, meal.readyMade.high];
+  return [null, null];
+}
+
 export type HideReason = "allergy" | "allergy_unknown" | "diet" | "dislike" | "rejected";
 
 export interface Verdict {
@@ -133,8 +140,9 @@ export function factorsFor(meal: Meal, ctx: RecommendContext): Factors {
   const max = p.maxPrepMinutes;
   const time = !max ? 1 : meal.prepMinutes <= max ? 1 : clamp01(1 - (meal.prepMinutes - max) / max);
   const cap = p.budget ? BUDGET_CAP[p.budget] : Infinity;
-  const budget =
-    cap === Infinity ? 1 : meal.costLow === null || meal.costHigh === null ? 0.5 : meal.costHigh <= cap ? 1 : clamp01(1 - (meal.costLow - cap) / cap);
+  // Cooking cost when known; otherwise the typical price to buy it ready-made.
+  const [low, high] = mealPriceRange(meal);
+  const budget = cap === Infinity ? 1 : low === null || high === null ? 0.5 : high <= cap ? 1 : clamp01(1 - (low - cap) / cap);
   const cuisine = !p.cuisines.length || p.cuisines.includes(meal.cuisine) ? 1 : 0.4;
   const days = ctx.recent?.get(meal.slug);
   const variety = days === undefined ? 1 : days <= 0 ? 0 : days === 1 ? 0.3 : days === 2 ? 0.6 : 1;

@@ -9,6 +9,11 @@ Quarterly price update for the product owner (DECISION_LOG 034).
      Leave a row blank if you don't have a price; meals using it will say "Price not yet estimated".
   3. import:  python3 scripts/catalogue/price_sheet.py import
      Validates the sheet and rewrites catalogue/prices.ts. Then commit and push; Vercel redeploys.
+
+Ready-made ("Buy it") prices work the same way, per dish rather than per ingredient:
+  python3 scripts/catalogue/price_sheet.py export-ready   -> docs/READY_MADE_PRICE_SHEET.csv
+  python3 scripts/catalogue/price_sheet.py import-ready   -> catalogue/ready-made.ts
+No vendor names: record a typical range for one plate from bukas, eateries or delivery apps.
 """
 import csv
 import json
@@ -50,6 +55,16 @@ UNITS = {
     "ogbono": ("1 kg ground ogbono", 1000), "palm-oil": ("1 litre (about 900 g)", 900),
     "vegetable-oil": ("1 litre (about 920 g)", 920), "evaporated-milk": ("1 tin (160 g)", 160),
     "yoghurt": ("1 tub (500 g)", 500), "soy-sauce": ("1 bottle (about 150 g)", 150),
+    "bitterleaf": ("1 bunch washed bitterleaf (about 200 g)", 200), "cocoyam": ("1 kg", 850),
+    "waterleaf": ("1 bunch (about 500 g leaves)", 500), "afang": ("1 bunch sliced afang (about 150 g)", 150),
+    "periwinkle": ("1 small bowl in shell (about 100 g meat)", 100), "snail": ("1 big snail (about 60 g meat)", 60),
+    "yakuwa": ("1 bunch (about 200 g leaves)", 200), "kuka": ("1 small bag (about 200 g)", 200),
+    "maize-flour": ("1 kg", 1000), "maize-grits": ("1 kg", 1000), "coconut-milk": ("1 coconut (makes about 300 g milk)", 300),
+    "fufu": ("1 wrap (about 250 g)", 250),
+    "lentils": ("1 kg", 1000), "mint": ("1 bunch (about 30 g)", 30), "almonds": ("1 pack (200 g)", 200),
+    "strawberries": ("1 punnet (250 g)", 250), "pineapple-juice": ("1 litre carton (about 1 kg)", 1000),
+    "butter": ("1 pack (250 g)", 250), "olive-oil": ("1 bottle (500 ml, about 460 g)", 460),
+    "yoghurt-sweet": ("1 tub (500 g)", 500), "honey": ("1 bottle (500 g)", 500), "vinegar": ("1 bottle (about 500 g)", 500),
 }
 
 FIELDS = ["ingredient_id", "ingredient", "unit", "grams_per_unit", "low_naira", "high_naira", "observed_on", "source", "note"]
@@ -131,5 +146,76 @@ def do_import():
     print(f"Imported {len(out)} prices into {PRICES_TS}")
 
 
+READY_SHEET = os.path.join(ROOT, "docs", "READY_MADE_PRICE_SHEET.csv")
+READY_TS = os.path.join(ROOT, "catalogue", "ready-made.ts")
+READY_FIELDS = ["meal_slug", "meal", "portion", "where", "low_naira", "high_naira", "observed_on", "note"]
+
+
+def meal_names():
+    out = {}
+    for f in ("meals.ts", "meals-ecookbook.ts", "meals-recipe-files.ts"):
+        text = open(os.path.join(ROOT, "catalogue", f), encoding="utf-8").read()
+        for m in re.finditer(r'slug: "([^"]+)",\s*name: "([^"]+)"', text):
+            out[m.group(1)] = m.group(2)
+    return out
+
+
+def current_ready():
+    if not os.path.exists(READY_TS):
+        return {}
+    m = re.search(r"/\* READY_JSON (.*?) \*/", open(READY_TS, encoding="utf-8").read(), re.S)
+    return json.loads(m.group(1)) if m else {}
+
+
+def export_ready():
+    names, cur = meal_names(), current_ready()
+    with open(READY_SHEET, "w", newline="", encoding="utf-8") as f:
+        w = csv.DictWriter(f, fieldnames=READY_FIELDS)
+        w.writeheader()
+        for slug, name in names.items():
+            p = cur.get(slug, {})
+            w.writerow({"meal_slug": slug, "meal": name, "portion": p.get("portion", "1 plate"),
+                        "where": p.get("where", "Buka or eatery, Lagos"), "low_naira": p.get("low", ""),
+                        "high_naira": p.get("high", ""), "observed_on": p.get("observedOn", ""), "note": p.get("note", "")})
+    print(f"Wrote {READY_SHEET} ({len(names)} meals)")
+
+
+def import_ready():
+    names, out, errors = meal_names(), {}, []
+    with open(READY_SHEET, newline="", encoding="utf-8") as f:
+        for n, row in enumerate(csv.DictReader(f), start=2):
+            slug = row["meal_slug"].strip()
+            if slug not in names:
+                errors.append(f"row {n}: unknown meal_slug {slug!r}")
+                continue
+            if not row["low_naira"].strip() and not row["high_naira"].strip():
+                continue
+            try:
+                low, high = float(row["low_naira"]), float(row["high_naira"])
+                d = date.fromisoformat(row["observed_on"].strip())
+            except ValueError as e:
+                errors.append(f"row {n} ({slug}): {e}")
+                continue
+            if not (0 < low <= high) or high > low * 3:
+                errors.append(f"row {n} ({slug}): need 0 < low <= high <= 3 x low")
+            if d > date.today():
+                errors.append(f"row {n} ({slug}): date is in the future")
+            entry = {"portion": row["portion"].strip() or "1 plate", "low": low, "high": high,
+                     "where": row["where"].strip() or "Buka or eatery, Lagos", "observedOn": d.isoformat()}
+            if row["note"].strip():
+                entry["note"] = row["note"].strip()
+            out[slug] = entry
+    if errors:
+        sys.exit("Ready-made sheet has problems, nothing changed:\n  " + "\n  ".join(errors))
+    body = json.dumps(out, indent=2, ensure_ascii=False)
+    open(READY_TS, "w", encoding="utf-8").write(
+        'import type { ReadyMadePrice } from "@/lib/types";\n\n'
+        "/**\n * Typical price to buy one plate ready-made (DECISION_LOG 043). GENERATED from\n"
+        " * docs/READY_MADE_PRICE_SHEET.csv by scripts/catalogue/price_sheet.py — edit the sheet.\n */\n"
+        f"/* READY_JSON {body} */\n"
+        f"export const READY_MADE: Record<string, ReadyMadePrice> = {body};\n")
+    print(f"Imported {len(out)} ready-made prices into {READY_TS}")
+
+
 if __name__ == "__main__":
-    {"export": export, "import": do_import}.get(sys.argv[1] if len(sys.argv) > 1 else "", lambda: sys.exit(__doc__))()
+    {"export": export, "import": do_import, "export-ready": export_ready, "import-ready": import_ready}.get(sys.argv[1] if len(sys.argv) > 1 else "", lambda: sys.exit(__doc__))()

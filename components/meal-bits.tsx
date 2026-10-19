@@ -50,8 +50,18 @@ export function MealFacts({ meal, className = "" }: { meal: Meal; className?: st
       </span>
       <span className="inline-flex items-center gap-1">
         <Wallet size={14} aria-hidden="true" />
-        <span className="sr-only">Estimated cost</span>
-        {formatNairaRange(meal.costLow, meal.costHigh)}
+        {meal.costLow === null && meal.readyMade ? (
+          <>
+            <span className="sr-only">Typical price to buy</span>
+            <span aria-hidden="true">Buy </span>
+            {formatNairaRange(meal.readyMade.low, meal.readyMade.high)}
+          </>
+        ) : (
+          <>
+            <span className="sr-only">Estimated cost to cook</span>
+            {formatNairaRange(meal.costLow, meal.costHigh)}
+          </>
+        )}
       </span>
     </p>
   );
