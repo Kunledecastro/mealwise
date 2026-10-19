@@ -1,7 +1,7 @@
 import AxeBuilder from "@axe-core/playwright";
 import { expect, test, type Page } from "./fixtures";
 
-const PUBLIC_ROUTES = ["/", "/sign-in", "/sign-up", "/reset-password"];
+const PUBLIC_ROUTES = ["/", "/sign-in", "/sign-up", "/reset-password", "/privacy"];
 const APP_ROUTES = [
   "/onboarding", "/update-password", "/home", "/today", "/meals?slot=breakfast", "/meals?slot=lunch", "/meals?slot=dinner", "/meals?slot=snack",
   "/meals/jollof-rice-chicken", "/search", "/saved", "/progress", "/profile", "/settings", "/plan", "/plan/shopping",
@@ -42,9 +42,9 @@ for (const route of APP_ROUTES) {
   });
 }
 
-test("unknown meal shows the not-found page", async ({ page }) => {
-  // Status is 200 + noindex because the page streams before the lookup (see BUGS_AND_ISSUES I7).
-  await page.goto("/meals/not-a-real-meal");
+test("unknown meal shows the not-found page with a 404 status (I7)", async ({ page }) => {
+  const res = await page.goto("/meals/not-a-real-meal");
+  expect(res?.status()).toBe(404);
   await expect(page.getByRole("heading", { name: "We couldn't find that page" })).toBeVisible();
   expect(await page.locator('meta[name="robots"][content*="noindex"]').count()).toBeGreaterThan(0);
   await page.getByRole("link", { name: "Go to home" }).click();
@@ -70,5 +70,19 @@ test("estimates are labelled on every screen that shows calculated figures", asy
   for (const path of ["/home", "/meals?slot=lunch", "/meals/akara-and-pap", "/search", "/today"]) {
     await page.goto(path);
     await expect(page.getByText(/^Estimates$/).first()).toBeVisible();
+  }
+});
+
+test("security headers are sent on every page", async ({ page }) => {
+  for (const path of ["/", "/sign-in", "/home"]) {
+    const res = await page.goto(path);
+    const h = res!.headers();
+    expect(h["content-security-policy"], path).toContain("frame-ancestors 'none'");
+    expect(h["content-security-policy"], path).toContain("object-src 'none'");
+    expect(h["content-security-policy"], path).toMatch(/connect-src 'self' https:\/\/\w+\.supabase\.co/);
+    expect(h["x-frame-options"], path).toBe("DENY");
+    expect(h["x-content-type-options"], path).toBe("nosniff");
+    expect(h["referrer-policy"], path).toBe("strict-origin-when-cross-origin");
+    expect(h["strict-transport-security"], path).toContain("max-age=");
   }
 });

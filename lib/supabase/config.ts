@@ -20,4 +20,4 @@ export function hasSessionCookie(names: string[]): boolean {
 }
 
 /** Version of the privacy notice a user agrees to at sign-up. Bump when the notice changes. */
-export const CONSENT_VERSION = "2026-10-18";
+export const CONSENT_VERSION = "2026-10-19";

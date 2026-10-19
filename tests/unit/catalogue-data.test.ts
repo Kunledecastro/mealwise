@@ -3,6 +3,7 @@ import { EXCLUDED_MEALS, INGREDIENTS, MEALS, PHOTO_CREDITS } from "@/catalogue";
 import { MEAL_DEFS } from "@/catalogue";
 import { NUTRITION_SOURCES } from "@/catalogue/sources";
 import { READY_MADE } from "@/catalogue/ready-made";
+import { MEAL_SLUGS } from "@/catalogue/slugs.generated";
 import { atwaterGap } from "@/lib/domain/catalogue";
 import { checkMeal, rankMeals } from "@/lib/domain/recommend";
 import { EMPTY_PROFILE } from "@/lib/domain/profile";
@@ -98,5 +99,8 @@ describe("catalogue data integrity", () => {
       const m = MEALS.find((x) => x.slug === slug)!;
       expect(m.basedOn?.licence, slug).toBeTruthy();
     }
+  });
+  it("D-14 the proxy's meal list matches the catalogue (run `npm run catalogue:report` after adding meals)", () => {
+    expect([...MEAL_SLUGS]).toEqual(MEALS.map((m) => m.slug).sort());
   });
 });

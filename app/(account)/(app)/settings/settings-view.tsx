@@ -12,13 +12,6 @@ import { getSupabase } from "@/lib/supabase/client";
 import { PHOTO_CREDITS } from "@/catalogue";
 import type { Units } from "@/lib/types";
 
-const STATE_LINKS = [
-  { label: "Meal ideas", path: "/meals" },
-  { label: "Search", path: "/search" },
-  { label: "Saved", path: "/saved" },
-  { label: "Today", path: "/today" },
-  { label: "Progress", path: "/progress" },
-];
 
 export function SettingsView() {
   const { profile, setProfile } = useStore();
@@ -38,33 +31,6 @@ export function SettingsView() {
 
       <YourData />
 
-      <section aria-labelledby="proto-title" className="flex flex-col gap-4 rounded-[var(--radius-lg)] border border-accent/25 bg-plantain-soft p-5">
-        <h2 id="proto-title" className="text-xl">Prototype tools</h2>
-        <p className="max-w-prose text-sm">
-          These links let you review how screens look while loading, when empty, and when something goes wrong. They
-          won&apos;t be in the real app.
-        </p>
-        <table className="w-full text-left text-sm">
-          <thead>
-            <tr><th className="py-1 pr-2">Screen</th><th className="px-2">Loading</th><th className="px-2">Empty</th><th className="px-2">Error</th></tr>
-          </thead>
-          <tbody>
-            {STATE_LINKS.map((s) => (
-              <tr key={s.path} className="border-t border-ink/10">
-                <td className="py-2 pr-2 font-semibold">{s.label}</td>
-                {(["loading", "empty", "error"] as const).map((d) => (
-                  <td key={d} className="px-2">
-                    <Link className="font-semibold text-accent underline" href={`${s.path}?demo=${d}`} aria-label={`${s.label} ${d} state`}>View</Link>
-                  </td>
-                ))}
-              </tr>
-            ))}
-          </tbody>
-        </table>
-        <p className="text-sm">
-          Also try a <Link href="/meals/not-a-real-meal" className="font-semibold text-accent underline">meal that doesn&apos;t exist</Link>.
-        </p>
-      </section>
 
       <section aria-labelledby="about-title" className="flex flex-col gap-2">
         <h2 id="about-title" className="text-xl">About Mealwise</h2>
@@ -72,7 +38,9 @@ export function SettingsView() {
           Mealwise offers general guidance about food and weight. It isn&apos;t medical advice and doesn&apos;t replace a doctor
           or registered dietitian. Nutrition figures and prices are estimates.
         </p>
-        <p className="text-sm text-muted">Version 0.5, Phase 5 test version</p>
+        <p className="text-sm text-muted">
+          Version 0.6, Phase 6 test version · <Link href="/privacy" className="font-semibold text-accent underline">Privacy</Link>
+        </p>
       </section>
 
       <section aria-labelledby="credits-title" className="flex flex-col gap-3">
@@ -157,8 +125,8 @@ function YourData() {
     router.replace("/?account=deleted");
   }
 
-  async function handleSignOut() {
-    await signOut();
+  async function handleSignOut(everywhere = false) {
+    await signOut(everywhere);
     router.replace("/");
   }
 
@@ -173,8 +141,11 @@ function YourData() {
         <Button variant="secondary" onClick={download} disabled={busy !== null}>
           {busy === "download" ? "Preparing…" : "Download my data"}
         </Button>
-        <Button variant="secondary" onClick={handleSignOut} disabled={busy !== null}>
+        <Button variant="secondary" onClick={() => handleSignOut()} disabled={busy !== null}>
           <LogOut size={18} aria-hidden="true" /> Sign out
+        </Button>
+        <Button variant="secondary" onClick={() => handleSignOut(true)} disabled={busy !== null}>
+          <LogOut size={18} aria-hidden="true" /> Sign out on all devices
         </Button>
         <Button variant="danger" disabled={busy !== null} onClick={() => { setConfirmText(""); setDeleteError(null); dialog.current?.showModal(); }}>
           Delete my account

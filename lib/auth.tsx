@@ -28,7 +28,8 @@ interface AuthState {
   saveProfile: (p: Profile, opts?: { completeOnboarding?: boolean }) => Promise<SaveResult>;
   reloadProfile: () => Promise<void>;
   /** Signs out on this device. The caller decides where to go next. */
-  signOut: () => Promise<void>;
+  /** Signs out this device, or every device where the account is signed in. */
+  signOut: (everywhere?: boolean) => Promise<void>;
   /** True after the user chose to sign out (or deleted their account), so screens don't bounce them to sign-in. */
   leftOnPurpose: boolean;
 }
@@ -109,9 +110,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     [userId, profile],
   );
 
-  const signOut = useCallback(async () => {
+  const signOut = useCallback(async (everywhere = false) => {
     setLeftOnPurpose(true);
-    await getSupabase().auth.signOut({ scope: "local" });
+    await getSupabase().auth.signOut({ scope: everywhere ? "global" : "local" });
   }, []);
 
   const value = useMemo<AuthState>(

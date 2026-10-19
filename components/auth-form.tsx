@@ -251,8 +251,11 @@ export function AuthForm({ mode }: { mode: AuthMode }) {
                   className="mt-0.5 size-5 shrink-0 accent-[var(--color-accent)]" aria-invalid={!!errors.consent}
                   aria-describedby={errors.consent ? "consent-error" : "consent-detail"} />
                 <span>
-                  I agree that Mealwise may store my food preferences, allergies and body measurements (such as weight)
-                  to personalise suggestions. <span id="consent-detail" className="text-muted">I can download or delete them at any time in Settings.</span>
+                  I agree that Mealwise may store my food preferences, allergies, body measurements, weight history, the meals I log and
+                  plan, and whether I need medical guidance, to personalise suggestions. This is kept in the UK.{" "}
+                  <span id="consent-detail" className="text-muted">
+                    I can download or delete it at any time in Settings. <Link href="/privacy" className="font-semibold text-accent underline">How we use it</Link>
+                  </span>
                 </span>
               </label>
               {errors.consent && <p id="consent-error" role="alert" className="text-sm font-medium text-error">{errors.consent}</p>}

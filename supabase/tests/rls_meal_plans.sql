@@ -132,5 +132,11 @@ begin
   where conrelid = 'public.meal_plans'::regclass and contype = 'f' and confdeltype = 'c';
   res := res || jsonb_build_object('20_plan_cascades_with_account', ok);
 
+  -- Phase 6 least privilege: no table-level removal permission where no rule allows it.
+  select not has_table_privilege('authenticated', 'public.meal_plans', 'DELETE') and not has_table_privilege('authenticated', 'public.profiles', 'DELETE')
+     and not has_table_privilege('authenticated', 'public.meal_preferences', 'DELETE')
+     and not has_function_privilege('anon', 'public.meal_plan_items_valid(jsonb, smallint)', 'execute') into ok;
+  res := res || jsonb_build_object('21_least_privilege_grants', ok);
+
   raise exception 'RLS_TEST_RESULTS %', res;
 end $$;

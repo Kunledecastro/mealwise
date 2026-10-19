@@ -95,6 +95,8 @@ export class SupabaseMock {
   calls: string[] = [];
   /** The key and token headers of every request, for checking the client sends them correctly. */
   requests: { method: string; path: string; apikey?: string; authorization?: string }[] = [];
+  /** Scope of each sign-out ("local" = this device, "global" = everywhere). */
+  logoutScopes: string[] = [];
   /** Emails the real service would have sent. */
   emails: { to: string; kind: string }[] = [];
   /** Set to make the next profile save fail, to test error handling. */
@@ -255,7 +257,10 @@ export class SupabaseMock {
       return this.reply(route, 200, userJson(u));
     }
 
-    if (p === "/auth/v1/logout") return this.reply(route, 204);
+    if (p === "/auth/v1/logout") {
+      this.logoutScopes.push(url.searchParams.get("scope") ?? "global");
+      return this.reply(route, 204);
+    }
 
     // ---- Database: public.profiles, with the same owner-only rule as the real policies ----
     if (p === "/rest/v1/profiles") {

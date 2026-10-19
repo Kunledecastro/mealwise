@@ -18,6 +18,9 @@ P4-01 to P4-04 — see TEST_PLAN.md "Defects found and fixed during Phase 4 test
 ## Fixed in Phase 5
 P5-01 to P5-04 — see TEST_PLAN.md "Defects found and fixed during Phase 5 testing".
 
+## Fixed in Phase 6
+P6-01 to P6-05 — see TEST_PLAN.md "Defects found and fixed during Phase 6".
+
 ## Known limitations (Phase 1, by design)
 | ID | Limitation | Resolved in |
 |---|---|---|
@@ -43,14 +46,17 @@ P5-01 to P5-04 — see TEST_PLAN.md "Defects found and fixed during Phase 5 test
 | I15 | ~~Large portions (750–955 kcal)~~ | — | **Addressed 2026-10-19** (decision 054): meal pages suggest ¾ or ½ of a serving against the user's target, logging starts at that portion, and ranking uses the personal target |
 | I16 | Ready-made prices are one generic buka range from a secondary source (Lagos.Cool), not per dish; 49 of 70 meals have none | "Buy it" is a rough guide | Product owner refines per dish and area in docs/READY_MADE_PRICE_SHEET.csv |
 | I17 | Ingredient price references found but not loaded: Lagos State Ministry of Agriculture tracker via Lagos.Cool (31 Jul 2026: tomatoes ₦2,000/kg, onions ₦1,000/kg, eggs ₦5,500/crate, medium yam ₦2,800, long-grain rice ₦60,000/50 kg) and Nairametrics September 2026 Lagos market survey (wholesale bags). Converting wholesale to retail needs assumptions | Cooking cost still "not yet estimated" | Use these as starting points when filling docs/PRICE_SHEET.csv |
-| I7 | An unknown meal address (e.g. `/meals/not-a-real-meal`) shows the correct "We couldn't find that page" screen, marked `noindex`, but the HTTP status is 200 instead of 404. Next.js 16 starts streaming the page before the lookup runs | None for users (app pages are behind sign-in, so not indexed) | Revisit in Phase 3 when meals come from the database (check in the proxy, or prerender known slugs) |
+| I7 | ~~Unknown meal pages returned status 200~~ | — | **Fixed 2026-10-19** (decision 065): real 404 |
 | I8 | Supabase's built-in email sender only reaches members of the Supabase organisation and is rate-limited | Outside testers can't sign up yet | Decision 030: custom email sender before wider testing |
 | I9 | Email links (confirm, reset, sign-in link) and the delete-account function could not be exercised end-to-end from this workspace (no network route to supabase.co) | Covered by stand-in tests + database tests; real path needs your manual test M2-01..M2-10 | Product owner manual tests |
-| I10 | Signing out uses "this device" scope; other devices stay signed in until their session expires | Low | Add "sign out everywhere" in Phase 6 hardening |
+| I10 | ~~Sign-out only on this device~~ | — | **Fixed 2026-10-19** (decision 066): "Sign out on all devices" |
 | I18 | Four database checks that remove rows (user A can't remove B's weights or meal log; A can remove their own) can't be run by Claude's database tool, which cancels statements that remove data | The removal rules are written and applied but not yet proven on the real database | Product owner runs `supabase/tests/rls_tracking_removal.sql` once in the Supabase SQL editor (manual test M4-12) |
 | I19 | Calorie target uses year of birth only, so age can be off by up to a year; the estimate itself has a typical error of ±10% for individuals | Small | Explained in "How we worked this out"; users adjust from their weight trend |
 | I20 | Plans can put two similar dishes on one day (e.g. two eba soups, or yam twice), because the generator looks at calories and scores, not at the main starch | Less varied days | Easy to swap; consider a "different staple" rule after your feedback |
 | I21 | Shopping list ₦ estimate covers only priced ingredients (about half of a typical week's items); the rest are listed as "not priced yet" | Estimate is a lower bound | Grows as docs/PRICE_SHEET.csv is filled in (I13) |
+| I22 | `?demo=loading/empty/error` still shows demo states on app screens (used by the tests) | Harmless: no data exposed; someone typing it sees a fake empty or error screen | Optional: hide behind a test-only setting before launch |
+| I23 | Full recovery into a *new* Supabase project (including Supabase's own sign-in tables) is documented but not rehearsed; the restore test proves app data and users restore exactly in plain PostgreSQL | Recovery time unknown | Rehearse once before launch when a spare project slot or the Pro plan is available |
+| I24 | Privacy notice and consent are drafts; no DPIA, breach runbook or legal review yet | Launch blocker for the public, not for invited testing | PRIVACY_REVIEW.md §5 checklist |
 | I4 | Playwright pinned to 1.56.1 to match the workspace's pre-installed Chromium | None for the product | Unpin when the workspace allows browser downloads |
 
 ## Risk register (from Phase 0)

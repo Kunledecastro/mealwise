@@ -165,7 +165,8 @@ export default function LandingPage() {
             <Logo />
             <p className="max-w-xl">
               Mealwise gives general food guidance and is not a substitute for advice from a doctor or dietitian. Calories
-              and prices are estimates calculated from ingredient data.
+              and prices are estimates calculated from ingredient data.{" "}
+              <Link href="/privacy" className="font-semibold underline hover:text-ink">Privacy</Link>
             </p>
           </div>
         </footer>

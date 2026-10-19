@@ -76,7 +76,7 @@ test.describe("new account", () => {
 
     // Saved to the account: consent from sign-up, answers from setup.
     const row = [...mock.profiles.values()].find((r) => r.display_name === "Tunde")!;
-    expect(row).toMatchObject({ goal: "gain", birth_year: 1992, allergies: ["Peanuts"], consent_version: "2026-10-18" });
+    expect(row).toMatchObject({ goal: "gain", birth_year: 1992, allergies: ["Peanuts"], consent_version: "2026-10-19" });
     expect(row.onboarding_completed_at).toBeTruthy();
 
     // Survives a full reload now (Phase 1 kept this only in memory).

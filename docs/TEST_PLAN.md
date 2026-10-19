@@ -72,6 +72,45 @@ All checks re-run after the redesign: unit 34/34, E2E 72/72, axe zero serious is
 
 ---
 
+## Phase 6 results: full regression and release checks (run 2026-10-19)
+
+| Check | Result |
+|---|---|
+| Type check, lint, production build | Pass |
+| Unit tests (Vitest) | **148/148 pass** (new: PV-01–PV-03 privacy guards, D-14 404 meal list) |
+| End-to-end (Playwright, phone + desktop, fresh build with security headers on) | **184/184 pass** (new: A18 plan behind sign-in, A19 sign out on all devices, security headers, real 404, /privacy screen check). Every screen: no console errors, no horizontal scroll, no serious axe accessibility issues |
+| Database access checks, real database, all suites re-run | **77/77 pass**: profiles 18, meal_preferences 15, tracking 23, meal_plans 21 (incl. least-privilege grants) |
+| Removal checks (`rls_tracking_removal.sql`) | Not run by Claude (the database tool won't run statements that remove rows): M6-02 |
+| Grants and functions audit | anon has no access to any table; no table-level removal permission where no policy allows it; the only SECURITY DEFINER function (sign-up trigger) has a fixed search path and can't be called directly |
+| Cascade audit | auth.users → profiles → meal_preferences, weight_entries, meal_logs, meal_plans: all ON DELETE CASCADE |
+| Edge function `delete-account` review | Caller identified from their own token; can only delete themselves; secret key server-side only; no personal data logged |
+| Supabase advisors | Security: only leaked-password protection (I12, Pro plan). Performance: none |
+| Dependencies | `npm audit --omit=dev`: 0 vulnerabilities. Dev-only tooling: 5 high (I3, lint tooling, not shipped) |
+| Security headers (local production build) | CSP, HSTS, X-Frame-Options DENY, nosniff, Referrer-Policy, Permissions-Policy present on every page; unknown and malformed meal addresses → 404 |
+| Lighthouse (mobile) | `/` performance 85–90, accessibility 100, best practices 96 (only a Pexels photo this workspace can't fetch); `/sign-in` 92 / 100 / 100; `/privacy` 98 / 100 / 100 |
+| JavaScript, compressed | `/` 187 KB (budget 200); app screens 224–261 KB (I11) |
+| Backup and restore drill (local PostgreSQL, synthetic data) | **PASS**: all 6 tables identical by checksum after restore; RLS works on the restored copy; a deliberately damaged backup was reported as FAIL |
+
+### Defects found and fixed during Phase 6
+| ID | Defect | Fix |
+|---|---|---|
+| P6-01 | A malformed meal address (e.g. `/meals/%E0%A4%A`) would make the 404 check throw | Treated as an unknown meal → 404 |
+| P6-02 | The sign-up consent didn't mention the meal log, plans, the pregnancy/medical answer, or UK storage | Consent names every category and the location; version 2026-10-19 |
+| P6-03 | No privacy notice page | `/privacy` (draft for legal review), linked from sign-up, landing and Settings |
+| P6-04 | Nothing stopped a future table being left out of "Download my data" or account deletion | Guard tests PV-01–PV-03 |
+| P6-05 | The restore script, in its first drill, mixed a `\copy` with SQL and misread its access check | Fixed and re-drilled to PASS |
+
+## Phase 6 manual tests (for you)
+| ID | Steps | Expected |
+|---|---|---|
+| M6-01 | Back up and restore-test the real database (BACKUP_AND_RESTORE.md, "How to back up" then "How to test a restore") | Ends with `PASS`; paste the output in chat |
+| M6-02 | = M4-12: paste `supabase/tests/rls_tracking_removal.sql` in the Supabase SQL editor | All six values true |
+| M6-03 | Sign in on your phone and laptop. On one: Settings → Sign out on all devices | The other device is signed out within an hour at most (when its current session token expires) |
+| M6-04 | Open `/privacy`; start a new sign-up | Privacy page readable on a phone; the consent sentence mentions meal log, weight history, medical guidance and the UK, with a "How we use it" link |
+| M6-05 | Create a throwaway account, log a meal, add a weight, make a plan, then Settings → Delete my account. Tell me the email you used | I confirm, read-only, that no rows remain for it anywhere: the first real-service check of deletion |
+| M6-06 | Open `/meals/not-a-real-meal` | "We couldn't find that page" |
+| M6-07 | Sign in, use the app normally for a few minutes on the test link | Everything works with the new security headers (no blank screens, photos load) |
+
 ## Phase 5 automated results (run 2026-10-19)
 
 | Check | Result |

@@ -114,7 +114,7 @@ An LLM is not used. A later AI assistant would be proposed separately with cost,
 - **`proxy.ts`** (Next.js 16's replacement for middleware) checks only that the session cookie exists, to send signed-out visitors to sign-in before the page loads. It does not verify the token — that is RLS's job — so a forged cookie shows an empty shell and no data.
 - **Secret key** exists only inside the `delete-account` Supabase Edge Function (Supabase-managed env var). Not in Vercel, the repo, or logs.
 - **Consent** recorded at sign-up through Auth user metadata → `handle_new_user` trigger → `profiles.consent_version/consent_at`, then locked against edits.
-- Not built yet: security headers/CSP (Phase 6), custom email sender (decision 030).
+- Not built yet: custom email sender (decision 030). Security headers/CSP added in Phase 6.
 
 ### As built in Phase 3 (2026-10-18)
 - **Catalogue as code** (`catalogue/`): ingredients generated from the source tables by script; meals hand-written (recipe, grams, steps, assumptions); prices from a sheet. `lib/domain/catalogue.ts` compiles them into meals at build time: nutrition, allergens (contains / may contain / unknown), diet labels, cost range, sources, licence flag. Meal pages are pre-rendered.
@@ -131,6 +131,13 @@ An LLM is not used. A later AI assistant would be proposed separately with cost,
 - **Supabase client** (`lib/supabase/client.ts`): sign-in, database and functions parts only, same cookie session (decision 057).
 - **Plans** (`lib/domain/plan.ts`): generated in the browser from the recommendation engine (decision 059); stored in `meal_plans` via `lib/use-plan.ts` (optimistic, with rollback).
 - **Shopping list** (`lib/domain/shopping.ts`): computed from the plan and the catalogue each time; only the ticks are stored. Buying units generated into `catalogue/buying-units.ts` by `price_sheet.py units`; sections in `catalogue/shop-sections.ts`.
+
+### As built in Phase 6 (2026-10-19)
+- **Headers** (`next.config.ts`): CSP, HSTS, frame, sniffing, referrer and permissions policies (decision 063); checked by an end-to-end test.
+- **Proxy** (`proxy.ts`): sign-in gate for app screens (including /plan) and real 404s for unknown meals (decision 065).
+- **Database**: least-privilege grants (decision 064); 77 access checks pass on the real database.
+- **Privacy**: `/privacy` page; data download covers every table; deletion cascades through every table (tests PV-01–PV-03). See PRIVACY_REVIEW.md.
+- **Backups**: scripts/backup (decision 068); see BACKUP_AND_RESTORE.md. Deployment: DEPLOYMENT_GUIDE.md.
 
 ## 9. Environments and deployment
 

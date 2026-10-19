@@ -219,3 +219,22 @@ test("A17: every request carries the API key; data requests carry the user's own
     expect(payload.sub).toBe(TESTER.id);
   }
 });
+
+test.describe("signed out, plan", () => {
+  test.use({ signedIn: false });
+  test("A18: the plan and shopping list are behind sign-in", async ({ page }) => {
+    for (const path of ["/plan", "/plan/shopping"]) {
+      await page.goto(path);
+      await expect(page).toHaveURL(new RegExp(`/sign-in\\?next=${encodeURIComponent(path)}`));
+    }
+  });
+});
+
+test("A19: 'Sign out on all devices' ends every session, not just this one (I10)", async ({ page, mock }) => {
+  await page.goto("/settings");
+  await page.getByRole("button", { name: "Sign out on all devices" }).click();
+  await expect(page).toHaveURL(/\/$/);
+  expect(mock.logoutScopes).toEqual(["global"]);
+  await page.goto("/home");
+  await expect(page).toHaveURL(/\/sign-in/);
+});
