@@ -17,6 +17,8 @@ export interface ProfileRow {
   cuisines: string[];
   budget_band: "low" | "medium" | "high" | null;
   max_prep_minutes: number | null;
+  sex?: "female" | "male" | null;
+  needs_guidance?: boolean;
   consent_version: string | null;
   consent_at: string | null;
   onboarding_completed_at: string | null;
@@ -30,7 +32,7 @@ export type ProfileUpdate = Partial<
     ProfileRow,
     | "display_name" | "birth_year" | "height_cm" | "current_weight_kg" | "target_weight_kg" | "units" | "goal"
     | "activity_level" | "diet" | "allergies" | "dislikes" | "cuisines" | "budget_band" | "max_prep_minutes"
-    | "onboarding_completed_at"
+    | "sex" | "needs_guidance" | "onboarding_completed_at"
   >
 >;
 
@@ -57,6 +59,8 @@ export function rowToProfile(row: ProfileRow): Profile {
     cuisines: row.cuisines ?? [],
     budget: row.budget_band ?? undefined,
     maxPrepMinutes: row.max_prep_minutes ?? undefined,
+    sex: row.sex ?? undefined,
+    needsGuidance: !!row.needs_guidance,
     onboarded: !!row.onboarding_completed_at,
   };
 }
@@ -79,6 +83,8 @@ export function profileToUpdate(p: Profile, opts: { completeOnboarding?: boolean
     cuisines: clean(p.cuisines),
     budget_band: p.budget ?? null,
     max_prep_minutes: p.maxPrepMinutes ?? null,
+    sex: p.sex ?? null,
+    needs_guidance: !!p.needsGuidance,
   };
   if (opts.completeOnboarding) update.onboarding_completed_at = new Date().toISOString();
   return update;

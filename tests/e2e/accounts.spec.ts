@@ -152,7 +152,10 @@ test("A13: a new account that hasn't finished setup is sent to setup first", asy
   await expect(page).toHaveURL(/\/onboarding$/);
 });
 
-test("A14: download my data gives a JSON file with the account and profile only", async ({ page }) => {
+test("A14: download my data gives a JSON file with the account, profile, choices, meal log and weights", async ({ page, mock }) => {
+  mock.seedWeights(TESTER.id, [["2026-10-01", 80]]);
+  mock.seedWeights(OTHER.id, [["2026-10-01", 61.5]]);
+  mock.seedLog(TESTER.id, { meal_slug: "red-red", logged_for: "2026-10-02", meal_type: "lunch", kcal: 600 });
   await page.goto("/settings");
   await expect(page.getByText(TESTER.email)).toBeVisible();
   const [download] = await Promise.all([page.waitForEvent("download"), page.getByRole("button", { name: "Download my data" }).click()]);
@@ -160,7 +163,10 @@ test("A14: download my data gives a JSON file with the account and profile only"
   const data = JSON.parse(await readFile((await download.path())!, "utf8"));
   expect(data.account).toMatchObject({ id: TESTER.id, email: TESTER.email });
   expect(data.profile).toMatchObject({ id: TESTER.id, display_name: "Amaka", consent_version: "2026-10-18" });
+  expect(data.meal_log).toEqual([expect.objectContaining({ meal_slug: "red-red", kcal: 600 })]);
+  expect(data.weights).toEqual([expect.objectContaining({ measured_on: "2026-10-01", weight_kg: "80.00" })]);
   expect(JSON.stringify(data)).not.toContain(OTHER.email);
+  expect(JSON.stringify(data)).not.toContain("61.5");
   expect(JSON.stringify(data)).not.toContain("access_token");
 });
 

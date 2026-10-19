@@ -1,6 +1,6 @@
 # Mealwise — Database Model
 
-Status: Phase 3 — `profiles` and `meal_preferences` are **built and live** (§0). The meal catalogue is **not** in the database: it lives in the repo (`catalogue/`, DECISION_LOG 033), so §2 below is kept only as the logical model the catalogue files follow. Logs/weights arrive in Phase 4, plans in Phase 5.
+Status: Phase 4 — `profiles`, `meal_preferences`, `weight_entries` and `meal_logs` are **built and live** (§0). The meal catalogue is **not** in the database: it lives in the repo (`catalogue/`, DECISION_LOG 033), so §2 below is kept only as the logical model the catalogue files follow. Plans arrive in Phase 5.
 Engine: PostgreSQL (Supabase). All ids are UUID unless stated. All timestamps `timestamptz`.
 
 ## 0. What is actually built (Phase 2, 2026-10-18)
@@ -23,6 +23,12 @@ Supabase project `mealwise-dev` (ref `naaoigrhzfivantuysxl`, region eu-west-2 Lo
 - `preferred_units` is named `units`. `meal_schedule`, `cooking_facilities`, `safety_flags`, `max_meal_cost_ngn` not built yet.
 
 **`meal_preferences`** (Phase 3, migration `…090001_phase3_meal_preferences.sql`) — `user_id` (→ profiles, cascade), `meal_slug` (format-checked), `saved_at`, `rejected_at`, `reject_reason` (dislike | too_expensive | too_long | allergy | other; only allowed while rejected), `updated_at` (trigger). PK (user_id, meal_slug). RLS: read/add/change own rows only; no removal policy (users clear timestamps instead); anon has no access. Replaces the planned `saved_meals` and `meal_feedback` tables (DECISION_LOG 040). Tests: `supabase/tests/rls_meal_preferences.sql`, 15/15 pass (2026-10-18).
+
+**Phase 4 additions** (migrations `…100001_phase4_tracking.sql`, `…100002_phase4_allow_removal.sql`):
+- `profiles.sex` (female | male | null = not given) and `profiles.needs_guidance` (boolean; pregnant/breastfeeding/medical condition — which one is never stored).
+- **`weight_entries`** — `id`, `user_id` (→ profiles, cascade), `measured_on` (2000-01-01 to tomorrow), `weight_kg` numeric(5,2) 20–400, `entered_unit` kg|lb, `created_at`, `updated_at` (trigger). Unique (user_id, measured_on): one per day, edits replace.
+- **`meal_logs`** — `id`, `user_id` (→ profiles, cascade), `meal_slug` (format-checked), `logged_for` date, `meal_type` breakfast|lunch|dinner|snack, `portion` 0.25–4, and the figures copied at logging time: `kcal`, `protein_g`, `carbs_g`, `fat_g` (range-checked). Index (user_id, logged_for).
+- RLS on both: read, add, change and remove **own rows only**; anon no access; truncate/references/trigger revoked. Tests: `supabase/tests/rls_tracking.sql` 23/23 pass (2026-10-19); removal checks in `rls_tracking_removal.sql` to be run by the owner (I18).
 
 **Catalogue (in the repo, not the database)** — `catalogue/ingredients.generated.ts` (97 ingredients, generated from FAO WAFCT 2019 and USDA FDC by `scripts/catalogue/build_ingredients.py`), `catalogue/meals*.ts` (70 meals), `catalogue/prices.ts` (from `docs/PRICE_SHEET.csv`), `catalogue/ready-made.ts` (from `docs/READY_MADE_PRICE_SHEET.csv`), compiled by `lib/domain/catalogue.ts`.
 

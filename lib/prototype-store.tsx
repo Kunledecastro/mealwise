@@ -1,20 +1,27 @@
 "use client";
 
 /**
- * APP STATE
- * - Profile: saved to the database for the signed-in user (Phase 2), via lib/auth.tsx.
- * - Saved meals and "Not for me": saved to the database (Phase 3, table meal_preferences).
- * - Meal logs and weights: still SAMPLE data in browser memory, reset on refresh (Phase 4).
+ * APP STATE — everything here is the signed-in user's own data, saved to their account.
+ * - Profile (Phase 2), via lib/auth.tsx.
+ * - Saved meals and "Not for me" (Phase 3, table meal_preferences).
+ * - Meal log (meal_logs) and weight history (weight_entries) (Phase 4).
+ * - Daily target: calculated in the browser from the profile and latest weight (lib/domain/targets.ts).
+ * Changes show straight away and are undone with a message if saving fails.
  */
 import { createContext, useCallback, useContext, useEffect, useMemo, useRef, useState, type ReactNode } from "react";
 import { useAuth, type SaveResult } from "./auth";
 import { friendlyError } from "./domain/auth-errors";
+import { calculateTarget, type TargetResult } from "./domain/targets";
+import { addDays, currentWeight, logSnapshot, rowToLog, rowToWeight, type MealLogRow, type WeightRow } from "./domain/tracking";
 import { getSupabase } from "./supabase/client";
-import { fromISODate, sampleLogs, sampleWeights, toISODate } from "./sample-data";
-import type { MealLog, MealType, Profile, WeightEntry } from "./types";
+import type { Meal, MealLog, MealType, Profile, WeightEntry } from "./types";
 import { useToday } from "./use-today";
 
 export type RejectReason = "dislike" | "too_expensive" | "too_long" | "allergy" | "other";
+type Status = "loading" | "ready" | "error";
+
+/** How many days of meal log are loaded (enough for variety and the recent history). */
+export const LOG_DAYS = 60;
 
 interface Store {
   /** Today's date on the user's clock; null until the page has loaded in the browser. */
@@ -25,37 +32,32 @@ interface Store {
   /** Saved meal slugs, most recent first. */
   saved: string[];
   /** "ready" once the user's saved and hidden meals have loaded from their account. */
-  choicesStatus: "loading" | "ready" | "error";
+  choicesStatus: Status;
   toggleSaved: (slug: string) => boolean;
   rejected: Record<string, RejectReason>;
   reject: (slug: string, reason: RejectReason) => void;
   undoReject: (slug: string) => void;
+  /** Meal log for the last LOG_DAYS days, oldest first. */
   logs: MealLog[];
-  addLog: (slug: string, mealType: MealType, portion: number) => void;
-  removeLog: (id: string) => void;
+  /** Weight history, oldest first. */
   weights: WeightEntry[];
-  upsertWeight: (date: string, kg: number, id?: string) => void;
-  removeWeight: (id: string) => void;
+  /** "ready" once the meal log and weights have loaded. */
+  trackingStatus: Status;
+  addLog: (meal: Pick<Meal, "slug" | "kcal" | "protein" | "carbs" | "fat">, mealType: MealType, portion: number, date?: string) => Promise<boolean>;
+  removeLog: (id: string) => Promise<boolean>;
+  upsertWeight: (date: string, kg: number, unit: "kg" | "lb", id?: string) => Promise<boolean>;
+  removeWeight: (id: string) => Promise<boolean>;
+  /** Latest logged weight, else the setup weight. */
+  weightKg: number | undefined;
+  /** Daily target from the profile; null until today's date is known. */
+  target: TargetResult | null;
+  /** The target's kcal when one could be calculated, else null. */
+  dailyKcal: number | null;
   toast: string | null;
   showToast: (msg: string) => void;
-  reset: () => void;
 }
 
 const Ctx = createContext<Store | null>(null);
-
-interface State {
-  /** null = still showing the dated sample entries = still showing the dated sample entries, which are derived from today's date. */
-  logs: MealLog[] | null;
-  weights: WeightEntry[] | null;
-}
-
-const initial = (): State => ({
-  logs: null,
-  weights: null,
-});
-
-let idCounter = 0;
-const newId = (prefix: string) => `${prefix}-${Date.now().toString(36)}-${(idCounter++).toString(36)}`;
 
 interface Choices {
   saved: string[];
@@ -70,14 +72,19 @@ interface ChoiceRow {
 }
 
 const NO_CHOICES: Choices = { saved: [], rejected: {} };
+const byDate = <T extends { date: string }>(a: T, b: T) => a.date.localeCompare(b.date);
+let tempCounter = 0;
+const tempId = () => `pending-${++tempCounter}`;
 
 export function PrototypeProvider({ children }: { children: ReactNode }) {
   const today = useToday();
   const { profile, saveProfile, user } = useAuth();
   const userId = user?.id ?? null;
-  const [state, setState] = useState(initial);
   const [choices, setChoices] = useState<Choices>(NO_CHOICES);
-  const [choicesStatus, setChoicesStatus] = useState<Store["choicesStatus"]>("loading");
+  const [choicesStatus, setChoicesStatus] = useState<Status>("loading");
+  const [logs, setLogs] = useState<MealLog[]>([]);
+  const [weights, setWeights] = useState<WeightEntry[]>([]);
+  const [trackingStatus, setTrackingStatus] = useState<Status>("loading");
   const [toast, setToast] = useState<string | null>(null);
   const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
@@ -122,6 +129,43 @@ export function PrototypeProvider({ children }: { children: ReactNode }) {
     };
   }, [userId, showToast]);
 
+  // Load the meal log (recent days) and the whole weight history.
+  useEffect(() => {
+    if (!userId || !today) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect -- reset local copy when the user changes
+      setLogs([]);
+      setWeights([]);
+      setTrackingStatus("loading");
+      return;
+    }
+    let active = true;
+    const db = getSupabase();
+    Promise.all([
+      db
+        .from("meal_logs")
+        .select("id, meal_slug, logged_for, meal_type, portion, kcal, protein_g, carbs_g, fat_g, created_at")
+        .eq("user_id", userId)
+        .gte("logged_for", addDays(today, -LOG_DAYS))
+        .order("logged_for")
+        .order("created_at"),
+      db.from("weight_entries").select("id, measured_on, weight_kg, entered_unit").eq("user_id", userId).order("measured_on"),
+    ]).then(([l, w]) => {
+      if (!active) return;
+      const error = l.error ?? w.error;
+      if (error) {
+        setTrackingStatus("error");
+        showToast("Your meal log and weights didn't load. " + friendlyError(error));
+        return;
+      }
+      setLogs(((l.data ?? []) as MealLogRow[]).map(rowToLog));
+      setWeights(((w.data ?? []) as WeightRow[]).map(rowToWeight));
+      setTrackingStatus("ready");
+    });
+    return () => {
+      active = false;
+    };
+  }, [userId, today, showToast]);
+
   /** Optimistic update: change the screen now, save, and undo with a message if saving fails. */
   const writeChoice = useCallback(
     async (slug: string, change: Partial<Omit<ChoiceRow, "meal_slug">>, next: (c: Choices) => Choices, before: Choices) => {
@@ -138,10 +182,110 @@ export function PrototypeProvider({ children }: { children: ReactNode }) {
     [userId, showToast],
   );
 
+  const addLog = useCallback<Store["addLog"]>(
+    async (meal, mealType, portion, date) => {
+      const slug = meal.slug;
+      const day = date ?? today;
+      if (!userId || !day) return false;
+      const snap = logSnapshot(meal, portion);
+      const id = tempId();
+      const entry: MealLog = { id, slug, mealType, portion, date: day, kcal: snap.kcal, protein: snap.protein_g, carbs: snap.carbs_g, fat: snap.fat_g };
+      setLogs((ls) => [...ls, entry].sort(byDate));
+      const { data, error } = await getSupabase()
+        .from("meal_logs")
+        .insert({ user_id: userId, meal_slug: slug, logged_for: day, meal_type: mealType, portion, ...snap })
+        .select("id, meal_slug, logged_for, meal_type, portion, kcal, protein_g, carbs_g, fat_g")
+        .single<MealLogRow>();
+      if (error || !data) {
+        setLogs((ls) => ls.filter((l) => l.id !== id));
+        showToast("That meal wasn't logged. " + friendlyError(error ?? { message: "" }));
+        return false;
+      }
+      setLogs((ls) => ls.map((l) => (l.id === id ? rowToLog(data) : l)));
+      return true;
+    },
+    [userId, today, showToast],
+  );
+
+  const removeLog = useCallback<Store["removeLog"]>(
+    async (id) => {
+      if (!userId) return false;
+      const before = logs;
+      setLogs((ls) => ls.filter((l) => l.id !== id));
+      const { error } = await getSupabase().from("meal_logs").delete().eq("id", id);
+      if (error) {
+        setLogs(before);
+        showToast("That entry wasn't removed. " + friendlyError(error));
+        return false;
+      }
+      return true;
+    },
+    [userId, logs, showToast],
+  );
+
+  const upsertWeight = useCallback<Store["upsertWeight"]>(
+    async (date, kg, unit, id) => {
+      if (!userId) return false;
+      const before = weights;
+      // One entry per day: editing, or adding on a date that already has one, replaces it.
+      const moved = id ? weights.find((w) => w.id === id && w.date !== date) : undefined;
+      const tmp = tempId();
+      setWeights((ws) => [...ws.filter((w) => w.id !== id && w.date !== date), { id: tmp, date, kg }].sort(byDate));
+      const db = getSupabase();
+      const { data, error } = await db
+        .from("weight_entries")
+        .upsert({ user_id: userId, measured_on: date, weight_kg: kg, entered_unit: unit }, { onConflict: "user_id,measured_on" })
+        .select("id, measured_on, weight_kg, entered_unit")
+        .single<WeightRow>();
+      // If an entry was moved to a new date, the old date's row goes.
+      const removal = !error && moved ? await db.from("weight_entries").delete().eq("id", moved.id) : { error: null };
+      if (error || !data || removal.error) {
+        setWeights(before);
+        showToast("That weight wasn't saved. " + friendlyError(error ?? removal.error ?? { message: "" }));
+        return false;
+      }
+      setWeights((ws) => ws.map((w) => (w.id === tmp ? rowToWeight(data) : w)));
+      return true;
+    },
+    [userId, weights, showToast],
+  );
+
+  const removeWeight = useCallback<Store["removeWeight"]>(
+    async (id) => {
+      if (!userId) return false;
+      const before = weights;
+      setWeights((ws) => ws.filter((w) => w.id !== id));
+      const { error } = await getSupabase().from("weight_entries").delete().eq("id", id);
+      if (error) {
+        setWeights(before);
+        showToast("That weight wasn't removed. " + friendlyError(error));
+        return false;
+      }
+      return true;
+    },
+    [userId, weights, showToast],
+  );
+
+  const weightKg = currentWeight(weights, profile.weightKg);
+  const target = useMemo<TargetResult | null>(
+    () =>
+      today
+        ? calculateTarget({
+            birthYear: profile.birthYear,
+            heightCm: profile.heightCm,
+            weightKg,
+            sex: profile.sex,
+            activity: profile.activity,
+            goal: profile.goal,
+            targetWeightKg: profile.targetWeightKg,
+            needsGuidance: profile.needsGuidance,
+            year: Number(today.slice(0, 4)),
+          })
+        : null,
+    [today, profile, weightKg],
+  );
+
   const store = useMemo<Store>(() => {
-    const todayDate = today ? fromISODate(today) : null;
-    const logs = state.logs ?? (todayDate ? sampleLogs(todayDate) : []);
-    const weights = state.weights ?? (todayDate ? sampleWeights(todayDate) : []);
     // Mutations run in event handlers, so reading the clock here is safe.
     const now = () => new Date();
     return {
@@ -152,6 +296,14 @@ export function PrototypeProvider({ children }: { children: ReactNode }) {
       choicesStatus,
       logs,
       weights,
+      trackingStatus,
+      addLog,
+      removeLog,
+      upsertWeight,
+      removeWeight,
+      weightKg,
+      target,
+      dailyKcal: target?.status === "ok" ? target.kcal : null,
       setProfile: async (p) => {
         const result = await saveProfile(p);
         if (!result.ok) showToast(result.error);
@@ -176,26 +328,10 @@ export function PrototypeProvider({ children }: { children: ReactNode }) {
           delete rest[slug];
           return { ...c, rejected: rest };
         }, choices),
-      addLog: (slug, mealType, portion) =>
-        setState((s) => ({
-          ...s,
-          logs: [...(s.logs ?? sampleLogs(now())), { id: newId("log"), slug, mealType, portion, date: toISODate(now()) }],
-        })),
-      removeLog: (id) => setState((s) => ({ ...s, logs: (s.logs ?? sampleLogs(now())).filter((l) => l.id !== id) })),
-      upsertWeight: (date, kg, id) =>
-        setState((s) => {
-          // One entry per day: editing, or adding on a date that already has one, replaces it.
-          const current = s.weights ?? sampleWeights(now());
-          const others = current.filter((w) => w.id !== id && w.date !== date);
-          const entry = { id: id ?? newId("w"), date, kg };
-          return { ...s, weights: [...others, entry].sort((a, b) => a.date.localeCompare(b.date)) };
-        }),
-      removeWeight: (id) => setState((s) => ({ ...s, weights: (s.weights ?? sampleWeights(now())).filter((w) => w.id !== id) })),
       toast,
       showToast,
-      reset: () => setState(initial()),
     };
-  }, [state, choices, choicesStatus, writeChoice, today, toast, showToast, profile, saveProfile]);
+  }, [today, profile, choices, choicesStatus, logs, weights, trackingStatus, addLog, removeLog, upsertWeight, removeWeight, weightKg, target, writeChoice, toast, showToast, saveProfile]);
 
   return <Ctx.Provider value={store}>{children}</Ctx.Provider>;
 }

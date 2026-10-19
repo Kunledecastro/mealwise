@@ -72,6 +72,57 @@ All checks re-run after the redesign: unit 34/34, E2E 72/72, axe zero serious is
 
 ---
 
+## Phase 4 automated results (run 2026-10-19)
+
+| Check | Result |
+|---|---|
+| Type check, lint, production build | Pass |
+| Unit tests (Vitest) | **123/123 pass** (new: T-01–T-15 targets, K-01–K-08 meal log and weights) |
+| End-to-end (Playwright, phone 390 px + desktop 1280 px, fresh build) | **150/150 pass** (new: P4-01–P4-11; J2, J5, J6, A14 rewritten for real data) |
+| Database access checks, real database (`supabase/tests/rls_tracking.sql`) | **23/23 pass** |
+| Removal checks (`rls_tracking_removal.sql`, 6 checks) | **Not run by Claude** (the database tool cancels statements that remove rows). Manual test M4-12 |
+| Supabase advisors | Security: only the known leaked-password warning (I12). Performance: none |
+| Lighthouse (mobile) | `/` performance 90, accessibility 100; `/sign-in` 93 / 100 |
+| JavaScript, compressed | `/` 187 KB (was 286 KB); signed-in screens 257–294 KB (I11) |
+
+### What the new tests prove
+- **Safety floor sweep (T-07):** 1,620 combinations of sex, weight, height, age, activity and goal; for every one that gets a target, no target is ever under 1,200 kcal (1,500 for men); implied loss never faster than 1% of body weight a week, gain never above 0.5%; macros add back up to the energy target.
+- **Blocks (T-09–T-12, P4-03, P4-04):** under-18s, "lose" with BMI under 18.5, and the pregnancy/medical answer get no number, only a supportive message. Missing details are listed, never guessed.
+- **Worked examples match by hand (T-03, P4-01, P4-02, P4-08):** e.g. 30, 165 cm, 79.4 kg, lightly active, losing → about 1,750 kcal (sex not given) or 1,650 (female).
+- **Meal log and weights are stored in the account (J2, J5, J6, P4-05, P4-06, P4-08):** survive a reload; another user's entries are never shown; the figures saved are the meal's values × portion at logging time.
+- **Failures are honest (P4-07, P4-10):** if a save fails, nothing is shown as saved and a message says so.
+- **Kg ↔ lb round trip within 0.01** (existing unit test, still passing).
+
+### Defects found and fixed during Phase 4 testing
+| ID | Defect | Fix |
+|---|---|---|
+| P4-01 | The test-version banner still said the meal log, weights and target were sample data | Banner reworded: figures and target are estimates, not medical advice |
+| P4-02 | Moving the user's data store into the app made the landing page load the sign-in library and catalogue (286 KB) | Account code moved to an `(account)` route group; landing 187 KB (decision 056) |
+| P4-03 | Log sheet said "One serving is … That's about 716 kcal" when 716 was for ¾ of a serving | Now "¾ serving is about 716 kcal" |
+| P4-04 | On a phone, "a day (estimate)" wrapped awkwardly beside the target number | Put on its own line |
+
+Process note: the first end-to-end run reused the Phase 3 build (the test server serves whatever was last built), so it passed without testing the new code. Results above are from a fresh build; the build now always runs before end-to-end tests.
+
+## Phase 4 manual tests (for you)
+Use the test link on your phone. Your own account works; use made-up figures if you prefer.
+
+| ID | Steps | Expected |
+|---|---|---|
+| M4-01 | Profile → Daily target | A number "About N kcal a day (estimate)", protein/carbs/fat, and "How we worked this out" listing each step |
+| M4-02 | Profile → Edit → Sex: Female (or Male) → Save | Target changes (a little lower for female, higher for male); "Prefer not to say" uses the average |
+| M4-03 | Profile → Edit → tick "pregnant or breastfeeding, or a medical condition" → Save | No calorie number anywhere; a message suggesting a doctor, midwife or dietitian. Untick to get it back |
+| M4-04 | Open a big plate (e.g. Afang soup with eba) | "For your daily target … three-quarters of a serving fits a lunch better" |
+| M4-05 | On that meal tap "I ate this" | Portion starts at ¾; choose Yesterday; Log meal → message "Logged … to yesterday" |
+| M4-06 | Today → previous-day arrow | Yesterday's entry is there; "Back to today" returns |
+| M4-07 | Log a meal today, then reload the page / open on another device | Still there; totals show "N kcal left of your daily target" |
+| M4-08 | Remove an entry with the bin icon | Gone, and stays gone after reload |
+| M4-09 | Progress → add a weight; edit it; delete it | Saved after reload; edit replaces; delete removes |
+| M4-10 | Progress → switch kg/lb | Weights and the form switch units; values match (e.g. 79.4 kg = 175.0 lb) |
+| M4-11 | Add weights a week apart over 2+ weeks (or back-date three) | "Over the last N weeks: about X kg a week down/up" |
+| M4-12 | Supabase dashboard → SQL editor → paste `supabase/tests/rls_tracking_removal.sql` → Run | An error message starting `RLS_TEST_RESULTS` in which **all six values are true**. Nothing is left behind (it rolls back) |
+| M4-13 | Settings → Download my data | File includes `meal_log` and `weights` |
+| M4-14 | Home → "Your day so far" | Shows logged kcal "of about N kcal" with a bar |
+
 ## Phase 3 final automated results (run 2026-10-19)
 
 | Check | Result |

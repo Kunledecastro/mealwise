@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { ArrowLeft } from "lucide-react";
-import { Logo, PrototypeBanner } from "@/components/app-shell";
+import { Logo, PrototypeBanner } from "@/components/brand";
 import { Button, Chip, Field, Segmented, inputClass } from "@/components/ui";
 import { cmToFeetInches, feetInchesToCm, kgToLb, parseWeight, round } from "@/lib/domain/units";
 import { useAuth } from "@/lib/auth";
@@ -12,6 +12,8 @@ import { useStore } from "@/lib/prototype-store";
 import { SkeletonRows } from "@/components/ui";
 import { ACTIVITY, ALLERGENS, BUDGET_LABELS, CUISINES, DIETS, GOALS, PREP_LABELS } from "@/lib/options";
 import type { Profile, Units } from "@/lib/types";
+import { GuidanceCheck } from "@/components/target-bits";
+import { calculateTarget } from "@/lib/domain/targets";
 
 const STEPS = ["Your goal", "About you", "Activity", "Food you eat", "Budget and time", "Summary"];
 
@@ -75,7 +77,7 @@ export function OnboardingFlow() {
 function OnboardingSteps({ initial }: { initial: Profile }) {
   const router = useRouter();
   const { saveProfile } = useAuth();
-  const { showToast, today } = useStore();
+  const { showToast, today, weights, upsertWeight } = useStore();
   const thisYear = today ? Number(today.slice(0, 4)) : 2100;
   const [step, setStep] = useState(0);
   const [p, setP] = useState<Profile>(initial);
@@ -143,6 +145,10 @@ function OnboardingSteps({ initial }: { initial: Profile }) {
     if (!result.ok) {
       setSaveError(result.error);
       return;
+    }
+    // Start the weight history with the weight given here (if new or changed). Not blocking: the profile is saved.
+    if (today && p.weightKg && (p.weightKg !== initial.weightKg || weights.length === 0)) {
+      await upsertWeight(today, p.weightKg, wUnit);
     }
     showToast("Setup saved");
     router.replace("/home");
@@ -231,6 +237,11 @@ function OnboardingSteps({ initial }: { initial: Profile }) {
                     onChange={(e) => setRaw({ ...raw, target: e.target.value })} />
                 </Field>
               )}
+              <ChipGroup label="Sex (optional)" single options={["female", "male"]} labels={{ female: "Female", male: "Male" }}
+                value={p.sex ? [p.sex] : []} onChange={(v) => update({ sex: v[0] as Profile["sex"] })} />
+              <p className="-mt-3 text-sm text-muted">Only used to estimate your energy needs. Leave it blank and we use an average.</p>
+              <GuidanceCheck checked={!!p.needsGuidance} onChange={(needsGuidance) => update({ needsGuidance })} />
+              <p className="text-sm text-muted">Height and weight are optional, but we need them to work out your daily target.</p>
             </div>
           )}
 
@@ -288,9 +299,10 @@ function OnboardingSteps({ initial }: { initial: Profile }) {
                   </div>
                 ))}
               </dl>
+              <SummaryTarget profile={p} year={thisYear} />
               <p className="rounded-[var(--radius-md)] bg-plantain-soft p-4 text-sm">
                 Your answers are saved to your account and you can change them any time in Profile. Suggestions use them
-                straight away. Your personal daily calorie target arrives in a later version; until then it&apos;s a sample.
+                straight away.
               </p>
               {saveError && (
                 <p role="alert" className="rounded-[var(--radius-sm)] border border-error/40 bg-error-soft px-4 py-3 text-sm font-medium text-error">
@@ -318,6 +330,21 @@ function OnboardingSteps({ initial }: { initial: Profile }) {
       </div>
     </div>
   );
+}
+
+/** Preview of the daily target on the summary step. */
+function SummaryTarget({ profile: p, year }: { profile: Profile; year: number }) {
+  const t = calculateTarget({ ...p, needsGuidance: p.needsGuidance, year });
+  if (t.status === "ok")
+    return (
+      <p className="rounded-[var(--radius-md)] border border-line bg-surface p-4">
+        <span className="font-semibold">Your daily target: about {t.kcal.toLocaleString()} kcal</span>{" "}
+        <span className="text-muted">(estimate). You&apos;ll see how we worked it out in Profile.</span>
+      </p>
+    );
+  if (t.status === "incomplete")
+    return <p className="text-sm text-muted">Add your height, weight and activity level to get a daily calorie target. You can do this later.</p>;
+  return <p className="text-sm text-muted">We won&apos;t set a calorie target for you. Profile explains why and what to do instead.</p>;
 }
 
 function ChipGroup({

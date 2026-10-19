@@ -12,7 +12,8 @@
     "test:e2e": "playwright test",
     "icons": "node scripts/make-icons.mjs",
     "catalogue:report": "vitest run --config vitest.tools.config.ts",
-    "catalogue:prices": "python3 scripts/catalogue/price_sheet.py"
+    "catalogue:prices": "python3 scripts/catalogue/price_sheet.py",
+    "pretest:e2e": "next build"
   },
   "dependencies": {
     "@fontsource-variable/bricolage-grotesque": "5.3.0",

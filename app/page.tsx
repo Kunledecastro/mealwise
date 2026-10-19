@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { BadgeCheck, HeartHandshake, ShieldCheck, Smartphone, Soup, Wallet } from "lucide-react";
-import { Logo, PrototypeBanner } from "@/components/app-shell";
+import { Logo, PrototypeBanner } from "@/components/brand";
 import { HeroCycler } from "@/components/landing/hero-cycler";
 import { ScrollStory } from "@/components/landing/scroll-story";
 import { AccountDeletedNotice } from "@/components/landing/account-notice";

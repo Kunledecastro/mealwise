@@ -21,7 +21,7 @@ const STATE_LINKS = [
 ];
 
 export function SettingsView() {
-  const { profile, setProfile, reset, showToast } = useStore();
+  const { profile, setProfile } = useStore();
 
   return (
     <div className="flex flex-col gap-8">
@@ -64,9 +64,6 @@ export function SettingsView() {
         <p className="text-sm">
           Also try a <Link href="/meals/not-a-real-meal" className="font-semibold text-accent underline">meal that doesn&apos;t exist</Link>.
         </p>
-        <Button variant="secondary" className="w-fit" onClick={() => { reset(); showToast("Sample log and weights restored"); }}>
-          Reset sample log and weights
-        </Button>
       </section>
 
       <section aria-labelledby="about-title" className="flex flex-col gap-2">
@@ -75,7 +72,7 @@ export function SettingsView() {
           Mealwise offers general guidance about food and weight. It isn&apos;t medical advice and doesn&apos;t replace a doctor
           or registered dietitian. Nutrition figures and prices are estimates.
         </p>
-        <p className="text-sm text-muted">Version 0.3, Phase 3 test version</p>
+        <p className="text-sm text-muted">Version 0.4, Phase 4 test version</p>
       </section>
 
       <section aria-labelledby="credits-title" className="flex flex-col gap-3">
@@ -114,21 +111,26 @@ function YourData() {
     setBusy("download");
     setError(null);
     const supabase = getSupabase();
-    const [{ data, error: err }, { data: choices, error: err2 }] = await Promise.all([
+    const [{ data, error: err }, { data: choices, error: err2 }, { data: mealLog, error: err3 }, { data: weights, error: err4 }] = await Promise.all([
       supabase.from("profiles").select("*").eq("id", user.id).maybeSingle(),
       supabase.from("meal_preferences").select("meal_slug, saved_at, rejected_at, reject_reason, updated_at").eq("user_id", user.id),
+      supabase.from("meal_logs").select("meal_slug, logged_for, meal_type, portion, kcal, protein_g, carbs_g, fat_g, created_at").eq("user_id", user.id).order("logged_for"),
+      supabase.from("weight_entries").select("measured_on, weight_kg, entered_unit, created_at, updated_at").eq("user_id", user.id).order("measured_on"),
     ]);
     setBusy(null);
-    if (err || err2) {
-      setError(friendlyError(err ?? err2));
+    const failed = err ?? err2 ?? err3 ?? err4;
+    if (failed) {
+      setError(friendlyError(failed));
       return;
     }
     const exportData = {
       exported_at: new Date().toISOString(),
-      note: "Everything Mealwise stores about you at this stage: your account, your profile and your saved / \"Not for me\" meals. Meal logs and weights in this test version are sample data and are not stored.",
+      note: "Everything Mealwise stores about you: your account, your profile, your saved / \"Not for me\" meals, your meal log and your weight history. Your daily target isn't stored; it's worked out from your profile each time.",
       account: { id: user.id, email: user.email, created_at: user.created_at },
       profile: data,
       meal_choices: choices ?? [],
+      meal_log: mealLog ?? [],
+      weights: weights ?? [],
     };
     const url = URL.createObjectURL(new Blob([JSON.stringify(exportData, null, 2)], { type: "application/json" }));
     const a = document.createElement("a");

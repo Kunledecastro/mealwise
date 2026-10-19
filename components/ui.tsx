@@ -158,16 +158,7 @@ export function SkeletonRows({ count = 3 }: { count?: number }) {
   );
 }
 
-/** Small inline marker for any number that comes from prototype sample data. */
-export function SampleTag({ children = "Sample figures" }: { children?: ReactNode }) {
-  return (
-    <span className="inline-flex w-fit shrink-0 items-center whitespace-nowrap rounded-full border border-accent/30 bg-accent-soft px-2.5 py-0.5 text-xs font-semibold text-accent">
-      {children}
-    </span>
-  );
-}
-
-/** Marks calculated estimates (real catalogue figures), as opposed to placeholder sample data. */
+/** Marks calculated estimates (catalogue figures and targets). */
 export function EstimateTag({ children = "Estimates" }: { children?: ReactNode }) {
   return (
     <span className="inline-flex w-fit shrink-0 items-center whitespace-nowrap rounded-full border border-fresh/30 bg-fresh-soft px-2.5 py-0.5 text-xs font-semibold text-fresh">

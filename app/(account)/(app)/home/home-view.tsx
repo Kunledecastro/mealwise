@@ -5,12 +5,12 @@ import { useEffect, useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { RefreshCw } from "lucide-react";
 import { MealFacts, MealRow, NotForMe, useRecommendContext } from "@/components/meal-bits";
-import { Button, ButtonLink, Chip, EmptyState, EstimateTag, SampleTag, SkeletonRows } from "@/components/ui";
+import { Button, ButtonLink, Chip, EmptyState, EstimateTag, SkeletonRows } from "@/components/ui";
 import { slotForHour } from "@/lib/domain/meals";
 import { useStore } from "@/lib/prototype-store";
-import { MEALS, getMeal } from "@/catalogue";
+import { MEALS } from "@/catalogue";
 import { rankMeals } from "@/lib/domain/recommend";
-import { SAMPLE_DAILY_TARGET } from "@/lib/sample-data";
+import { totalsFor } from "@/lib/domain/tracking";
 import { useHour } from "@/lib/use-today";
 import { MEAL_TYPES, MEAL_TYPE_LABEL, type MealType } from "@/lib/types";
 import { MealVisual } from "@/components/meal-visual";
@@ -22,7 +22,7 @@ function greeting(hour: number) {
 }
 
 export function HomeView() {
-  const { profile, logs, today, showToast, choicesStatus } = useStore();
+  const { profile, logs, today, showToast, choicesStatus, dailyKcal, trackingStatus } = useStore();
   const router = useRouter();
 
   // Arriving from the "set a new password" screen.
@@ -45,9 +45,7 @@ export function HomeView() {
   const hero = heroRank?.meal;
   const others = meals.filter((m) => m !== hero).slice(0, 3);
 
-  const kcalToday = logs
-    .filter((l) => l.date === today)
-    .reduce((sum, l) => sum + (getMeal(l.slug)?.kcal ?? 0) * l.portion, 0);
+  const kcalToday = today ? totalsFor(logs, today).kcal : 0;
 
   return (
     <div className="flex flex-col gap-10">
@@ -125,14 +123,25 @@ export function HomeView() {
           <h2 id="day-title" className="text-xl">Your day so far</h2>
           <Link href="/today" className="font-semibold text-accent hover:underline">Open today</Link>
         </div>
-        <p>
-          <span className="font-display text-2xl font-semibold">{Math.round(kcalToday).toLocaleString()}</span>{" "}
-          <span className="text-muted">of about {SAMPLE_DAILY_TARGET.kcal.toLocaleString()} kcal logged</span>
-        </p>
-        <div className="h-2 rounded-full bg-line" aria-hidden="true">
-          <div className="bg-glow h-full rounded-full transition-[width] duration-700" style={{ width: `${Math.min(100, (kcalToday / SAMPLE_DAILY_TARGET.kcal) * 100)}%` }} />
-        </div>
-        <SampleTag>Sample target</SampleTag>
+        {trackingStatus === "loading" ? (
+          <SkeletonRows count={1} />
+        ) : (
+          <>
+            <p>
+              <span className="font-display text-2xl font-semibold">{kcalToday.toLocaleString()}</span>{" "}
+              <span className="text-muted">{dailyKcal ? `of about ${dailyKcal.toLocaleString()} kcal logged` : "kcal logged"}</span>
+            </p>
+            {dailyKcal ? (
+              <div className="h-2 rounded-full bg-line" aria-hidden="true">
+                <div className="bg-glow h-full rounded-full transition-[width] duration-700" style={{ width: `${Math.min(100, (kcalToday / dailyKcal) * 100)}%` }} />
+              </div>
+            ) : (
+              <p className="text-sm text-muted">
+                <Link href="/profile#target" className="font-semibold text-accent hover:underline">See your daily target</Link>
+              </p>
+            )}
+          </>
+        )}
       </section>
     </div>
   );

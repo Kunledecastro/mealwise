@@ -1,7 +1,7 @@
 "use client";
 
 import { useSyncExternalStore } from "react";
-import { toISODate } from "./sample-data";
+import { toISODate } from "./dates";
 
 const noop = () => () => {};
 

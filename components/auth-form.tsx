@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState, type FormEvent, type ReactNode } from "react";
 import { Eye, EyeOff, MailCheck } from "lucide-react";
-import { Logo, PrototypeBanner } from "./app-shell";
+import { Logo, PrototypeBanner } from "./brand";
 import { Button, Field, inputClass } from "./ui";
 import { safeNext, useAuth } from "@/lib/auth";
 import { friendlyError } from "@/lib/domain/auth-errors";

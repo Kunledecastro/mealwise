@@ -1,4 +1,4 @@
-import { Logo, PrototypeBanner } from "@/components/app-shell";
+import { Logo, PrototypeBanner } from "@/components/brand";
 import { ButtonLink } from "@/components/ui";
 
 export default function NotFound() {

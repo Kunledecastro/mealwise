@@ -1,6 +1,13 @@
 import { expect, test, type Page } from "./fixtures";
 import { TESTER } from "./supabase-mock";
 
+/** YYYY-MM-DD, n days before today on this machine's clock (the browser uses the same clock). */
+const daysAgo = (n: number) => {
+  const d = new Date();
+  d.setDate(d.getDate() - n);
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+};
+
 const nav = (page: Page) => page.locator('nav[aria-label="Main"]:visible');
 
 test("main navigation reaches every tab and marks the current one", async ({ page }) => {
@@ -88,7 +95,7 @@ test.describe("new account", () => {
   });
 });
 
-test("J2: pick a meal, log half a portion, and see it on Today", async ({ page }) => {
+test("J2: pick a meal, log half a portion, and see it on Today, saved to the account", async ({ page, mock }) => {
   await page.goto("/home");
   await page.getByRole("button", { name: "Lunch", exact: true }).click();
   const name = (await page.locator("#hero-title").innerText()).trim();
@@ -101,11 +108,15 @@ test("J2: pick a meal, log half a portion, and see it on Today", async ({ page }
   await dialog.getByRole("button", { name: "Log meal" }).click();
   await expect(page.getByText(`Logged ${name} to today`)).toBeVisible();
 
-  // Client-side navigation keeps the in-memory prototype state.
   await nav(page).getByRole("link", { name: "Home", exact: true }).click();
   await page.getByRole("link", { name: "Open today" }).click();
   await expect(page.getByRole("link", { name })).toBeVisible();
-  await expect(page.getByText("0.5 servings")).toBeVisible();
+  await expect(page.getByText(/^½ serving, about/)).toBeVisible();
+  // Stored in the account: still there after a full reload.
+  await page.reload();
+  await expect(page.getByRole("link", { name })).toBeVisible();
+  expect(mock.mealLogs.filter((l) => l.user_id === TESTER.id)).toHaveLength(1);
+  expect(mock.mealLogs[0]).toMatchObject({ meal_type: "lunch", portion: "0.50", logged_for: daysAgo(0) });
 });
 
 test("J2b: Show another cycles suggestions", async ({ page }) => {
@@ -158,7 +169,8 @@ test("J4: search with filters, empty result, and clearing", async ({ page }) => 
   await expect(page.getByRole("link", { name: "Beans porridge with plantain" })).toHaveCount(0);
 });
 
-test("J5: add, validate, edit, delete weight and switch units", async ({ page }) => {
+test("J5: add, validate, edit, delete weight and switch units", async ({ page, mock }) => {
+  mock.seedWeights(TESTER.id, [[daysAgo(15), 80.6], [daysAgo(8), 80.0], [daysAgo(1), 79.4]]);
   await page.goto("/progress");
   await expect(page.getByText("79.4 kg").first()).toBeVisible();
 
@@ -195,10 +207,15 @@ test("J5: add, validate, edit, delete weight and switch units", async ({ page })
   await expect(page.getByLabel("Weight (lb)")).toBeVisible();
 });
 
-test("J6: remove a logged meal from Today", async ({ page }) => {
+test("J6: remove a logged meal from Today, removed from the account", async ({ page, mock }) => {
+  mock.seedLog(TESTER.id, { meal_slug: "fruit-bowl", logged_for: daysAgo(0), meal_type: "snack", kcal: 180 });
+  mock.seedLog(TESTER.id, { meal_slug: "oats-banana-groundnuts", logged_for: daysAgo(0), meal_type: "breakfast", kcal: 450 });
   await page.goto("/today");
-  await page.getByRole("button", { name: "Remove Fresh fruit bowl from today" }).click();
+  await page.getByRole("button", { name: "Remove Fresh fruit bowl from this day" }).click();
   await page.getByRole("button", { name: /Remove Oats with banana/ }).click();
+  await expect(page.getByRole("heading", { name: "Nothing logged today" })).toBeVisible();
+  expect(mock.mealLogs).toHaveLength(0);
+  await page.reload();
   await expect(page.getByRole("heading", { name: "Nothing logged today" })).toBeVisible();
 });
 

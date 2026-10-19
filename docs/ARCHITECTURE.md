@@ -122,6 +122,11 @@ An LLM is not used. A later AI assistant would be proposed separately with cost,
 - **User choices** (`meal_preferences`) loaded once per sign-in, updated optimistically with rollback.
 - Scripts: `scripts/catalogue/build_ingredients.py` (needs the WAFCT file and an `FDC_API_KEY` in the environment, never committed), `scripts/catalogue/price_sheet.py`, `npm run catalogue:report` (writes docs/CATALOGUE_REVIEW.md).
 
+### As built in Phase 4 (2026-10-19)
+- **Targets** (`lib/domain/targets.ts`): method in §7, exact numbers in DECISION_LOG 051–054. Calculated in the browser from the profile and latest weight; never stored. Shown with a step-by-step "How we worked this out".
+- **Tracking** (`lib/domain/tracking.ts`, `lib/prototype-store.tsx`): meal log (last 60 days) and all weights load once per sign-in; adds/edits/removals update the screen at once and roll back with a message if the save fails.
+- **Account route group**: sign-in, setup and app screens live under `app/(account)/`, whose layout holds the session and data providers. The public landing page doesn't load any account code (decision 056).
+
 ## 9. Environments and deployment
 
 - **Local**: Next.js dev server against the `mealwise-dev` project (`.env.local`, git-ignored). Local Supabase via Docker remains an option on your machine; this workspace can't download its images.

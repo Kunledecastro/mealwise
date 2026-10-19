@@ -3,10 +3,11 @@
 import { useState, type FormEvent } from "react";
 import { Pencil, Trash2 } from "lucide-react";
 import { DemoStateView, useDemoState } from "@/components/meal-bits";
-import { Button, EmptyState, Field, PageTitle, SampleTag, Segmented, SkeletonRows, inputClass } from "@/components/ui";
+import { Button, EmptyState, Field, PageTitle, Segmented, SkeletonRows, inputClass } from "@/components/ui";
+import { weeklyTrend } from "@/lib/domain/tracking";
 import { formatWeight, kgToLb, parseWeight, round, type WeightUnit } from "@/lib/domain/units";
 import { useStore } from "@/lib/prototype-store";
-import { fromISODate } from "@/lib/sample-data";
+import { fromISODate } from "@/lib/dates";
 import type { WeightEntry } from "@/lib/types";
 
 function WeightChart({ entries, unit, targetKg }: { entries: WeightEntry[]; unit: WeightUnit; targetKg?: number }) {
@@ -56,7 +57,7 @@ function WeightChart({ entries, unit, targetKg }: { entries: WeightEntry[]; unit
 
 export function ProgressView() {
   const demo = useDemoState();
-  const { weights, upsertWeight, removeWeight, profile, setProfile, showToast, today: todayOrNull } = useStore();
+  const { weights, upsertWeight, removeWeight, profile, setProfile, showToast, today: todayOrNull, trackingStatus } = useStore();
   const unit: WeightUnit = profile.units === "metric" ? "kg" : "lb";
   const entries = demo === "empty" ? [] : weights;
   const today = todayOrNull ?? "";
@@ -67,6 +68,7 @@ export function ProgressView() {
   const [value, setValue] = useState("");
   const [errors, setErrors] = useState<{ date?: string; value?: string }>({});
   const [confirmDelete, setConfirmDelete] = useState<string | undefined>();
+  const [saving, setSaving] = useState(false);
 
   function startEdit(e: WeightEntry) {
     setEditing(e.id);
@@ -76,7 +78,7 @@ export function ProgressView() {
     document.getElementById("weight-form")?.scrollIntoView({ behavior: "smooth", block: "center" });
   }
 
-  function submit(ev: FormEvent) {
+  async function submit(ev: FormEvent) {
     ev.preventDefault();
     const errs: typeof errors = {};
     if (!/^\d{4}-\d{2}-\d{2}$/.test(date)) errs.date = "Choose a date.";
@@ -85,7 +87,10 @@ export function ProgressView() {
     if (!parsed.ok) errs.value = parsed.error;
     setErrors(errs);
     if (Object.keys(errs).length || !parsed.ok) return;
-    upsertWeight(date, parsed.kg, editing);
+    setSaving(true);
+    const saved = await upsertWeight(date, parsed.kg, unit, editing);
+    setSaving(false);
+    if (!saved) return;
     showToast(editing ? "Weight updated" : "Weight added");
     setEditing(undefined);
     setValue("");
@@ -93,6 +98,7 @@ export function ProgressView() {
   }
 
   const latest = entries[entries.length - 1];
+  const trend = todayOrNull ? weeklyTrend(entries, todayOrNull) : null;
   const change = entries.length > 1 ? latest.kg - entries[0].kg : 0;
 
   return (
@@ -104,17 +110,18 @@ export function ProgressView() {
           options={[{ value: "kg", label: "kg" }, { value: "lb", label: "lb" }]} />
       </div>
 
-      {todayOrNull === null ? (
+      {todayOrNull === null || trackingStatus === "loading" ? (
         <SkeletonRows count={2} />
       ) : demo && demo !== "empty" ? (
         <DemoStateView state={demo} />
+      ) : trackingStatus === "error" ? (
+        <EmptyState title="Your weights didn't load" body="Check your connection, then reload the page." />
       ) : entries.length === 0 ? (
         <EmptyState title="No weights yet" body="Add your first weight below to start seeing your trend. Weekly is plenty." />
       ) : (
         <section aria-labelledby="trend-title" className="rounded-[var(--radius-lg)] border border-line bg-surface p-5 sm:p-6">
           <div className="mb-3 flex flex-wrap items-baseline justify-between gap-2">
             <h2 id="trend-title" className="text-xl">Trend</h2>
-            <SampleTag>Sample entries</SampleTag>
           </div>
           <p className="mb-4">
             <span className="font-display text-3xl font-semibold">{formatWeight(latest.kg, unit)}</span>
@@ -129,6 +136,20 @@ export function ProgressView() {
             <WeightChart entries={entries} unit={unit} targetKg={profile.targetWeightKg} />
           ) : (
             <p className="text-muted">Add another entry to see your trend line.</p>
+          )}
+          {trend && (
+            <p className="mt-3">
+              Over the last {Math.round(trend.days / 7)} weeks:{" "}
+              <span className="font-semibold">
+                {Math.abs(trend.kgPerWeek) < 0.05 ? "steady" : `about ${formatWeight(Math.abs(trend.kgPerWeek), unit)} a week ${trend.kgPerWeek < 0 ? "down" : "up"}`}
+              </span>
+            </p>
+          )}
+          {trend?.tooFast && (
+            <p role="note" className="mt-3 rounded-[var(--radius-md)] bg-plantain-soft px-4 py-3 text-sm">
+              You&apos;re losing more than about 1% of your weight a week. Slower loss is usually easier to keep off and safer.
+              If you&apos;re not trying to lose this fast, or you feel unwell, talk to a doctor.
+            </p>
           )}
           <p className="mt-3 text-sm text-muted">Day-to-day weight naturally moves up and down. Look at the overall direction over weeks.</p>
         </section>
@@ -146,7 +167,7 @@ export function ProgressView() {
               className={inputClass} aria-invalid={!!errors.value} aria-describedby={errors.value ? "w-value-error" : undefined} />
           </Field>
           <div className="flex gap-2 sm:pt-7">
-            <Button type="submit">{editing ? "Save changes" : "Add weight"}</Button>
+            <Button type="submit" disabled={saving}>{saving ? "Saving…" : editing ? "Save changes" : "Add weight"}</Button>
             {editing && <Button type="button" variant="ghost" onClick={() => { setEditing(undefined); setValue(""); setDate(""); setErrors({}); }}>Cancel</Button>}
           </div>
         </form>
@@ -165,14 +186,14 @@ export function ProgressView() {
                 </span>
                 {confirmDelete === e.id ? (
                   <>
-                    <Button variant="danger" onClick={() => { removeWeight(e.id); setConfirmDelete(undefined); showToast("Weight deleted"); }}>Delete</Button>
+                    <Button variant="danger" onClick={async () => { setConfirmDelete(undefined); if (await removeWeight(e.id)) showToast("Weight deleted"); }}>Delete</Button>
                     <Button variant="ghost" onClick={() => setConfirmDelete(undefined)}>Keep</Button>
                   </>
                 ) : (
                   <>
-                    <button type="button" onClick={() => startEdit(e)} aria-label={`Edit weight for ${e.date}`}
+                    <button type="button" onClick={() => startEdit(e)} disabled={e.id.startsWith("pending-")} aria-label={`Edit weight for ${e.date}`}
                       className="grid size-11 place-items-center rounded-full text-accent hover:bg-accent-soft"><Pencil size={18} aria-hidden="true" /></button>
-                    <button type="button" onClick={() => setConfirmDelete(e.id)} aria-label={`Delete weight for ${e.date}`}
+                    <button type="button" onClick={() => setConfirmDelete(e.id)} disabled={e.id.startsWith("pending-")} aria-label={`Delete weight for ${e.date}`}
                       className="grid size-11 place-items-center rounded-full text-muted hover:bg-error-soft hover:text-error"><Trash2 size={18} aria-hidden="true" /></button>
                   </>
                 )}

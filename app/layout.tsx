@@ -2,8 +2,6 @@ import type { Metadata, Viewport } from "next";
 import "@fontsource-variable/bricolage-grotesque";
 import "@fontsource-variable/figtree";
 import "./globals.css";
-import { AuthProvider } from "@/lib/auth";
-import { PrototypeProvider } from "@/lib/prototype-store";
 
 export const metadata: Metadata = {
   title: { default: "Mealwise", template: "%s · Mealwise" },
@@ -23,9 +21,7 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
     <html lang="en-NG" className="antialiased">
       <body>
-        <AuthProvider>
-          <PrototypeProvider>{children}</PrototypeProvider>
-        </AuthProvider>
+        {children}
       </body>
     </html>
   );

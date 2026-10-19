@@ -6,7 +6,7 @@ import { CATALOGUE_VERSION, MEALS, getMeal } from "@/catalogue";
 import { NUTRITION_SOURCES } from "@/catalogue/sources";
 import { formatMinutes, formatNairaRange } from "@/lib/domain/meals";
 import { MEAL_TYPE_LABEL } from "@/lib/types";
-import { MealActions, PriceNote, ProfileClashFor, ReadyMadeNote, WhyThisSuits } from "./meal-actions";
+import { MealActions, PortionGuide, PriceNote, ProfileClashFor, ReadyMadeNote, WhyThisSuits } from "./meal-actions";
 import { MealVisual, PhotoCredit } from "@/components/meal-visual";
 
 export function generateStaticParams() {
@@ -59,6 +59,7 @@ export default async function MealPage(props: PageProps<"/meals/[slug]">) {
       </header>
 
       <WhyThisSuits slug={meal.slug} />
+      <PortionGuide slug={meal.slug} />
 
       <section aria-labelledby="ways-title" className="flex flex-col gap-3">
         <h2 id="ways-title" className="text-xl">Cook it or buy it</h2>

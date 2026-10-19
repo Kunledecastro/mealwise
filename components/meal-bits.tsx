@@ -67,9 +67,9 @@ export function MealFacts({ meal, className = "" }: { meal: Meal; className?: st
   );
 }
 
-/** Recommendation context from the signed-in user's profile, choices and (sample) logs. */
+/** Recommendation context from the signed-in user's profile, choices, meal log and daily target. */
 export function useRecommendContext(slot: MealType): RecommendContext {
-  const { profile, rejected, saved, logs, today } = useStore();
+  const { profile, rejected, saved, logs, today, dailyKcal } = useStore();
   return useMemo(() => {
     const recent = new Map<string, number>();
     if (today) {
@@ -79,8 +79,8 @@ export function useRecommendContext(slot: MealType): RecommendContext {
         if (days >= 0 && days < 7 && (recent.get(l.slug) ?? 99) > days) recent.set(l.slug, days);
       }
     }
-    return { profile, slot, rejected: new Set(Object.keys(rejected)), saved: new Set(saved), recent };
-  }, [profile, slot, rejected, saved, logs, today]);
+    return { profile, slot, rejected: new Set(Object.keys(rejected)), saved: new Set(saved), recent, dailyKcal };
+  }, [profile, slot, rejected, saved, logs, today, dailyKcal]);
 }
 
 /** Warns when a meal clashes with the user's allergies, diet or dislikes (e.g. opened from search or a link). */

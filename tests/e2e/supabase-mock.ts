@@ -24,6 +24,7 @@ interface MockUser { id: string; email: string; password: string; confirmed: boo
 const EDITABLE = [
   "display_name", "birth_year", "height_cm", "current_weight_kg", "target_weight_kg", "units", "goal", "activity_level",
   "diet", "allergies", "dislikes", "cuisines", "budget_band", "max_prep_minutes", "onboarding_completed_at",
+  "sex", "needs_guidance",
 ];
 
 const b64url = (s: string) => Buffer.from(s).toString("base64url");
@@ -68,6 +69,8 @@ function profileRow(id: string, consent: string | null, onboarded: boolean, now:
     cuisines: onboarded ? ["Nigerian", "International"] : [],
     budget_band: onboarded ? "medium" : null,
     max_prep_minutes: onboarded ? 45 : null,
+    sex: null,
+    needs_guidance: false,
     consent_version: consent, consent_at: consent ? now : null,
     onboarding_completed_at: onboarded ? now : null,
     created_at: now, updated_at: now,
@@ -79,6 +82,11 @@ export class SupabaseMock {
   profiles = new Map<string, Row>(); // by user id
   /** meal_preferences rows keyed "userId|slug". */
   mealPrefs = new Map<string, Row & { user_id: string; meal_slug: string }>();
+  /** weight_entries and meal_logs rows (owner-only, like the real policies). */
+  weights: (Row & { user_id: string })[] = [];
+  mealLogs: (Row & { user_id: string })[] = [];
+  /** Set to make the next weight / meal-log write fail. */
+  failNextTrackingWrite = false;
   /** Every request the app made, for assertions ("METHOD path"). */
   calls: string[] = [];
   /** Emails the real service would have sent. */
@@ -93,6 +101,21 @@ export class SupabaseMock {
     slugs.forEach((slug, i) => {
       const key = `${userId}|${slug}`;
       this.mealPrefs.set(key, { id: key, user_id: userId, meal_slug: slug, saved_at: new Date(Date.now() - i * 60_000).toISOString(), rejected_at: null, reject_reason: null });
+    });
+  }
+
+  /** Pre-adds weights for a user: [YYYY-MM-DD, kg][]. */
+  seedWeights(userId: string, entries: [string, number][]) {
+    for (const [measured_on, kg] of entries)
+      this.weights.push({ id: crypto.randomUUID(), user_id: userId, measured_on, weight_kg: kg.toFixed(2), entered_unit: "kg" });
+  }
+
+  /** Pre-logs a meal for a user. */
+  seedLog(userId: string, row: { meal_slug: string; logged_for: string; meal_type: string; portion?: number; kcal: number; protein_g?: number; carbs_g?: number; fat_g?: number }) {
+    this.mealLogs.push({
+      id: crypto.randomUUID(), user_id: userId, portion: "1.00", protein_g: "10.0", carbs_g: "50.0", fat_g: "10.0",
+      created_at: new Date().toISOString(), ...row,
+      ...(row.portion !== undefined ? { portion: row.portion.toFixed(2) } : {}),
     });
   }
 
@@ -276,6 +299,68 @@ export class SupabaseMock {
       return this.reply(route, 403, { code: "42501", message: "permission denied for table meal_preferences" });
     }
 
+    // ---- Database: weight_entries and meal_logs (owner-only; same checks as the real tables) ----
+    if (p === "/rest/v1/weight_entries" || p === "/rest/v1/meal_logs") {
+      const u = this.byToken(route);
+      if (!u) return this.reply(route, 401, { code: "42501", message: "permission denied" });
+      const isWeights = p.endsWith("weight_entries");
+      const table: (Row & { user_id: string })[] = isWeights ? this.weights : this.mealLogs;
+      const asObject = (req.headers()["accept"] ?? "").includes("vnd.pgrst.object");
+      const filters = [...url.searchParams.entries()].filter(([k]) => !["select", "order", "on_conflict", "columns"].includes(k));
+      const matches = (r: Row) =>
+        r.user_id === u.id &&
+        filters.every(([k, v]) => {
+          const [op, val] = [v.slice(0, v.indexOf(".")), v.slice(v.indexOf(".") + 1)];
+          if (op === "eq") return String(r[k]) === val;
+          if (op === "gte") return String(r[k]) >= val;
+          return true;
+        });
+      if (method === "GET") {
+        const key = isWeights ? "measured_on" : "logged_for";
+        return this.reply(route, 200, table.filter(matches).sort((a, b) => String(a[key]).localeCompare(String(b[key]))));
+      }
+      if (method === "POST" || method === "DELETE") {
+        if (this.failNextTrackingWrite) {
+          this.failNextTrackingWrite = false;
+          return this.reply(route, 503, { code: "", message: "Failed to fetch (simulated outage)" });
+        }
+      }
+      if (method === "POST") {
+        const rows = (Array.isArray(body) ? body : [body]) as Record<string, unknown>[];
+        const out: Row[] = [];
+        const today = new Date();
+        today.setDate(today.getDate() + 1);
+        const maxDate = today.toISOString().slice(0, 10);
+        for (const r of rows) {
+          if (r.user_id !== u.id) return this.reply(route, 403, { code: "42501", message: "new row violates row-level security policy" });
+          if (isWeights) {
+            const kg = Number(r.weight_kg);
+            if (!(kg >= 20 && kg <= 400) || String(r.measured_on) > maxDate) return this.reply(route, 400, { code: "23514", message: "violates check constraint" });
+            const existing = this.weights.find((w) => w.user_id === u.id && w.measured_on === r.measured_on);
+            if (existing && !url.searchParams.get("on_conflict")) return this.reply(route, 409, { code: "23505", message: "duplicate key value" });
+            const row = { ...(existing ?? { id: crypto.randomUUID(), user_id: u.id }), ...r, weight_kg: kg.toFixed(2) } as Row & { user_id: string };
+            if (!existing) this.weights.push(row);
+            else Object.assign(existing, row);
+            out.push(row);
+          } else {
+            const portion = Number(r.portion);
+            if (!(portion >= 0.25 && portion <= 4) || !["breakfast", "lunch", "dinner", "snack"].includes(String(r.meal_type)) || String(r.logged_for) > maxDate)
+              return this.reply(route, 400, { code: "23514", message: "violates check constraint" });
+            const row = { id: crypto.randomUUID(), created_at: new Date().toISOString(), ...r, portion: portion.toFixed(2) } as unknown as Row & { user_id: string };
+            this.mealLogs.push(row);
+            out.push(row);
+          }
+        }
+        return asObject ? this.reply(route, 201, out[0]) : this.reply(route, 201, out);
+      }
+      if (method === "DELETE") {
+        const keep = table.filter((r) => !matches(r));
+        table.splice(0, table.length, ...keep);
+        return this.reply(route, 204);
+      }
+      return this.reply(route, 403, { code: "42501", message: "permission denied" });
+    }
+
     // ---- Edge function ----
     if (p === "/functions/v1/delete-account" && method === "POST") {
       const u = this.byToken(route);
@@ -283,6 +368,8 @@ export class SupabaseMock {
       this.users.delete(u.email);
       this.profiles.delete(u.id);
       for (const k of [...this.mealPrefs.keys()]) if (k.startsWith(`${u.id}|`)) this.mealPrefs.delete(k);
+      this.weights = this.weights.filter((w) => w.user_id !== u.id);
+      this.mealLogs = this.mealLogs.filter((l) => l.user_id !== u.id);
       return this.reply(route, 200, { deleted: true });
     }
 

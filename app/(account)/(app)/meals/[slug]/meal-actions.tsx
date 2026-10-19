@@ -10,33 +10,44 @@ import { useStore } from "@/lib/prototype-store";
 import { getMeal } from "@/catalogue";
 import { PRICE_STALE_DAYS } from "@/lib/domain/catalogue";
 import { checkMeal, factorsFor, reasonsFor } from "@/lib/domain/recommend";
+import { PORTIONS, suggestedPortion } from "@/lib/domain/targets";
+import { addDays } from "@/lib/domain/tracking";
 import { MEAL_TYPES, MEAL_TYPE_LABEL, type MealType } from "@/lib/types";
 
-const PORTIONS = [0.5, 1, 1.5, 2];
-const portionLabel = (p: number) => (p === 0.5 ? "½" : p === 1.5 ? "1½" : String(p));
-const portionSpoken = (p: number) =>
-  p === 0.5 ? "Half a serving" : p === 1.5 ? "One and a half servings" : p === 1 ? "1 serving" : `${p} servings`;
+const LABEL: Record<number, string> = { 0.5: "½", 0.75: "¾", 1.5: "1½" };
+const SPOKEN: Record<number, string> = { 0.5: "Half a serving", 0.75: "Three quarters of a serving", 1: "1 serving", 1.5: "One and a half servings" };
+const portionLabel = (p: number) => LABEL[p] ?? String(p);
+const portionSpoken = (p: number) => SPOKEN[p] ?? `${p} servings`;
+const portionWords = (p: number) => ({ 0.5: "half a serving", 0.75: "three-quarters of a serving", 1.5: "one and a half servings" })[p] ?? `${p} servings`;
 
 export function MealActions({ slug }: { slug: string }) {
   const meal = getMeal(slug)!;
   const router = useRouter();
-  const { saved, toggleSaved, addLog, showToast } = useStore();
+  const { saved, toggleSaved, addLog, showToast, dailyKcal, today } = useStore();
   const isSaved = saved.includes(slug);
   const dialog = useRef<HTMLDialogElement>(null);
   const [portion, setPortion] = useState(1);
   const [mealType, setMealType] = useState<MealType>(meal.mealTypes[0]);
+  const [yesterday, setYesterday] = useState(false);
+  const [busy, setBusy] = useState(false);
 
   function openLog() {
     const now = slotForHour(new Date().getHours());
-    setMealType(meal.mealTypes.includes(now) ? now : meal.mealTypes[0]);
-    setPortion(1);
+    const slot = meal.mealTypes.includes(now) ? now : meal.mealTypes[0];
+    setMealType(slot);
+    setPortion(suggestedPortion(meal.kcal, slot, dailyKcal));
+    setYesterday(false);
     dialog.current?.showModal();
   }
 
-  function log() {
-    addLog(slug, mealType, portion);
+  async function log() {
+    if (!today) return;
+    setBusy(true);
+    const ok = await addLog(meal, mealType, portion, yesterday ? addDays(today, -1) : today);
+    setBusy(false);
+    if (!ok) return;
     dialog.current?.close();
-    showToast(`Logged ${meal.name} to today`);
+    showToast(`Logged ${meal.name} to ${yesterday ? "yesterday" : "today"}`);
   }
 
   return (
@@ -66,7 +77,7 @@ export function MealActions({ slug }: { slug: string }) {
                 </Chip>
               ))}
             </div>
-            <p className="text-sm text-muted">One serving is {meal.serving.toLowerCase()}. That&apos;s about {Math.round(meal.kcal * portion)} kcal (estimate).</p>
+            <p className="text-sm text-muted">One serving is {meal.serving.toLowerCase()}. {portion === 1 ? "That's" : portion < 1 ? `${portionLabel(portion)} serving is` : `${portionLabel(portion)} servings are`} about {Math.round(meal.kcal * portion).toLocaleString()} kcal (estimate).</p>
           </fieldset>
           <fieldset className="flex flex-col gap-2">
             <legend className="mb-2 font-semibold">Which meal was it?</legend>
@@ -76,10 +87,17 @@ export function MealActions({ slug }: { slug: string }) {
               ))}
             </div>
           </fieldset>
-          <p className="text-sm text-muted">Test version: meal logs stay in this browser tab only until Phase 4.</p>
+          <fieldset className="flex flex-col gap-2">
+            <legend className="mb-2 font-semibold">When?</legend>
+            <div className="flex flex-wrap gap-2">
+              <Chip selected={!yesterday} onClick={() => setYesterday(false)}>Today</Chip>
+              <Chip selected={yesterday} onClick={() => setYesterday(true)}>Yesterday</Chip>
+            </div>
+          </fieldset>
+          <p className="text-sm text-muted">Saved to your account. You can remove it from the Today page.</p>
           <div className="flex justify-end gap-2">
             <Button type="button" variant="ghost" onClick={() => dialog.current?.close()}>Cancel</Button>
-            <Button type="submit">Log meal</Button>
+            <Button type="submit" disabled={busy}>{busy ? "Saving…" : "Log meal"}</Button>
           </div>
         </form>
       </dialog>
@@ -101,6 +119,23 @@ export function WhyThisSuits({ slug }: { slug: string }) {
         {reasons.map((r) => <li key={r} className="rounded-full bg-fresh-soft px-3 py-1.5 font-semibold text-fresh">{r}</li>)}
       </ul>
     </section>
+  );
+}
+
+/** "For your target, ½ serving fits a lunch" — shown when a full serving is well off the slot's share of the day. */
+export function PortionGuide({ slug }: { slug: string }) {
+  const meal = getMeal(slug)!;
+  const { dailyKcal } = useStore();
+  if (!dailyKcal) return null;
+  const slot = meal.mealTypes.includes("lunch") ? "lunch" : meal.mealTypes[0];
+  const p = suggestedPortion(meal.kcal, slot, dailyKcal);
+  if (p === 1) return null;
+  return (
+    <p className="rounded-[var(--radius-md)] border border-line bg-surface px-4 py-3">
+      <span className="font-semibold">For your daily target</span> (about {dailyKcal.toLocaleString()} kcal), {portionWords(p)} fits a{" "}
+      {MEAL_TYPE_LABEL[slot].toLowerCase()} better: about {Math.round(meal.kcal * p).toLocaleString()} kcal.{" "}
+      <span className="text-muted">A guide, not a rule.</span>
+    </p>
   );
 }
 

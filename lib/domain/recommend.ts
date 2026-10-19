@@ -7,11 +7,12 @@
  * 2. Soft score 0–1 from weighted factors (WEIGHTS below), highest first, ties by name.
  * 3. Plain-language reasons from the strongest factors.
  *
- * Calorie bands per meal slot are general guidance for ranking only, not personal targets
- * (personal targets arrive in Phase 4).
+ * Calorie bands per meal slot come from the user's own daily target when there is one (Phase 4),
+ * otherwise general guidance scaled by goal.
  */
 import type { Meal, MealType, Profile } from "../types";
 import { formatMinutes } from "./meals";
+import { slotBandFromTarget } from "./targets";
 
 export const WEIGHTS = { goal: 0.35, time: 0.15, budget: 0.15, cuisine: 0.1, variety: 0.15, saved: 0.1 } as const;
 
@@ -94,6 +95,8 @@ export interface RecommendContext {
   saved?: ReadonlySet<string>;
   /** Meals logged recently: how many days ago (0 = today). */
   recent?: ReadonlyMap<string, number>;
+  /** The user's daily energy target, when one could be calculated. */
+  dailyKcal?: number | null;
 }
 
 export interface Factors {
@@ -118,7 +121,8 @@ function bandScore(kcal: number, [lo, hi]: [number, number]): number {
   return clamp01(1 - gap / (0.5 * (kcal < lo ? lo : hi)));
 }
 
-export function kcalBand(slot: MealType, goal: Profile["goal"]): [number, number] {
+export function kcalBand(slot: MealType, goal: Profile["goal"], dailyKcal?: number | null): [number, number] {
+  if (dailyKcal) return slotBandFromTarget(slot, dailyKcal);
   const s = GOAL_SCALE[goal ?? "maintain"];
   const [lo, hi] = SLOT_KCAL[slot];
   return [Math.round(lo * s), Math.round(hi * s)];
@@ -127,8 +131,8 @@ export function kcalBand(slot: MealType, goal: Profile["goal"]): [number, number
 /** Share of energy from protein (0–1). */
 export const proteinShare = (m: Meal) => (m.kcal > 0 ? (m.protein * 4) / m.kcal : 0);
 
-export function goalScore(meal: Meal, slot: MealType, goal: Profile["goal"]): number {
-  const band = bandScore(meal.kcal, kcalBand(slot, goal));
+export function goalScore(meal: Meal, slot: MealType, goal: Profile["goal"], dailyKcal?: number | null): number {
+  const band = bandScore(meal.kcal, kcalBand(slot, goal, dailyKcal));
   const ps = proteinShare(meal);
   if (goal === "lose") return 0.5 * band + 0.35 * clamp01((ps - 0.1) / 0.15) + 0.15 * clamp01((meal.fibre ?? 0) / 8);
   if (goal === "gain") return 0.6 * band + 0.4 * clamp01(meal.protein / 30);
@@ -147,7 +151,7 @@ export function factorsFor(meal: Meal, ctx: RecommendContext): Factors {
   const days = ctx.recent?.get(meal.slug);
   const variety = days === undefined ? 1 : days <= 0 ? 0 : days === 1 ? 0.3 : days === 2 ? 0.6 : 1;
   return {
-    goal: goalScore(meal, ctx.slot, p.goal),
+    goal: goalScore(meal, ctx.slot, p.goal, ctx.dailyKcal),
     time,
     budget,
     cuisine,
@@ -165,7 +169,7 @@ export function reasonsFor(meal: Meal, f: Factors, ctx: RecommendContext): strin
   const p = ctx.profile;
   const r: string[] = [];
   const ps = proteinShare(meal);
-  const inBand = bandScore(meal.kcal, kcalBand(ctx.slot, p.goal)) === 1;
+  const inBand = bandScore(meal.kcal, kcalBand(ctx.slot, p.goal, ctx.dailyKcal)) === 1;
   if (p.goal === "lose") {
     if (ps >= 0.2) r.push("High in protein, which helps you stay full");
     if (inBand) r.push("A lighter portion for your goal");

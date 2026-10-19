@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { MEALS } from "@/catalogue";
 import { filterMeals, formatMinutes, formatNairaRange, hasTag, slotForHour } from "@/lib/domain/meals";
-import { fromISODate, toISODate } from "@/lib/sample-data";
+import { fromISODate, toISODate } from "@/lib/dates";
 import type { Meal } from "@/lib/types";
 
 describe("slotForHour", () => {

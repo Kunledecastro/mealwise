@@ -126,6 +126,10 @@ export interface Profile {
   cuisines: string[];
   budget?: "low" | "medium" | "high";
   maxPrepMinutes?: number;
+  /** Optional; used only for the calorie estimate. */
+  sex?: "female" | "male";
+  /** Pregnant, breastfeeding or a condition that affects diet: no targets shown. Which one is not stored. */
+  needsGuidance?: boolean;
   /** Set once the user finishes setup. Until then the app sends them to /onboarding. */
   onboarded?: boolean;
 }
@@ -142,4 +146,9 @@ export interface MealLog {
   mealType: MealType;
   portion: number;
   date: string; // YYYY-MM-DD
+  /** Figures saved when the meal was logged (portion already applied). */
+  kcal: number;
+  protein: number;
+  carbs: number;
+  fat: number;
 }
