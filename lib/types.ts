@@ -90,6 +90,8 @@ export interface Meal {
   substitutes?: string[];
   /** Credit when the dish and proportions are based on a published recipe. */
   basedOn?: { title: string; publisher: string; url?: string; licence: string };
+  /** Allergens in optional extras, which are not counted in the meal's allergens. */
+  optionalAllergens?: { ingredient: string; allergens: string[] }[];
   /** Typical price to buy one plate ready-made (no vendor names). */
   readyMade?: ReadyMadePrice;
 }

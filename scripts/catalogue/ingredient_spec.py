@@ -146,4 +146,9 @@ SPEC = [
     dict(id="honey", name="Honey", group="other_animal", source="wafct", ref="13_001"),
     dict(id="vinegar", name="Vinegar", group="plant", source="wafct", ref="13_003", fibreZeroIfMissing=True),
     dict(id="mustard", name="Mustard (prepared)", group="plant", source="wafct", ref="13_013"),
+    # ---- Added for batch 2c (2026-10-19) ----
+    dict(id="palm-fruit", name="Palm fruit pulp (for banga)", aliases=["banga", "palm nut", "palm fruit"], group="plant", source="wafct", ref="05_040"),
+    dict(id="giblets", name="Chicken gizzards and giblets", aliases=["gizzard", "gizzards", "giblets", "chicken"], group="poultry", source="wafct", ref="07_039"),
+    dict(id="shrimp", name="Prawns / shrimp", aliases=["prawn", "prawns", "shrimp"], group="shellfish", source="wafct", ref="09_059", contains=["shellfish"]),
+    dict(id="chilli-dried", name="Dried chilli (yaji pepper)", aliases=["chilli", "pepper", "yaji", "suya pepper"], group="plant", source="wafct", ref="13_006"),
 ]

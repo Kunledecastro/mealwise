@@ -79,7 +79,10 @@ test.describe("new account", () => {
     // Peanut meals are hidden after declaring the allergy.
     await nav(page).getByRole("link", { name: "Search", exact: true }).click();
     await page.getByRole("searchbox").fill("groundnuts");
-    await expect(page.getByRole("heading", { name: "No meals match" })).toBeVisible();
+    // Only meals where groundnuts are an optional, uncounted side (e.g. boli) may remain.
+    await expect(page.getByRole("link", { name: "Roasted plantain (boli)" })).toBeVisible();
+    for (const name of ["Fried plantain with groundnuts", "Banana and groundnuts", "Suya beef with onion and cabbage"])
+      await expect(page.getByRole("link", { name })).toHaveCount(0);
     await page.getByLabel(/Hide meals with my allergies/).uncheck();
     await expect(page.getByRole("link", { name: "Fried plantain with groundnuts" })).toBeVisible();
   });
@@ -148,7 +151,7 @@ test("J4: search with filters, empty result, and clearing", async ({ page }) => 
   await page.getByRole("searchbox").fill("pizza");
   await expect(page.getByRole("heading", { name: "No meals match" })).toBeVisible();
   await page.getByRole("button", { name: "Clear search and filters" }).click();
-  await expect(page.getByText(/^50 meals/)).toBeVisible();
+  await expect(page.getByText(/^70 meals/)).toBeVisible();
   await page.getByRole("searchbox").fill("beans");
   await page.getByRole("group", { name: "Time" }).getByRole("button", { name: "Under 45 min" }).click();
   await expect(page.getByRole("link", { name: "Akara and pap" })).toBeVisible();

@@ -87,7 +87,16 @@ export function useRecommendContext(slot: MealType): RecommendContext {
 export function ProfileClash({ meal }: { meal: Meal }) {
   const { profile } = useStore();
   const v = checkMeal(meal, profile);
-  if (v.ok) return null;
+  if (v.ok) {
+    const extras = (meal.optionalAllergens ?? []).filter((o) => o.allergens.some((a) => profile.allergies.includes(a)));
+    if (!extras.length) return null;
+    return (
+      <p role="alert" className="rounded-[var(--radius-md)] border border-error/50 bg-error/10 px-4 py-3 font-semibold text-error">
+        Allergy note: leave out the optional {extras.map((e) => e.ingredient.replace(/\s*\(.*\)/, "").toLowerCase()).join(" and ")} (
+        {[...new Set(extras.flatMap((e) => e.allergens.filter((a) => profile.allergies.includes(a))))].join(", ")}).
+      </p>
+    );
+  }
   const allergy = v.reason === "allergy" || v.reason === "allergy_unknown";
   return (
     <p role="alert" className={`rounded-[var(--radius-md)] border px-4 py-3 font-semibold ${allergy ? "border-error/50 bg-error/10 text-error" : "border-line bg-surface text-ink"}`}>

@@ -64,7 +64,8 @@ UNITS = {
     "lentils": ("1 kg", 1000), "mint": ("1 bunch (about 30 g)", 30), "almonds": ("1 pack (200 g)", 200),
     "strawberries": ("1 punnet (250 g)", 250), "pineapple-juice": ("1 litre carton (about 1 kg)", 1000),
     "butter": ("1 pack (250 g)", 250), "olive-oil": ("1 bottle (500 ml, about 460 g)", 460),
-    "yoghurt-sweet": ("1 tub (500 g)", 500), "honey": ("1 bottle (500 g)", 500), "vinegar": ("1 bottle (about 500 g)", 500),
+    "yoghurt-sweet": ("1 tub (500 g)", 500), "palm-fruit": ("1 kg palm fruit (about 600 g pulp)", 600),
+    "giblets": ("1 kg", 1000), "shrimp": ("1 kg (about 550 g peeled)", 550), "honey": ("1 bottle (500 g)", 500), "vinegar": ("1 bottle (about 500 g)", 500),
 }
 
 FIELDS = ["ingredient_id", "ingredient", "unit", "grams_per_unit", "low_naira", "high_naira", "observed_on", "source", "note"]
@@ -153,7 +154,7 @@ READY_FIELDS = ["meal_slug", "meal", "portion", "where", "low_naira", "high_nair
 
 def meal_names():
     out = {}
-    for f in ("meals.ts", "meals-ecookbook.ts", "meals-recipe-files.ts"):
+    for f in ("meals.ts", "meals-ecookbook.ts", "meals-recipe-files.ts", "meals-batch2.ts"):
         text = open(os.path.join(ROOT, "catalogue", f), encoding="utf-8").read()
         for m in re.finditer(r'slug: "([^"]+)",\s*name: "([^"]+)"', text):
             out[m.group(1)] = m.group(2)

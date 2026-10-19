@@ -130,6 +130,15 @@ export function allergensFor(def: MealDef, ctx: CompileContext) {
   return { contains: [...contains], mayContain: [...may], unknown };
 }
 
+/** Allergens in optional extras (not counted in the meal), so the page can say "skip it". */
+export function optionalAllergensFor(def: MealDef, ctx: CompileContext): { ingredient: string; allergens: string[] }[] {
+  return def.ingredients
+    .filter((mi) => mi.optional)
+    .map((mi) => ctx.ingredients.get(mi.id)!)
+    .map((ing) => ({ ingredient: ing.name, allergens: [...ing.contains, ...(ing.mayContain ?? [])].map((a) => ALLERGEN_LABEL[a]) }))
+    .filter((x) => x.allergens.length);
+}
+
 /** Compiles one meal. Throws CatalogueError if the definition is inconsistent. */
 export function compileMeal(def: MealDef, ctx: CompileContext): Meal {
   if (!def.ingredients.length) throw new CatalogueError(`${def.slug}: no ingredients`);
@@ -178,6 +187,7 @@ export function compileMeal(def: MealDef, ctx: CompileContext): Meal {
     licenceToConfirm,
     substitutes: used.filter((i) => i.nutrition.substituteNote).map((i) => `${i.name}: ${i.nutrition.substituteNote}`),
     basedOn: def.basedOn,
+    optionalAllergens: optionalAllergensFor(def, ctx),
   };
 }
 

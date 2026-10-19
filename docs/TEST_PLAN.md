@@ -72,6 +72,32 @@ All checks re-run after the redesign: unit 34/34, E2E 72/72, axe zero serious is
 
 ---
 
+## Phase 3 final automated results (run 2026-10-19)
+
+| Check | Result |
+|---|---|
+| Type check / lint / build | Pass / Pass / Pass (70 meal pages pre-built) |
+| Unit tests | **100 passed, 0 failed** |
+| E2E tests (phone + desktop) | **128 passed, 0 failed** |
+| Database access, `meal_preferences` (real database, re-run today) | **15/15 passed**, rolled back |
+| Supabase advisors | Performance: none. Security: leaked-password protection off (I12, unchanged) |
+| Lighthouse mobile | Accessibility 100; performance `/` 87–93, `/sign-in` 91; JS 244 KB (I11) |
+| Catalogue | 70 meals (breakfast 17, lunch 47, dinner 47, snack 14; vegetarian 28, vegan 11), 97 ingredients; all compile, all sourced, allergen leak sweep passes for all 9 allergens |
+
+New since the batch 2a run: optional-extra allergen note (C-17, P3-10); search with a peanut allergy keeps only meals where groundnuts are an optional, uncounted side (J1 updated).
+
+### Defects found and fixed in the final round
+| ID | Found by | Issue | Fix |
+|---|---|---|---|
+| P3-02 | E2E J1 | A peanut-allergic user opening boli (optional groundnuts on the side) got no warning | Meal page now says "leave out the optional groundnuts" (decision 049) |
+| P3-03 | Lighthouse | Landing page performance fell to 75 as the catalogue grew (whole catalogue sent to the browser) | Landing gets its dishes from the server (decision 050); back to 87–93 |
+
+| ID | Feature | Steps | Expected |
+|---|---|---|---|
+| M3-16 | New meals | Search "edikang", "banga", "suya", "shakshuka", "gari foto" | Each has figures, steps and sources |
+| M3-17 | Cooking prices | Open Boiled yam and egg sauce, and Waakye | "Cook it" shows a ₦ range with "Prices from May 2026, may be out of date" |
+| M3-18 | Optional extras | Add Peanuts allergy → open Roasted plantain (boli) | Red note: leave out the optional groundnuts |
+
 ## Phase 3 batch 2a (recipe files + cook or buy) results (run 2026-10-19)
 
 Type check, lint and build pass. Unit **99/99** (new: cook/buy pricing R-20/21, ready-made data D-12, recipe credits D-13). E2E **126/126** (new P3-08 cook-or-buy section, P3-09 buy price in lists). Catalogue: 50 meals, 93 ingredients, all compile; integrity and allergen leak checks pass on the full set.

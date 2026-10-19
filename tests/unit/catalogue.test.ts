@@ -149,3 +149,11 @@ describe("provenance", () => {
     expect(compileMeal(meal({}), ctx).licenceToConfirm).toBe(false);
   });
 });
+
+describe("optional extras", () => {
+  it("C-17 allergens in optional ingredients are reported separately and not added to the meal", () => {
+    const m = compileMeal(meal({ ingredients: [{ id: "rice", grams: 100, display: "" }, { id: "fish", grams: 50, display: "", optional: true }] }), ctx);
+    expect(m.allergens).toEqual([]);
+    expect(m.optionalAllergens).toEqual([{ ingredient: "fish", allergens: ["Fish"] }]);
+  });
+});

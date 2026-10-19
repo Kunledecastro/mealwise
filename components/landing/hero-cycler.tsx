@@ -4,21 +4,14 @@ import { useEffect, useState } from "react";
 import { Clock, Flame, Pause, Play, Wallet } from "lucide-react";
 import { MealVisual, PhotoCredit } from "@/components/meal-visual";
 import { formatMinutes, formatNairaRange } from "@/lib/domain/meals";
-import { getMeal } from "@/catalogue";
+import type { Meal } from "@/lib/types";
 
-const SEQUENCE = [
-  { slug: "jollof-rice-chicken", when: "Lunch" },
-  { slug: "akara-and-pap", when: "Breakfast" },
-  { slug: "egusi-pounded-yam", when: "Dinner" },
-  { slug: "yam-and-egg-sauce", when: "Breakfast" },
-  { slug: "plantain-groundnuts", when: "Snack" },
-  { slug: "efo-riro-eba", when: "Dinner" },
-].map((s) => ({ ...s, meal: getMeal(s.slug)! }));
+export type HeroItem = { slug: string; when: string; meal: Meal };
 
 const INTERVAL = 3800;
 
 /** Hero answer that cycles through dishes; real photos crossfade inside the glowing orbit. */
-export function HeroCycler() {
+export function HeroCycler({ items: SEQUENCE }: { items: HeroItem[] }) {
   const [i, setI] = useState(0);
   const [playing, setPlaying] = useState(true);
 
@@ -26,9 +19,10 @@ export function HeroCycler() {
     if (!playing) return;
     const reduce = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
     if (reduce) return;
-    const t = setInterval(() => setI((x) => (x + 1) % SEQUENCE.length), INTERVAL);
+    const count = SEQUENCE.length;
+    const t = setInterval(() => setI((x) => (x + 1) % count), INTERVAL);
     return () => clearInterval(t);
-  }, [playing]);
+  }, [playing, SEQUENCE.length]);
 
   const { meal, when } = SEQUENCE[i];
 

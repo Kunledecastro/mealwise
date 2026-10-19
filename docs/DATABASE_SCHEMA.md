@@ -24,7 +24,7 @@ Supabase project `mealwise-dev` (ref `naaoigrhzfivantuysxl`, region eu-west-2 Lo
 
 **`meal_preferences`** (Phase 3, migration `…090001_phase3_meal_preferences.sql`) — `user_id` (→ profiles, cascade), `meal_slug` (format-checked), `saved_at`, `rejected_at`, `reject_reason` (dislike | too_expensive | too_long | allergy | other; only allowed while rejected), `updated_at` (trigger). PK (user_id, meal_slug). RLS: read/add/change own rows only; no removal policy (users clear timestamps instead); anon has no access. Replaces the planned `saved_meals` and `meal_feedback` tables (DECISION_LOG 040). Tests: `supabase/tests/rls_meal_preferences.sql`, 15/15 pass (2026-10-18).
 
-**Catalogue (in the repo, not the database)** — `catalogue/ingredients.generated.ts` (70 ingredients, generated from FAO WAFCT 2019 and USDA FDC by `scripts/catalogue/build_ingredients.py`), `catalogue/meals.ts` (40 meals), `catalogue/prices.ts` (from `docs/PRICE_SHEET.csv`), compiled by `lib/domain/catalogue.ts`.
+**Catalogue (in the repo, not the database)** — `catalogue/ingredients.generated.ts` (97 ingredients, generated from FAO WAFCT 2019 and USDA FDC by `scripts/catalogue/build_ingredients.py`), `catalogue/meals*.ts` (70 meals), `catalogue/prices.ts` (from `docs/PRICE_SHEET.csv`), `catalogue/ready-made.ts` (from `docs/READY_MADE_PRICE_SHEET.csv`), compiled by `lib/domain/catalogue.ts`.
 
 **Account deletion** — edge function `delete-account` (Deno, deployed): verifies the caller's own token with Supabase Auth, then deletes exactly that user with the secret key, which exists only inside Supabase. `profiles` (and every future user table) cascades.
 

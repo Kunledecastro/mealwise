@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { getMeal } from "@/catalogue";
+import type { Meal } from "@/lib/types";
 import { MealVisual } from "@/components/meal-visual";
 
 const STEPS = [
@@ -19,9 +19,8 @@ const STEPS = [
   },
 ];
 
-const jollof = getMeal("jollof-rice-chicken")!;
 
-function PhoneScreen({ step, id = "a" }: { step: number; id?: string }) {
+function PhoneScreen({ step, id = "a", jollof }: { step: number; id?: string; jollof: Meal }) {
   return (
     <div className="relative mx-auto aspect-[9/18.5] w-full max-w-[15rem] lg:max-w-[17rem] rounded-[2.6rem] border border-line bg-[#0a100d] p-2.5 shadow-[0_40px_120px_-30px_rgba(246,178,60,0.35)]">
       <div className="absolute left-1/2 top-3 z-10 h-5 w-20 -translate-x-1/2 rounded-full bg-black" aria-hidden="true" />
@@ -81,7 +80,8 @@ function PhoneScreen({ step, id = "a" }: { step: number; id?: string }) {
 }
 
 /** Sticky phone that changes screen as each step scrolls into view. */
-export function ScrollStory() {
+/** The landing page passes the one dish it shows, so the full catalogue isn't sent to the browser. */
+export function ScrollStory({ jollof }: { jollof: Meal }) {
   const [active, setActive] = useState(0);
   const refs = useRef<(HTMLLIElement | null)[]>([]);
 
@@ -104,7 +104,7 @@ export function ScrollStory() {
         <div className="relative flex h-full items-center">
           <div className="aura opacity-60" aria-hidden="true" />
           <div className="relative w-full">
-            <PhoneScreen step={active} />
+            <PhoneScreen step={active} jollof={jollof} />
           </div>
         </div>
       </div>
@@ -123,7 +123,7 @@ export function ScrollStory() {
             <h3 className={`text-3xl transition-opacity duration-500 sm:text-4xl ${active === i ? "opacity-100" : "opacity-60"}`}>{s.title}</h3>
             <p className="max-w-md text-lg text-muted">{s.body}</p>
             <div className="mt-4 lg:hidden">
-              <PhoneScreen step={i} id={`m${i}`} />
+              <PhoneScreen step={i} id={`m${i}`} jollof={jollof} />
             </div>
           </li>
         ))}

@@ -14,7 +14,7 @@ describe("catalogue data integrity", () => {
   it("D-01 every meal compiles; none silently excluded", () => {
     expect(EXCLUDED_MEALS).toEqual([]);
     expect(MEALS).toHaveLength(MEAL_DEFS.length);
-    expect(MEALS.length).toBeGreaterThanOrEqual(40);
+    expect(MEALS.length).toBeGreaterThanOrEqual(70);
   });
   it("D-02 every ingredient has a known source, a source code and a source food name", () => {
     const ids = new Set(NUTRITION_SOURCES.map((s) => s.id));

@@ -62,6 +62,26 @@ For each meal, check: is the **serving size** realistic? Are the **ingredient am
 | Herbed cucumber salad (`herbed-cucumber-salad`) | Snack | 59 | 1 | 12 | 0 | 3 | Vegetarian | — / — |
 | Cabbage and carrot slaw with almonds (`cabbage-carrot-slaw`) | Snack, Lunch | 177 | 3 | 16 | 11 | 3 | Vegetarian | Tree nuts, Milk / — |
 | Pineapple, banana and strawberry smoothie (`fruit-smoothie`) | Breakfast, Snack | 297 | 7 | 60 | 2 | 5 | Vegetarian | Milk / — |
+| Ewa agoyin with bread (`ewa-agoyin-bread`) | Breakfast, Lunch | 707 | 27 | 79 | 28 | 14 | Pescatarian | Shellfish, Wheat / Milk, Soy |
+| Bread and akara (`bread-and-akara`) | Breakfast | 484 | 20 | 70 | 12 | 10 | Vegetarian | Wheat / Milk, Soy |
+| Gari foto with egg (`gari-foto`) | Breakfast, Lunch | 561 | 16 | 63 | 26 | 5 | Vegetarian | Eggs / — |
+| Eggs in tomato-pepper sauce (shakshuka) (`shakshuka-bread`) | Breakfast, Dinner | 462 | 22 | 41 | 22 | 7 | Vegetarian | Eggs, Wheat / Milk, Soy |
+| Boiled plantain and egg sauce (`plantain-egg-sauce`) | Breakfast, Dinner | 556 | 18 | 71 | 21 | 6 | Vegetarian | Eggs / — |
+| Edikang ikong with eba (`edikang-ikong-eba`) | Lunch, Dinner | 851 | 48 | 96 | 27 | 15 | Contains meat | Shellfish, Fish / Wheat, Soy, Milk |
+| Banga soup with catfish and eba (`banga-soup-eba`) | Lunch, Dinner | 872 | 35 | 93 | 38 | 8 | Contains meat | Fish, Shellfish / Wheat, Soy, Milk |
+| Gizdodo (`gizdodo`) | Lunch, Dinner | 737 | 25 | 69 | 39 | 6 | Contains meat | — / Wheat, Soy, Milk |
+| Goat meat pepper soup (`goat-meat-pepper-soup`) | Lunch, Dinner | 251 | 39 | 3 | 9 | 1 | Contains meat | — / Wheat, Soy, Milk |
+| Native (palm oil) jollof rice (`native-jollof-rice`) | Lunch, Dinner | 601 | 29 | 77 | 19 | 5 | Contains meat | Fish, Shellfish / Wheat, Soy, Milk |
+| Grilled tilapia with roasted plantain (`grilled-tilapia-boli`) | Lunch, Dinner | 528 | 41 | 69 | 9 | 6 | Pescatarian | Fish / — |
+| Suya beef with onion and cabbage (`suya-beef-salad`) | Lunch, Dinner | 382 | 40 | 10 | 19 | 6 | Contains meat | Peanuts / — |
+| Lentil and vegetable soup with bread (`lentil-soup`) | Lunch, Dinner | 501 | 23 | 67 | 12 | 17 | Vegetarian | Wheat / Milk, Soy |
+| Chicken and vegetable soup (`chicken-vegetable-soup`) | Lunch, Dinner | 334 | 33 | 37 | 4 | 9 | Contains meat | — / Wheat, Soy, Milk |
+| Egg fried rice (`egg-fried-rice`) | Lunch, Dinner | 574 | 22 | 70 | 21 | 5 | Vegetarian | Eggs, Soy, Wheat / — |
+| Groundnut soup with chicken and rice balls (`groundnut-soup-chicken`) | Lunch, Dinner | 865 | 41 | 69 | 46 | 7 | Contains meat | Peanuts / Wheat, Soy, Milk |
+| Fisherman soup with boiled yam (`fisherman-soup-yam`) | Lunch, Dinner | 593 | 47 | 47 | 22 | 10 | Contains meat | Fish, Shellfish / Wheat, Soy, Milk |
+| Roasted plantain (boli) (`boli`) | Snack | 286 | 3 | 66 | 0 | 5 | Vegetarian | — / — |
+| Banana and groundnuts (`banana-groundnuts`) | Snack | 250 | 7 | 27 | 11 | 5 | Vegetarian | Peanuts / — |
+| Carrot and cucumber sticks with yoghurt dip (`veg-sticks-yoghurt-dip`) | Snack | 82 | 3 | 9 | 3 | 4 | Vegetarian | Milk / — |
 
 ## Meals in detail
 
@@ -1003,6 +1023,348 @@ Assumptions: The original makes 2 glasses. Plain yoghurt instead of sweetened sa
 
 Based on: Mom’s Best Recipes, Volume 2, “Sunrise Smoothie”, Recipe by Shirley McNevich (© the author. Ingredient amounts only; steps written by Mealwise).
 
+### Ewa agoyin with bread
+
+Soft mashed beans with a dark, peppery palm-oil sauce and a few slices of bread. Serving: 1 bowl beans + 3 slices bread. Time: 90 min. Cuisine: Nigerian.
+
+| Ingredient | Amount | g | Counted |
+|---|---|---|---|
+| Brown beans | ½ cup beans (dry) | 80 | yes |
+| Palm oil | 2 tbsp palm oil | 25 | yes |
+| Onion | ½ onion | 40 | yes |
+| Dried chilli (yaji pepper) | 1 tsp dried chilli | 3 | yes |
+| Ground crayfish | ½ tsp ground crayfish | 3 | yes |
+| Salt | pinch of salt | 1 | yes |
+| White bread | 3 slices bread | 75 | yes |
+
+Assumptions: Agoyin sauce is oily; this uses 2 tbsp palm oil per serving.
+
+### Bread and akara
+
+Agege-style bread with a few crisp akara. A favourite street breakfast. Serving: 3 slices bread + 4 akara. Time: 35 min. Cuisine: Nigerian.
+
+| Ingredient | Amount | g | Counted |
+|---|---|---|---|
+| White bread | 3 slices bread | 75 | yes |
+| Peeled black-eyed beans | ¼ cup peeled beans (dry) | 60 | yes |
+| Onion | a little onion | 15 | yes |
+| Scotch bonnet pepper (ata rodo) | ½ scotch bonnet | 3 | yes |
+| Vegetable oil (soya) | oil absorbed in frying | 10 | yes |
+| Salt | pinch of salt | 1 | yes |
+
+Assumptions: Oil absorbed by 4 akara is about 10 g.
+
+### Gari foto with egg
+
+Ghanaian dish of gari moistened and stirred through a tomato, onion and egg sauce. Serving: 1 plate. Time: 20 min. Cuisine: Ghanaian.
+
+| Ingredient | Amount | g | Counted |
+|---|---|---|---|
+| Gari (for eba) | ⅔ cup gari | 70 | yes |
+| Eggs | 2 eggs | 100 | yes |
+| Tomatoes | 1 medium tomato | 80 | yes |
+| Onion | ⅓ onion | 30 | yes |
+| Scotch bonnet pepper (ata rodo) | ½ scotch bonnet | 3 | yes |
+| Vegetable oil (soya) | 1 tbsp oil | 15 | yes |
+| Salt | pinch of salt | 1 | yes |
+
+Assumptions: Gari is weighed dry.
+
+### Eggs in tomato-pepper sauce (shakshuka)
+
+Eggs gently cooked in a spiced tomato and bell-pepper sauce, with bread to dip. Serving: 1 pan (2 eggs) + 2 slices bread. Time: 30 min. Cuisine: Mediterranean.
+
+| Ingredient | Amount | g | Counted |
+|---|---|---|---|
+| Eggs | 2 eggs | 100 | yes |
+| Tomatoes | 2 large tomatoes | 200 | yes |
+| Red bell pepper (tatashe) | 1 red bell pepper | 60 | yes |
+| Onion | ½ onion | 40 | yes |
+| Garlic | 1 clove garlic | 5 | yes |
+| Olive oil | 2 tsp olive oil | 10 | yes |
+| Dried chilli (yaji pepper) | a pinch of chilli | 1 | yes |
+| Salt | pinch of salt | 1 | yes |
+| White bread | 2 slices bread | 50 | yes |
+
+Assumptions: Uses 2 tsp oil; restaurant versions often use much more.
+
+### Boiled plantain and egg sauce
+
+Boiled ripe plantain with a quick tomato and egg sauce. Serving: 1 plantain + egg sauce. Time: 25 min. Cuisine: Nigerian.
+
+| Ingredient | Amount | g | Counted |
+|---|---|---|---|
+| Ripe plantain | 1 ripe plantain, peeled | 200 | yes |
+| Eggs | 2 eggs | 100 | yes |
+| Tomatoes | 1 medium tomato | 80 | yes |
+| Onion | ⅓ onion | 30 | yes |
+| Scotch bonnet pepper (ata rodo) | ½ scotch bonnet | 3 | yes |
+| Vegetable oil (soya) | 2 tsp oil | 10 | yes |
+| Salt | pinch of salt | 1 | yes |
+
+Assumptions: Plantain is weighed peeled.
+
+### Edikang ikong with eba
+
+Calabar vegetable soup, thick with greens, waterleaf, beef and periwinkle. Serving: 1 medium wrap eba + 1 ladle soup. Time: 60 min. Cuisine: Nigerian.
+
+| Ingredient | Amount | g | Counted |
+|---|---|---|---|
+| Gari (for eba) | 1 cup gari (for eba) | 100 | yes |
+| Spinach (efo tete) | 2 handfuls greens (ugu or efo) | 150 | yes |
+| Waterleaf | 1 big handful waterleaf | 100 | yes |
+| Beef (lean) | 2 small pieces beef | 80 | yes |
+| Periwinkle (meat) | a handful periwinkle meat | 30 | yes |
+| Dried fish | 1 small piece dried fish | 15 | yes |
+| Ground crayfish | 1 tsp ground crayfish | 5 | yes |
+| Palm oil | 1½ tbsp palm oil | 20 | yes |
+| Onion | ¼ onion | 20 | yes |
+| Scotch bonnet pepper (ata rodo) | ½ scotch bonnet | 3 | yes |
+| Seasoning cube (beef) | ½ seasoning cube | 2 | yes |
+
+Assumptions: Spinach (efo) stands in for ugu, which the food table doesn't list.
+
+Close matches: Spinach (efo tete): Amaranth (efo tete) values; also used where recipes take ugu, which the table doesn't list. Periwinkle (meat): Periwinkle is not listed; sea snail (whelk) flesh is the closest match. Molluscs count as shellfish here.
+
+Buy it: ₦1,500–4,500 for 1 plate with stew or soup and a small piece of meat or fish (Buka or local eatery, Lagos (lower on the mainland, higher in Lekki/VI); checked 2026-10-19).
+
+### Banga soup with catfish and eba
+
+Niger Delta palm-fruit soup with fresh catfish, served with eba. Serving: 1 medium wrap eba + 1 ladle soup. Time: 60 min. Cuisine: Nigerian.
+
+| Ingredient | Amount | g | Counted |
+|---|---|---|---|
+| Gari (for eba) | 1 cup gari (for eba) | 100 | yes |
+| Palm fruit pulp (for banga) | palm-fruit cream from about 150 g of fruit | 60 | yes |
+| Catfish | 1 piece catfish | 120 | yes |
+| Dried fish | 1 small piece dried fish | 15 | yes |
+| Ground crayfish | 1 tsp ground crayfish | 5 | yes |
+| Onion | ¼ onion | 20 | yes |
+| Scotch bonnet pepper (ata rodo) | ½ scotch bonnet | 3 | yes |
+| Seasoning cube (beef) | ½ seasoning cube | 2 | yes |
+
+Assumptions: Palm-fruit cream per serving is counted as 60 g of fruit pulp; how thick people make banga varies a lot. Banga spices (beletete, oburunbebe) add little energy and aren't listed.
+
+Buy it: ₦1,500–4,500 for 1 plate with stew or soup and a small piece of meat or fish (Buka or local eatery, Lagos (lower on the mainland, higher in Lekki/VI); checked 2026-10-19).
+
+### Gizdodo
+
+Chicken gizzards and fried plantain tossed in a peppery tatashe sauce. Serving: 1 plate. Time: 45 min. Cuisine: Nigerian.
+
+| Ingredient | Amount | g | Counted |
+|---|---|---|---|
+| Chicken gizzards and giblets | a handful gizzards | 120 | yes |
+| Fried ripe plantain (dodo) | 1 small plantain, fried | 120 | yes |
+| Red bell pepper (tatashe) | ½ red bell pepper | 40 | yes |
+| Scotch bonnet pepper (ata rodo) | 1 scotch bonnet | 5 | yes |
+| Onion | ⅓ onion | 30 | yes |
+| Vegetable oil (soya) | 2 tsp oil | 10 | yes |
+| Seasoning cube (beef) | ½ seasoning cube | 2 | yes |
+
+Assumptions: Plantain weighed after frying. Gizzard values are for chicken giblets.
+
+### Goat meat pepper soup
+
+Spicy, light goat meat broth. Filling with very few calories from carbs. Serving: 1 bowl. Time: 75 min. Cuisine: Nigerian.
+
+| Ingredient | Amount | g | Counted |
+|---|---|---|---|
+| Goat meat | 4 pieces goat meat (no bone) | 200 | yes |
+| Onion | ¼ onion | 20 | yes |
+| Scotch bonnet pepper (ata rodo) | 1 scotch bonnet | 5 | yes |
+| Calabash nutmeg (ehuru) | 1 tsp ground ehuru | 2 | yes |
+| Seasoning cube (beef) | ½ seasoning cube | 2 | yes |
+| Salt | pinch of salt | 1 | yes |
+| Yam | 2 slices yam to serve | 150 | no (optional) |
+
+Assumptions: Goat weight is lean meat without bone. Yam on the side is optional and not counted.
+
+### Native (palm oil) jollof rice
+
+Palm-oil rice with dried fish, crayfish, iru and greens. Serving: 1 plate. Time: 50 min. Cuisine: Nigerian.
+
+| Ingredient | Amount | g | Counted |
+|---|---|---|---|
+| White rice | ½ cup rice (raw) | 90 | yes |
+| Palm oil | 1 tbsp palm oil | 15 | yes |
+| Dried fish | 1 piece dried fish | 25 | yes |
+| Ground crayfish | 1 tsp ground crayfish | 5 | yes |
+| Locust beans (iru) | 1 tsp iru | 5 | yes |
+| Onion | ½ onion | 40 | yes |
+| Scotch bonnet pepper (ata rodo) | 1 scotch bonnet | 5 | yes |
+| Spinach (efo tete) | a handful greens | 40 | yes |
+| Seasoning cube (beef) | ½ seasoning cube | 2 | yes |
+
+Assumptions: Uses 1 tbsp palm oil per serving.
+
+Close matches: White rice: Parboiled long-grain rice (most common in Nigeria) is not listed separately; polished white rice is used. Spinach (efo tete): Amaranth (efo tete) values; also used where recipes take ugu, which the table doesn't list.
+
+Buy it: ₦1,500–4,500 for 1 plate with stew or soup and a small piece of meat or fish (Buka or local eatery, Lagos (lower on the mainland, higher in Lekki/VI); checked 2026-10-19).
+
+### Grilled tilapia with roasted plantain
+
+Whole grilled tilapia with roasted ripe plantain (boli) and fresh pepper sauce. Serving: 1 fish + 1 plantain. Time: 45 min. Cuisine: Nigerian.
+
+| Ingredient | Amount | g | Counted |
+|---|---|---|---|
+| Tilapia | 1 medium tilapia (edible part) | 200 | yes |
+| Ripe plantain | 1 ripe plantain | 200 | yes |
+| Tomatoes | ½ tomato | 50 | yes |
+| Onion | ¼ onion | 20 | yes |
+| Scotch bonnet pepper (ata rodo) | 1 scotch bonnet | 5 | yes |
+| Vegetable oil (soya) | 1 tsp oil to brush | 5 | yes |
+| Salt | pinch of salt | 1 | yes |
+
+Assumptions: No frying: fish brushed with 1 tsp oil, plantain roasted dry.
+
+### Suya beef with onion and cabbage
+
+Grilled beef in a groundnut-chilli yaji coating, with sliced onion, tomato, cabbage and cucumber. Serving: 1 plate. Time: 40 min. Cuisine: Nigerian.
+
+| Ingredient | Amount | g | Counted |
+|---|---|---|---|
+| Beef (lean) | 150 g thin-sliced beef | 150 | yes |
+| Groundnuts (peanuts) | 1 tbsp ground groundnut (yaji) | 15 | yes |
+| Dried chilli (yaji pepper) | 1 tsp dried chilli | 2 | yes |
+| Vegetable oil (soya) | 1 tsp oil | 5 | yes |
+| Onion | ½ onion, sliced | 40 | yes |
+| Tomatoes | 1 small tomato | 60 | yes |
+| Cabbage | a handful sliced cabbage | 50 | yes |
+| Cucumber | a few slices cucumber | 50 | yes |
+| Salt | pinch of salt | 1 | yes |
+
+Assumptions: Home yaji: plain ground groundnut and chilli. Shop yaji may include seasoning cubes.
+
+### Lentil and vegetable soup with bread
+
+Thick lentil soup with carrot, tomato and garlic, served with a slice of bread. Serving: 1 large bowl + 2 slices bread. Time: 45 min. Cuisine: Mediterranean.
+
+| Ingredient | Amount | g | Counted |
+|---|---|---|---|
+| Lentils | ⅓ cup lentils (dry) | 70 | yes |
+| Onion | ½ onion | 40 | yes |
+| Carrot | ½ carrot | 40 | yes |
+| Tomatoes | 1 large tomato | 100 | yes |
+| Garlic | 1 clove garlic | 5 | yes |
+| Olive oil | 2 tsp olive oil | 10 | yes |
+| Salt | pinch of salt | 1 | yes |
+| White bread | 2 slices bread | 50 | yes |
+
+Assumptions: Lentils weighed dry.
+
+### Chicken and vegetable soup
+
+Clear soup of chicken breast, potato, carrot, cabbage and green beans. Light and filling. Serving: 1 large bowl. Time: 40 min. Cuisine: International.
+
+| Ingredient | Amount | g | Counted |
+|---|---|---|---|
+| Chicken breast (skinless) | 1 small chicken breast | 120 | yes |
+| Irish potato | 1 medium potato | 150 | yes |
+| Carrot | 1 carrot | 60 | yes |
+| Cabbage | 1 cup cabbage | 60 | yes |
+| Green beans | a handful green beans | 40 | yes |
+| Onion | ⅓ onion | 30 | yes |
+| Garlic | 1 clove garlic | 5 | yes |
+| Dried thyme | ½ tsp dried thyme | 1 | yes |
+| Seasoning cube (beef) | ½ seasoning cube | 2 | yes |
+
+Assumptions: Chicken is skinless breast.
+
+### Egg fried rice
+
+Rice stir-fried with egg, peas, carrot and soy sauce. Serving: 1 plate. Time: 25 min. Cuisine: Asian.
+
+| Ingredient | Amount | g | Counted |
+|---|---|---|---|
+| White rice | ⅓ cup rice (raw), cooked and cooled | 80 | yes |
+| Eggs | 2 eggs | 100 | yes |
+| Green peas | 2 tbsp peas | 30 | yes |
+| Carrot | a little carrot | 30 | yes |
+| Onion | ¼ onion | 20 | yes |
+| Garlic | 1 clove garlic | 5 | yes |
+| Soy sauce | 2 tsp soy sauce | 10 | yes |
+| Vegetable oil (soya) | 2 tsp oil | 10 | yes |
+
+Assumptions: Day-old rice fries best.
+
+Close matches: White rice: Parboiled long-grain rice (most common in Nigeria) is not listed separately; polished white rice is used.
+
+### Groundnut soup with chicken and rice balls
+
+Ghanaian nkatenkwan: chicken in a tomato and groundnut soup, served with soft rice balls. Serving: 1 bowl soup + 2 rice balls. Time: 70 min. Cuisine: Ghanaian.
+
+| Ingredient | Amount | g | Counted |
+|---|---|---|---|
+| Chicken (with skin) | 1–2 pieces chicken (no bone) | 150 | yes |
+| Groundnuts (peanuts) | 3 tbsp groundnut paste | 40 | yes |
+| Tomatoes | 1 large tomato | 100 | yes |
+| Onion | ⅓ onion | 30 | yes |
+| Scotch bonnet pepper (ata rodo) | ½ scotch bonnet | 3 | yes |
+| Ginger | a thumb of ginger | 5 | yes |
+| Seasoning cube (beef) | ½ seasoning cube | 2 | yes |
+| White rice | ⅓ cup rice (for rice balls) | 70 | yes |
+
+Assumptions: Groundnut paste figures are for whole groundnuts.
+
+Close matches: White rice: Parboiled long-grain rice (most common in Nigeria) is not listed separately; polished white rice is used.
+
+### Fisherman soup with boiled yam
+
+Rivers-style seafood soup with catfish, prawns and periwinkle, served with yam. Serving: 1 bowl soup + 2 slices yam. Time: 50 min. Cuisine: Nigerian.
+
+| Ingredient | Amount | g | Counted |
+|---|---|---|---|
+| Catfish | 1–2 pieces catfish | 150 | yes |
+| Prawns / shrimp | a handful prawns | 50 | yes |
+| Periwinkle (meat) | a handful periwinkle meat | 30 | yes |
+| Palm oil | 1 tbsp palm oil | 15 | yes |
+| Onion | ¼ onion | 20 | yes |
+| Scotch bonnet pepper (ata rodo) | 1 scotch bonnet | 5 | yes |
+| Spinach (efo tete) | a few greens | 30 | yes |
+| Seasoning cube (beef) | ½ seasoning cube | 2 | yes |
+| Yam | 2 slices yam | 150 | yes |
+
+Assumptions: Prawn weight is peeled meat.
+
+Close matches: Periwinkle (meat): Periwinkle is not listed; sea snail (whelk) flesh is the closest match. Molluscs count as shellfish here. Spinach (efo tete): Amaranth (efo tete) values; also used where recipes take ugu, which the table doesn't list.
+
+### Roasted plantain (boli)
+
+Ripe plantain roasted over charcoal. Sweet, smoky, and no frying oil. Serving: 1 plantain. Time: 25 min. Cuisine: Nigerian.
+
+| Ingredient | Amount | g | Counted |
+|---|---|---|---|
+| Ripe plantain | 1 ripe plantain | 200 | yes |
+| Groundnuts (peanuts) | a few groundnuts on the side | 20 | no (optional) |
+
+Assumptions: Groundnuts on the side are optional and not counted.
+
+### Banana and groundnuts
+
+A banana and a small handful of groundnuts. Quick, filling, no cooking. Serving: 1 banana + small handful groundnuts. Time: 1 min. Cuisine: Nigerian.
+
+| Ingredient | Amount | g | Counted |
+|---|---|---|---|
+| Banana | 1 large banana | 120 | yes |
+| Groundnuts (peanuts) | a small handful groundnuts | 25 | yes |
+
+Assumptions: Groundnut figures are for raw shelled nuts; roasted are very similar.
+
+### Carrot and cucumber sticks with yoghurt dip
+
+Crunchy vegetable sticks with a garlicky lemon yoghurt dip. Serving: 1 small plate. Time: 10 min. Cuisine: International.
+
+| Ingredient | Amount | g | Counted |
+|---|---|---|---|
+| Carrot | 1 carrot | 60 | yes |
+| Cucumber | ⅓ cucumber | 80 | yes |
+| Plain yoghurt | ¼ cup plain yoghurt | 60 | yes |
+| Garlic | a little garlic | 1 | yes |
+| Lemon juice | a squeeze of lemon | 5 | yes |
+| Salt | pinch of salt | 1 | yes |
+
+Assumptions: Plain whole-milk yoghurt.
+
 ## Ingredients and sources
 
 | Ingredient | Source | Code | Source food | kcal/100 g | Note |
@@ -1100,3 +1462,7 @@ Based on: Mom’s Best Recipes, Volume 2, “Sunrise Smoothie”, Recipe by Shir
 | Honey | FAO/INFOODS West Africa 2019 | 13_001 | Honey | 326 |  |
 | Vinegar | FAO/INFOODS West Africa 2019 | 13_003 | Vinegar | 19 |  |
 | Mustard (prepared) | FAO/INFOODS West Africa 2019 | 13_013 | Mustard, prepared, yellow | 60 |  |
+| Palm fruit pulp (for banga) | FAO/INFOODS West Africa 2019 | 05_040 | Oil palm, fruit, raw | 540 | Source marks fat, fibre as estimated. |
+| Chicken gizzards and giblets | FAO/INFOODS West Africa 2019 | 07_039 | Chicken giblets, raw | 134 |  |
+| Prawns / shrimp | FAO/INFOODS West Africa 2019 | 09_059 | Shrimp, penaeid, flesh, raw | 98 |  |
+| Dried chilli (yaji pepper) | FAO/INFOODS West Africa 2019 | 13_006 | Chilli pepper, dried | 347 |  |

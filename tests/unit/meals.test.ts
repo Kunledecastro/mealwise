@@ -24,7 +24,7 @@ describe("filterMeals (search) on the real catalogue", () => {
     expect(filterMeals(MEALS, { query: "PLANTAIN" }).map((m) => m.slug)).toEqual(
       expect.arrayContaining(["plantain-egg-frittata", "beans-and-plantain", "red-red"]),
     );
-    expect(filterMeals(MEALS, { query: "catfish" }).map((m) => m.slug)).toEqual(["fish-pepper-soup"]);
+    expect(filterMeals(MEALS, { query: "catfish" }).map((m) => m.slug).sort()).toEqual(["banga-soup-eba", "fish-pepper-soup", "fisherman-soup-yam"]);
     expect(filterMeals(MEALS, { query: "elubo" }).map((m) => m.slug)).toEqual(["amala-ewedu-gbegiri"]);
   });
 

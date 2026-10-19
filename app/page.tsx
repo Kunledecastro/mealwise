@@ -28,6 +28,16 @@ const FEATURES = [
   },
 ];
 
+/** Dishes the hero cycles through. Looked up here on the server and passed in, so the full catalogue isn't sent to the browser. */
+const HERO_SEQUENCE = [
+  { slug: "jollof-rice-chicken", when: "Lunch" },
+  { slug: "akara-and-pap", when: "Breakfast" },
+  { slug: "egusi-pounded-yam", when: "Dinner" },
+  { slug: "yam-and-egg-sauce", when: "Breakfast" },
+  { slug: "plantain-groundnuts", when: "Snack" },
+  { slug: "efo-riro-eba", when: "Dinner" },
+];
+
 function DishMarquee({ reverse = false }: { reverse?: boolean }) {
   // A selection keeps the page light on phones.
   const pick = MEALS.filter((_, i) => i % 2 === 0).slice(0, 18);
@@ -75,7 +85,7 @@ export default function LandingPage() {
           {/* Hero */}
           <section className="relative">
             <div className="mx-auto w-full max-w-6xl px-5 pb-16 pt-12 sm:pt-16 lg:pb-24">
-              <HeroCycler />
+              <HeroCycler items={HERO_SEQUENCE.map((h) => ({ ...h, meal: getMeal(h.slug)! }))} />
               <div className="rise mt-10 flex flex-col gap-6 lg:-mt-6 lg:max-w-xl" style={{ "--delay": "240ms" } as React.CSSProperties}>
                 <p className="max-w-[46ch] text-lg text-muted">
                   Real meals that fit your taste, your budget and your weight goal. Built for Nigerian kitchens, with no
@@ -100,7 +110,7 @@ export default function LandingPage() {
             <div data-reveal className="mb-6 max-w-2xl lg:mb-0">
               <h2 id="how-title" className="text-4xl sm:text-5xl">From “I don&apos;t know” to dinner in three taps.</h2>
             </div>
-            <ScrollStory />
+            <ScrollStory jollof={getMeal("jollof-rice-chicken")!} />
           </section>
 
           {/* Features */}

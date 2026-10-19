@@ -148,6 +148,30 @@ import type { ReadyMadePrice } from "@/lib/types";
     "where": "Buka or local eatery, Lagos (lower on the mainland, higher in Lekki/VI)",
     "observedOn": "2026-10-19",
     "note": "Lagos.Cool buka price guide (lagos.cool/restaurants/local-buka), updated 19 Oct 2026. Extra meat or fish costs more; premium 'modern bukas' charge ₦5,000–10,000."
+  },
+  "edikang-ikong-eba": {
+    "portion": "1 plate with stew or soup and a small piece of meat or fish",
+    "low": 1500.0,
+    "high": 4500.0,
+    "where": "Buka or local eatery, Lagos (lower on the mainland, higher in Lekki/VI)",
+    "observedOn": "2026-10-19",
+    "note": "Lagos.Cool buka price guide (lagos.cool/restaurants/local-buka), updated 19 Oct 2026. Extra meat or fish costs more; premium 'modern bukas' charge ₦5,000–10,000."
+  },
+  "banga-soup-eba": {
+    "portion": "1 plate with stew or soup and a small piece of meat or fish",
+    "low": 1500.0,
+    "high": 4500.0,
+    "where": "Buka or local eatery, Lagos (lower on the mainland, higher in Lekki/VI)",
+    "observedOn": "2026-10-19",
+    "note": "Lagos.Cool buka price guide (lagos.cool/restaurants/local-buka), updated 19 Oct 2026. Extra meat or fish costs more; premium 'modern bukas' charge ₦5,000–10,000."
+  },
+  "native-jollof-rice": {
+    "portion": "1 plate with stew or soup and a small piece of meat or fish",
+    "low": 1500.0,
+    "high": 4500.0,
+    "where": "Buka or local eatery, Lagos (lower on the mainland, higher in Lekki/VI)",
+    "observedOn": "2026-10-19",
+    "note": "Lagos.Cool buka price guide (lagos.cool/restaurants/local-buka), updated 19 Oct 2026. Extra meat or fish costs more; premium 'modern bukas' charge ₦5,000–10,000."
   }
 } */
 export const READY_MADE: Record<string, ReadyMadePrice> = {
@@ -288,6 +312,30 @@ export const READY_MADE: Record<string, ReadyMadePrice> = {
     "note": "Lagos.Cool buka price guide (lagos.cool/restaurants/local-buka), updated 19 Oct 2026. Extra meat or fish costs more; premium 'modern bukas' charge ₦5,000–10,000."
   },
   "tuwo-miyan-kuka": {
+    "portion": "1 plate with stew or soup and a small piece of meat or fish",
+    "low": 1500.0,
+    "high": 4500.0,
+    "where": "Buka or local eatery, Lagos (lower on the mainland, higher in Lekki/VI)",
+    "observedOn": "2026-10-19",
+    "note": "Lagos.Cool buka price guide (lagos.cool/restaurants/local-buka), updated 19 Oct 2026. Extra meat or fish costs more; premium 'modern bukas' charge ₦5,000–10,000."
+  },
+  "edikang-ikong-eba": {
+    "portion": "1 plate with stew or soup and a small piece of meat or fish",
+    "low": 1500.0,
+    "high": 4500.0,
+    "where": "Buka or local eatery, Lagos (lower on the mainland, higher in Lekki/VI)",
+    "observedOn": "2026-10-19",
+    "note": "Lagos.Cool buka price guide (lagos.cool/restaurants/local-buka), updated 19 Oct 2026. Extra meat or fish costs more; premium 'modern bukas' charge ₦5,000–10,000."
+  },
+  "banga-soup-eba": {
+    "portion": "1 plate with stew or soup and a small piece of meat or fish",
+    "low": 1500.0,
+    "high": 4500.0,
+    "where": "Buka or local eatery, Lagos (lower on the mainland, higher in Lekki/VI)",
+    "observedOn": "2026-10-19",
+    "note": "Lagos.Cool buka price guide (lagos.cool/restaurants/local-buka), updated 19 Oct 2026. Extra meat or fish costs more; premium 'modern bukas' charge ₦5,000–10,000."
+  },
+  "native-jollof-rice": {
     "portion": "1 plate with stew or soup and a small piece of meat or fish",
     "low": 1500.0,
     "high": 4500.0,

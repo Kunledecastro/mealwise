@@ -95,3 +95,10 @@ test("P3-09 meal lists show the ready-made price when the cooking cost isn't kno
   await page.getByRole("searchbox").fill("afang");
   await expect(page.getByText(/Buy\s*₦1,500–4,500/).first()).toBeVisible();
 });
+
+test("P3-10 optional extras with an allergen are flagged on the meal page", async ({ page, mock }) => {
+  mock.profiles.get(TESTER.id)!.allergies = ["Peanuts"];
+  await page.goto("/meals/boli");
+  await expect(page.getByRole("alert").filter({ hasText: "Allergy note: leave out the optional groundnuts (Peanuts)." })).toBeVisible();
+});
+

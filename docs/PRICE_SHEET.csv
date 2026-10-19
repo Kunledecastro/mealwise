@@ -1,50 +1,50 @@
 ingredient_id,ingredient,unit,grams_per_unit,low_naira,high_naira,observed_on,source,note
-rice-white,White rice,1 kg,1000,,,,,
-rice-ofada,Ofada rice,1 kg,1000,,,,,
+rice-white,White rice,1 kg,1000.0,2220.0,2580.0,2026-05-31,nbs,"NBS Selected Food Prices, May 2026: national ₦2,246, South West ₦2,225; high end +15% for Lagos/small-quantity retail."
+rice-ofada,Ofada rice,1 kg,1000.0,1910.0,2280.0,2026-05-31,nbs,"NBS Selected Food Prices, May 2026: national ₦1,905, South West ₦1,983; high end +15% for Lagos/small-quantity retail. NBS local short-grain rice used for ofada."
 spaghetti,Spaghetti,1 pack (500 g),500,,,,,
-bread-white,White bread,"1 loaf (sliced, about 500 g)",500,,,,,
+bread-white,White bread,1 sliced loaf (450 g),450.0,1690.0,2010.0,2026-05-31,nbs,"NBS Selected Food Prices, May 2026: national ₦1,687, South West ₦1,745; high end +15% for Lagos/small-quantity retail."
 oats,Rolled oats,1 tin/pack (500 g),500,,,,,
 pap,"Pap (ogi), cooked",1 wrap ogi paste (makes about 600 g cooked pap),600,,,,,
 kenkey,Kenkey,1 ball (about 250 g),250,,,,,
-gari,Gari (for eba),1 kg,1000,,,,,
+gari,Gari (for eba),1 kg,1000.0,810.0,950.0,2026-05-31,nbs,"NBS Selected Food Prices, May 2026: national ₦813, South West ₦823; high end +15% for Lagos/small-quantity retail."
 yam-flour,Yam flour (for amala),1 kg,1000,,,,,
-yam,Yam,1 medium tuber (about 2 kg edible),2000,,,,,
-plantain-ripe,Ripe plantain,1 finger (about 200 g edible),200,,,,,
-plantain-unripe,Unripe plantain,1 finger (about 250 g edible),250,,,,,
-plantain-fried,Fried ripe plantain (dodo),"1 finger, before frying (about 160 g fried)",160,,,,,
-sweet-potato,Sweet potato,1 kg,900,,,,,
-potato,Irish potato,1 kg,900,,,,,
+yam,Yam,1 kg,850.0,2350.0,2840.0,2026-05-31,nbs,"NBS Selected Food Prices, May 2026: national ₦2,347, South West ₦2,472; high end +15% for Lagos/small-quantity retail. NBS yam price taken as per kg (as its other staples); about 15% lost in peeling."
+plantain-ripe,Ripe plantain,1 kg,650.0,2210.0,2660.0,2026-05-31,nbs,"NBS Selected Food Prices, May 2026: national ₦2,210, South West ₦2,314; high end +15% for Lagos/small-quantity retail. About 35% of weight is peel."
+plantain-unripe,Unripe plantain,1 kg,650.0,2260.0,2680.0,2026-05-31,nbs,"NBS Selected Food Prices, May 2026: national ₦2,257, South West ₦2,328; high end +15% for Lagos/small-quantity retail. About 35% of weight is peel."
+plantain-fried,Fried ripe plantain (dodo),1 kg raw (makes about 520 g fried),520.0,2210.0,2660.0,2026-05-31,nbs,"NBS Selected Food Prices, May 2026: national ₦2,210, South West ₦2,314; high end +15% for Lagos/small-quantity retail. Raw ripe plantain price; frying oil not included."
+sweet-potato,Sweet potato,1 kg,900.0,740.0,990.0,2026-05-31,nbs,"NBS Selected Food Prices, May 2026: national ₦862, South West ₦739; high end +15% for Lagos/small-quantity retail."
+potato,Irish potato,1 kg,900.0,2100.0,2940.0,2026-05-31,nbs,"NBS Selected Food Prices, May 2026: national ₦2,104, South West ₦2,553; high end +15% for Lagos/small-quantity retail."
 maize-fresh,Fresh maize (corn),1 cob (about 150 g kernels),150,,,,,
-beans-brown,Brown beans,1 kg,1000,,,,,
-beans-peeled,Peeled black-eyed beans,1 kg (black-eyed beans),1000,,,,,
+beans-brown,Brown beans,1 kg,1000.0,1340.0,2060.0,2026-05-31,nbs,"NBS Selected Food Prices, May 2026: national ₦1,345, South West ₦1,791; high end +15% for Lagos/small-quantity retail."
+beans-peeled,Peeled black-eyed beans,1 kg (before peeling),900.0,1300.0,1860.0,2026-05-31,nbs,"NBS Selected Food Prices, May 2026: national ₦1,297, South West ₦1,621; high end +15% for Lagos/small-quantity retail. About 10% lost in peeling."
 bambara,Bambara nut flour,1 kg okpa flour,1000,,,,,
 iru,Locust beans (iru),1 wrap (about 50 g),50,,,,,
 peas,Green peas,1 tin (about 250 g drained),250,,,,,
-egg,Eggs,"1 crate (30 eggs, about 1.5 kg edible)",1500,,,,,
-chicken,Chicken (with skin),"1 kg (bone-in, about 750 g edible)",750,,,,,
+egg,Eggs,1 crate (30 eggs),1500.0,6040.0,7070.0,2026-05-31,nbs,"NBS Selected Food Prices, May 2026: national ₦6,149, South West ₦6,041; high end +15% for Lagos/small-quantity retail."
+chicken,Chicken (with skin),1 kg (bone-in),750.0,5800.0,6910.0,2026-05-31,nbs,"NBS Selected Food Prices, May 2026: national ₦6,013, South West ₦5,796; high end +15% for Lagos/small-quantity retail. About 25% bone."
 chicken-breast,Chicken breast (skinless),1 kg,1000,,,,,
-beef,Beef (lean),1 kg,1000,,,,,
-beef-minced,Minced beef,1 kg,1000,,,,,
-goat,Goat meat,1 kg,1000,,,,,
-mackerel,Mackerel (titus),1 kg titus (about 650 g edible),650,,,,,
-catfish,Catfish,1 kg (about 600 g edible),600,,,,,
-tilapia,Tilapia,1 kg (about 500 g edible),500,,,,,
-fish-dried,Dried fish,1 small piece (about 50 g),50,,,,,
-crayfish,Ground crayfish,1 small cup ground (about 100 g),100,,,,,
-tomato,Tomatoes,1 kg,1000,,,,,
+beef,Beef (lean),1 kg,1000.0,6550.0,8250.0,2026-05-31,nbs,"NBS Selected Food Prices, May 2026: national ₦7,171, South West ₦6,551; high end +15% for Lagos/small-quantity retail."
+beef-minced,Minced beef,1 kg,1000.0,6550.0,8250.0,2026-05-31,nbs,"NBS Selected Food Prices, May 2026: national ₦7,171, South West ₦6,551; high end +15% for Lagos/small-quantity retail. Boneless beef price; minced beef is similar."
+goat,Goat meat,1 kg (bone-in),750.0,6920.0,8310.0,2026-05-31,nbs,"NBS Selected Food Prices, May 2026: national ₦6,924, South West ₦7,229; high end +15% for Lagos/small-quantity retail. About 25% bone."
+mackerel,Mackerel (titus),1 kg,650.0,7420.0,8900.0,2026-05-31,nbs,"NBS Selected Food Prices, May 2026: national ₦7,739, South West ₦7,416; high end +15% for Lagos/small-quantity retail. Edible part after head and bones."
+catfish,Catfish,1 kg,600.0,5780.0,7040.0,2026-05-31,nbs,"NBS Selected Food Prices, May 2026: national ₦6,119, South West ₦5,778; high end +15% for Lagos/small-quantity retail. Edible part after head and bones."
+tilapia,Tilapia,1 kg,500.0,5890.0,6980.0,2026-05-31,nbs,"NBS Selected Food Prices, May 2026: national ₦5,895, South West ₦6,074; high end +15% for Lagos/small-quantity retail. Edible part after head and bones."
+fish-dried,Dried fish,1 kg,1000.0,6900.0,8470.0,2026-05-31,nbs,"NBS Selected Food Prices, May 2026: national ₦7,369, South West ₦6,902; high end +15% for Lagos/small-quantity retail."
+crayfish,Ground crayfish,1 kg,1000.0,8970.0,11260.0,2026-05-31,nbs,"NBS Selected Food Prices, May 2026: national ₦8,972, South West ₦9,787; high end +15% for Lagos/small-quantity retail."
+tomato,Tomatoes,1 kg,1000.0,1560.0,2010.0,2026-05-31,nbs,"NBS Selected Food Prices, May 2026: national ₦1,561, South West ₦1,747; high end +15% for Lagos/small-quantity retail."
 tomato-paste,Tomato paste,1 sachet (70 g),70,,,,,
-onion,Onion,1 kg,900,,,,,
+onion,Onion,1 kg,900.0,1140.0,1360.0,2026-05-31,nbs,"NBS Selected Food Prices, May 2026: national ₦1,180, South West ₦1,144; high end +15% for Lagos/small-quantity retail."
 tatashe,Red bell pepper (tatashe),1 kg,900,,,,,
 green-pepper,Green bell pepper,1 kg,900,,,,,
 scotch-bonnet,Scotch bonnet pepper (ata rodo),1 small paint-bucket rodo (about 250 g),250,,,,,
 garlic,Garlic,1 bulb (about 40 g),40,,,,,
-ginger,Ginger,1 kg,900,,,,,
+ginger,Ginger,1 kg,900.0,5910.0,8020.0,2026-05-31,nbs,"NBS Selected Food Prices, May 2026: national ₦5,907, South West ₦6,970; high end +15% for Lagos/small-quantity retail."
 amaranth,Spinach (efo tete),1 bunch efo (about 300 g),300,,,,,
 ewedu,Jute leaves (ewedu),1 bunch (about 200 g leaves),200,,,,,
 okra,Okra,1 kg,900,,,,,
 garden-egg,Garden egg,1 kg,950,,,,,
 cabbage,Cabbage,1 head (about 1 kg),900,,,,,
-carrot,Carrot,1 kg,900,,,,,
+carrot,Carrot,1 kg,900.0,2080.0,2730.0,2026-05-31,nbs,"NBS Selected Food Prices, May 2026: national ₦2,080, South West ₦2,377; high end +15% for Lagos/small-quantity retail."
 green-beans,Green beans,1 kg,950,,,,,
 lettuce,Lettuce,1 head (about 300 g),270,,,,,
 cucumber,Cucumber,1 kg,950,,,,,
@@ -52,15 +52,15 @@ avocado,Avocado,1 large pear (about 200 g flesh),200,,,,,
 banana,Banana,"1 bunch, 10 fingers (about 1 kg flesh)",1000,,,,,
 pawpaw,Pawpaw,1 medium (about 1 kg flesh),1000,,,,,
 pineapple,Pineapple,1 medium (about 900 g flesh),900,,,,,
-watermelon,Watermelon,1 medium (about 3 kg flesh),3000,,,,,
+watermelon,Watermelon,1 medium (about 3 kg flesh),3000.0,2090.0,2820.0,2026-05-31,nbs,"NBS Selected Food Prices, May 2026: national ₦2,086, South West ₦2,449; high end +15% for Lagos/small-quantity retail."
 lemon-juice,Lemon juice,1 lemon (about 40 g juice),40,,,,,
-groundnuts,Groundnuts (peanuts),1 kg,1000,,,,,
+groundnuts,Groundnuts (peanuts),1 x 75 cl bottle (about 450 g),450.0,2600.0,3110.0,2026-05-31,nbs,"NBS Selected Food Prices, May 2026: national ₦2,600, South West ₦2,707; high end +15% for Lagos/small-quantity retail. Bottle weight is our estimate."
 coconut,Coconut,1 coconut (about 300 g flesh),300,,,,,
 egusi,Ground melon seeds (egusi),1 kg ground egusi,1000,,,,,
 ogbono,Ground ogbono (dika nut),1 kg ground ogbono,1000,,,,,
-palm-oil,Palm oil,1 litre (about 900 g),900,,,,,
-vegetable-oil,Vegetable oil (soya),1 litre (about 920 g),920,,,,,
-evaporated-milk,Evaporated milk,1 tin (160 g),160,,,,,
+palm-oil,Palm oil,1 x 75 cl bottle (about 690 g),690.0,2400.0,2960.0,2026-05-31,nbs,"NBS Selected Food Prices, May 2026: national ₦2,397, South West ₦2,572; high end +15% for Lagos/small-quantity retail."
+vegetable-oil,Vegetable oil (soya),1 x 75 cl bottle (about 690 g),690.0,3030.0,3750.0,2026-05-31,nbs,"NBS Selected Food Prices, May 2026: national ₦3,263, South West ₦3,030; high end +15% for Lagos/small-quantity retail."
+evaporated-milk,Evaporated milk,1 tin (150 g),150.0,1060.0,1230.0,2026-05-31,nbs,"NBS Selected Food Prices, May 2026: national ₦1,058, South West ₦1,067; high end +15% for Lagos/small-quantity retail."
 yoghurt,Plain yoghurt,1 tub (500 g),500,,,,,
 soy-sauce,Soy sauce,1 bottle (about 150 g),150,,,,,
 bitterleaf,Bitterleaf (onugbu),1 bunch washed bitterleaf (about 200 g),200,,,,,
@@ -72,6 +72,19 @@ snail,Snail,1 big snail (about 60 g meat),60,,,,,
 yakuwa,Sorrel leaves (yakuwa),1 bunch (about 200 g leaves),200,,,,,
 kuka,Baobab leaf powder (kuka),1 small bag (about 200 g),200,,,,,
 maize-flour,White maize flour (garin tuwo),1 kg,1000,,,,,
-maize-grits,Crushed dried maize (saaki),1 kg,1000,,,,,
+maize-grits,Crushed dried maize (saaki),1 kg,1000.0,800.0,940.0,2026-05-31,nbs,"NBS Selected Food Prices, May 2026: national ₦816, South West ₦805; high end +15% for Lagos/small-quantity retail. Price of whole dry maize grains."
 coconut-milk,Coconut milk,1 coconut (makes about 300 g milk),300,,,,,
 fufu,Fufu / akpu (cooked),1 wrap (about 250 g),250,,,,,
+lentils,Lentils,1 kg,1000,,,,,
+mint,Fresh mint,1 bunch (about 30 g),30,,,,,
+almonds,Almonds,1 pack (200 g),200,,,,,
+strawberries,Strawberries,1 punnet (250 g),250,,,,,
+pineapple-juice,Pineapple juice (unsweetened),1 litre carton (about 1 kg),1000,,,,,
+butter,Butter,1 pack (250 g),250,,,,,
+olive-oil,Olive oil,"1 bottle (500 ml, about 460 g)",460,,,,,
+yoghurt-sweet,Sweetened yoghurt,1 tub (500 g),500,,,,,
+palm-fruit,Palm fruit pulp (for banga),1 kg palm fruit (about 600 g pulp),600,,,,,
+giblets,Chicken gizzards and giblets,1 kg,1000,,,,,
+shrimp,Prawns / shrimp,1 kg (about 550 g peeled),550,,,,,
+honey,Honey,1 bottle (500 g),500,,,,,
+vinegar,Vinegar,1 bottle (about 500 g),500,,,,,

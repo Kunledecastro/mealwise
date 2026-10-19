@@ -6,6 +6,7 @@ import { GENERATED_INGREDIENTS } from "./ingredients.generated";
 import { MEAL_DEFS as BATCH_1 } from "./meals";
 import { ECOOKBOOK_MEALS } from "./meals-ecookbook";
 import { RECIPE_FILE_MEALS } from "./meals-recipe-files";
+import { BATCH_2_MEALS } from "./meals-batch2";
 import { READY_MADE } from "./ready-made";
 import { PRICES } from "./prices";
 import { NUTRITION_SOURCES } from "./sources";
@@ -23,7 +24,7 @@ const ctx: CompileContext = {
 };
 
 /** Every meal definition, in display order. */
-export const MEAL_DEFS = [...BATCH_1, ...ECOOKBOOK_MEALS, ...RECIPE_FILE_MEALS];
+export const MEAL_DEFS = [...BATCH_1, ...ECOOKBOOK_MEALS, ...RECIPE_FILE_MEALS, ...BATCH_2_MEALS];
 
 const compiled = compileCatalogue(MEAL_DEFS, ctx);
 
