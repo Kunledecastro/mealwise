@@ -74,6 +74,8 @@ test("P4-05 Today shows totals against the target, and the log for yesterday", a
 });
 
 test("P4-06 a large plate suggests a smaller portion for the target, and logging uses it by default", async ({ page, mock }) => {
+  // The log dialog picks the meal time from the clock; pin it to lunchtime so the test doesn't depend on when it runs.
+  await page.clock.setFixedTime(new Date(new Date().setHours(13, 0, 0, 0)));
   await page.goto("/meals/afang-soup-eba");
   await expect(page.getByText(/three-quarters of a serving fits a/)).toBeVisible();
   await page.getByRole("button", { name: "I ate this" }).click();
@@ -133,4 +135,19 @@ test("P4-11 setup asks the guidance question and shows the target before saving"
   await page.getByRole("button", { name: "Female", exact: true }).click();
   for (const step of ["Continue", "Continue", "Skip", "Skip"]) await page.getByRole("button", { name: step, exact: true }).click();
   await expect(page.getByText("Your daily target: about 1,650 kcal")).toBeVisible();
+});
+
+test("P4-12 Home sizes the next meal to what is left of today's target", async ({ page, mock }) => {
+  await page.goto("/home");
+  await page.getByRole("button", { name: "Dinner", exact: true }).click();
+  await expect(page.locator("#hero-title")).not.toBeEmpty();
+  await expect(page.getByText(/Lighter ideas first/)).toHaveCount(0); // nothing logged yet: usual sizes
+
+  // 1,400 of the tester's 1,750 kcal logged today.
+  mock.seedLog(TESTER.id, { meal_slug: "akara-and-pap", logged_for: daysAgo(0), meal_type: "breakfast", kcal: 500, protein_g: 20, carbs_g: 60, fat_g: 18 });
+  mock.seedLog(TESTER.id, { meal_slug: "jollof-rice-chicken", logged_for: daysAgo(0), meal_type: "lunch", kcal: 900, protein_g: 40, carbs_g: 110, fat_g: 30 });
+  await page.reload();
+  await page.getByRole("button", { name: "Dinner", exact: true }).click();
+  await expect(page.getByText("Lighter ideas first: about 350 kcal of today's target is left.")).toBeVisible();
+  await expect(page.getByText("1,400", { exact: true })).toBeVisible();
 });

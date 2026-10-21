@@ -72,14 +72,17 @@ export function useRecommendContext(slot: MealType): RecommendContext {
   const { profile, rejected, saved, logs, today, dailyKcal } = useStore();
   return useMemo(() => {
     const recent = new Map<string, number>();
+    let daySoFar: RecommendContext["daySoFar"];
     if (today) {
+      const todays = logs.filter((l) => l.date === today);
+      daySoFar = { kcal: todays.reduce((sum, l) => sum + l.kcal, 0), slots: [...new Set(todays.map((l) => l.mealType))] };
       const t = Date.parse(today);
       for (const l of logs) {
         const days = Math.round((t - Date.parse(l.date)) / 86_400_000);
         if (days >= 0 && days < 7 && (recent.get(l.slug) ?? 99) > days) recent.set(l.slug, days);
       }
     }
-    return { profile, slot, rejected: new Set(Object.keys(rejected)), saved: new Set(saved), recent, dailyKcal };
+    return { profile, slot, rejected: new Set(Object.keys(rejected)), saved: new Set(saved), recent, dailyKcal, daySoFar };
   }, [profile, slot, rejected, saved, logs, today, dailyKcal]);
 }
 

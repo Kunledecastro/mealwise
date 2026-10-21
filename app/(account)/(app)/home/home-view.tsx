@@ -9,7 +9,7 @@ import { Button, ButtonLink, Chip, EmptyState, EstimateTag, SkeletonRows } from 
 import { slotForHour } from "@/lib/domain/meals";
 import { useStore } from "@/lib/prototype-store";
 import { MEALS } from "@/catalogue";
-import { rankMeals } from "@/lib/domain/recommend";
+import { dayFit, rankMeals } from "@/lib/domain/recommend";
 import { totalsFor } from "@/lib/domain/tracking";
 import { useHour } from "@/lib/use-today";
 import { MEAL_TYPES, MEAL_TYPE_LABEL, type MealType } from "@/lib/types";
@@ -46,6 +46,14 @@ export function HomeView() {
   const others = meals.filter((m) => m !== hero).slice(0, 3);
 
   const kcalToday = today ? totalsFor(logs, today).kcal : 0;
+  const fit = dayFit(slot, dailyKcal, ctx.daySoFar);
+  const fitNote = !fit || fit.shift === "usual"
+    ? null
+    : fit.shift === "bigger"
+      ? `Ideas sized for the ${fit.left.toLocaleString()} kcal left in today's target.`
+      : fit.left > 0
+        ? `Lighter ideas first: about ${fit.left.toLocaleString()} kcal of today's target is left.`
+        : "Lighter ideas first for the rest of today.";
 
   return (
     <div className="flex flex-col gap-10">
@@ -62,6 +70,7 @@ export function HomeView() {
             </Chip>
           ))}
         </div>
+        {fitNote && <p className="text-sm text-muted">{fitNote}</p>}
 
         {choicesStatus === "loading" ? (
           <div aria-busy="true" className="rounded-[var(--radius-lg)] border border-line bg-surface p-5"><SkeletonRows count={2} /></div>

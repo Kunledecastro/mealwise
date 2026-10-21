@@ -1,5 +1,11 @@
 # Mealwise — Testing Strategy and Results
 
+
+## Day-fit suggestions (run 2026-10-21)
+- Unit **155/155** (new DF-01 to DF-07 in `tests/unit/day-fit.test.ts`): no change with nothing logged; heavy lunch → lighter dinner band; small breakfast → bigger lunch, capped at 1.5x; over target → dinner keeps half its share; unlogged meal times keep their share; real catalogue dinner suggestions get lighter with a "Fits the N kcal left today" reason; plans ignore today's log.
+- Browser **186/186** (new P4-12 at phone and desktop size: Home shows "Lighter ideas first: about 350 kcal of today's target is left." after 1,400 of 1,750 kcal is logged). P4-06 now pins the clock (decision 071).
+- Manual check for you: log a big lunch, then open Home and pick Dinner; the note should appear and the ideas should be lighter.
+
 ## Layers
 
 | Layer | Tool | What it covers | From phase |

@@ -34,7 +34,7 @@ export interface PlanOptions {
   recent?: ReadonlyMap<string, number>;
 }
 
-type Base = Omit<RecommendContext, "slot" | "recent">;
+type Base = Omit<RecommendContext, "slot" | "recent" | "daySoFar">;
 
 export function slotsFor(includeSnacks: boolean): MealType[] {
   return includeSnacks ? PLAN_SLOTS : PLAN_SLOTS.filter((s) => s !== "snack");
@@ -51,7 +51,7 @@ export function generatePlan(meals: Meal[], base: Base, opts: PlanOptions): Plan
     for (const [slug, d] of lastUsed) recent.set(slug, day - d);
 
     const options = slots.map((slot) => {
-      const ranked = rankMeals(meals, { ...base, slot, recent, dailyKcal: opts.dailyKcal });
+      const ranked = rankMeals(meals, { ...base, slot, recent, dailyKcal: opts.dailyKcal, daySoFar: undefined });
       const fresh = ranked.filter((r) => !lastUsed.has(r.meal.slug));
       const reusable = ranked.filter((r) => lastUsed.has(r.meal.slug) && day - lastUsed.get(r.meal.slug)! > NO_REPEAT_DAYS);
       const pool = fresh.length >= MIN_FRESH ? fresh : [...fresh, ...reusable];

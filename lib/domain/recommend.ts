@@ -10,9 +10,9 @@
  * Calorie bands per meal slot come from the user's own daily target when there is one (Phase 4),
  * otherwise general guidance scaled by goal.
  */
-import type { Meal, MealType, Profile } from "../types";
+import { MEAL_TYPES, type Meal, type MealType, type Profile } from "../types";
 import { formatMinutes } from "./meals";
-import { slotBandFromTarget } from "./targets";
+import { SLOT_SHARE, slotBandFromTarget } from "./targets";
 
 export const WEIGHTS = { goal: 0.35, time: 0.15, budget: 0.15, cuisine: 0.1, variety: 0.15, saved: 0.1 } as const;
 
@@ -97,6 +97,41 @@ export interface RecommendContext {
   recent?: ReadonlyMap<string, number>;
   /** The user's daily energy target, when one could be calculated. */
   dailyKcal?: number | null;
+  /** What has been logged today, so suggestions fit the calories left. Only for today, never for plans. */
+  daySoFar?: DaySoFar;
+}
+
+/** Today's logged calories and the meal times already logged. */
+export interface DaySoFar {
+  kcal: number;
+  slots: readonly MealType[];
+}
+
+export interface DayFit {
+  /** Calorie band for this meal, sized to what is left of today's target. */
+  band: [number, number];
+  /** kcal left of today's target (negative when over). */
+  left: number;
+  /** How the band compares with this meal time's usual share. */
+  shift: "lighter" | "bigger" | "usual";
+}
+
+/**
+ * Sizes the next meal to what is left of today's target. The calories left are shared among this
+ * meal and the meal times not yet logged today, in their usual proportions. Never below half or
+ * above one and a half times the usual share, so a big lunch never means skipping dinner and a
+ * skipped breakfast never means a huge dinner. Null when there is no target or nothing logged yet.
+ */
+export function dayFit(slot: MealType, dailyKcal?: number | null, soFar?: DaySoFar): DayFit | null {
+  if (!dailyKcal || !soFar || soFar.kcal <= 0) return null;
+  const left = Math.round(dailyKcal - soFar.kcal);
+  const open = MEAL_TYPES.filter((t) => t === slot || !soFar.slots.includes(t));
+  const openShare = open.reduce((sum, t) => sum + SLOT_SHARE[t], 0);
+  const usual = SLOT_SHARE[slot] * dailyKcal;
+  const fair = (Math.max(0, left) * SLOT_SHARE[slot]) / openShare;
+  const mid = Math.min(usual * 1.5, Math.max(usual * 0.5, fair));
+  const shift = mid < usual * 0.9 ? "lighter" : mid > usual * 1.1 ? "bigger" : "usual";
+  return { band: [Math.round(mid * 0.8), Math.round(mid * 1.15)], left, shift };
 }
 
 export interface Factors {
@@ -121,7 +156,9 @@ function bandScore(kcal: number, [lo, hi]: [number, number]): number {
   return clamp01(1 - gap / (0.5 * (kcal < lo ? lo : hi)));
 }
 
-export function kcalBand(slot: MealType, goal: Profile["goal"], dailyKcal?: number | null): [number, number] {
+export function kcalBand(slot: MealType, goal: Profile["goal"], dailyKcal?: number | null, soFar?: DaySoFar): [number, number] {
+  const fit = dayFit(slot, dailyKcal, soFar);
+  if (fit) return fit.band;
   if (dailyKcal) return slotBandFromTarget(slot, dailyKcal);
   const s = GOAL_SCALE[goal ?? "maintain"];
   const [lo, hi] = SLOT_KCAL[slot];
@@ -131,8 +168,8 @@ export function kcalBand(slot: MealType, goal: Profile["goal"], dailyKcal?: numb
 /** Share of energy from protein (0–1). */
 export const proteinShare = (m: Meal) => (m.kcal > 0 ? (m.protein * 4) / m.kcal : 0);
 
-export function goalScore(meal: Meal, slot: MealType, goal: Profile["goal"], dailyKcal?: number | null): number {
-  const band = bandScore(meal.kcal, kcalBand(slot, goal, dailyKcal));
+export function goalScore(meal: Meal, slot: MealType, goal: Profile["goal"], dailyKcal?: number | null, soFar?: DaySoFar): number {
+  const band = bandScore(meal.kcal, kcalBand(slot, goal, dailyKcal, soFar));
   const ps = proteinShare(meal);
   if (goal === "lose") return 0.5 * band + 0.35 * clamp01((ps - 0.1) / 0.15) + 0.15 * clamp01((meal.fibre ?? 0) / 8);
   if (goal === "gain") return 0.6 * band + 0.4 * clamp01(meal.protein / 30);
@@ -151,7 +188,7 @@ export function factorsFor(meal: Meal, ctx: RecommendContext): Factors {
   const days = ctx.recent?.get(meal.slug);
   const variety = days === undefined ? 1 : days <= 0 ? 0 : days === 1 ? 0.3 : days === 2 ? 0.6 : 1;
   return {
-    goal: goalScore(meal, ctx.slot, p.goal, ctx.dailyKcal),
+    goal: goalScore(meal, ctx.slot, p.goal, ctx.dailyKcal, ctx.daySoFar),
     time,
     budget,
     cuisine,
@@ -169,7 +206,11 @@ export function reasonsFor(meal: Meal, f: Factors, ctx: RecommendContext): strin
   const p = ctx.profile;
   const r: string[] = [];
   const ps = proteinShare(meal);
-  const inBand = bandScore(meal.kcal, kcalBand(ctx.slot, p.goal, ctx.dailyKcal)) === 1;
+  const inBand = bandScore(meal.kcal, kcalBand(ctx.slot, p.goal, ctx.dailyKcal, ctx.daySoFar)) === 1;
+  const fit = dayFit(ctx.slot, ctx.dailyKcal, ctx.daySoFar);
+  if (fit && fit.shift !== "usual" && inBand) {
+    r.push(fit.left > 0 ? `Fits the ${fit.left.toLocaleString("en-US")} kcal left today` : "A lighter option for today");
+  }
   if (p.goal === "lose") {
     if (ps >= 0.2) r.push("High in protein, which helps you stay full");
     if (inBand) r.push("A lighter portion for your goal");

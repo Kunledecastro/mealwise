@@ -3,7 +3,7 @@
 **Current phase:** None. All build phases (0–6) are complete and approved.
 **Last completed phase:** Phase 6 (approved 2026-10-19)
 **Implementation status:** MVP complete. Next: closed beta preparation (below).
-**Last updated:** 2026-10-19
+**Last updated:** 2026-10-21
 
 ## Completed
 - Phases 0–6 (approved): catalogue of 70 meals, recommendations, accounts, targets, meal log, weights, plans, shopping list.
@@ -25,6 +25,7 @@
     - NDPA gap analysis (PRIVACY_REVIEW.md).
   - **Guides**: DEPLOYMENT_GUIDE.md and RELEASE_READINESS.md.
   - Regression: unit 148/148, end-to-end 184/184, Lighthouse accessibility 100.
+- Day-fit suggestions (2026-10-21): once a meal is logged today, Home and meal lists size the next meal to the calories left of the daily target (decision 070).
 - Photos (2026-10-19, after Phase 6): 31 of 70 meals have real, visually checked photos (21 added from Unsplash, free licence, credited). Fixed a bug where photos only attached to the first batch of meals. The other 39 show illustrations.
 
 ## Recommendation
