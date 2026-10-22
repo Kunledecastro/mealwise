@@ -10,11 +10,12 @@
  * Calorie bands per meal slot come from the user's own daily target when there is one (Phase 4),
  * otherwise general guidance scaled by goal.
  */
-import { MEAL_TYPES, type Meal, type MealType, type Profile } from "../types";
+import { MEAL_TYPES, type Appliance, type Meal, type MealType, type Mood, type Profile } from "../types";
+import { APPLIANCE_NOUN, MOODS } from "../options";
 import { formatMinutes } from "./meals";
 import { SLOT_SHARE, slotBandFromTarget } from "./targets";
 
-export const WEIGHTS = { goal: 0.35, time: 0.15, budget: 0.15, cuisine: 0.1, variety: 0.15, saved: 0.1 } as const;
+export const WEIGHTS = { goal: 0.32, time: 0.13, budget: 0.13, cuisine: 0.08, variety: 0.14, saved: 0.08, mood: 0.12 } as const;
 
 /** kcal per serving considered a typical portion for each slot (maintain). Scaled by goal. */
 export const SLOT_KCAL: Record<MealType, [number, number]> = {
@@ -35,7 +36,7 @@ export function mealPriceRange(meal: Meal): [number | null, number | null] {
   return [null, null];
 }
 
-export type HideReason = "allergy" | "allergy_unknown" | "diet" | "dislike" | "rejected";
+export type HideReason = "allergy" | "allergy_unknown" | "diet" | "dislike" | "rejected" | "equipment";
 
 export interface Verdict {
   ok: boolean;
@@ -85,7 +86,36 @@ export function checkMeal(meal: Meal, profile: Profile, rejected?: ReadonlySet<s
   const disliked = profile.dislikes.find((d) => mentions(text, d));
   if (disliked) return { ok: false, reason: "dislike", detail: `Has ${disliked}, which you said you don't like` };
   if (rejected?.has(meal.slug)) return { ok: false, reason: "rejected", detail: "You marked this “Not for me”" };
+  const missing = missingEquipment(meal, profile.appliances);
+  if (missing) return { ok: false, reason: "equipment", detail: `Needs ${orList(missing.map((a) => APPLIANCE_NOUN[a]))}, which isn't in your kitchen list` };
   return { ok: true };
+}
+
+/** "a, b or c". */
+function orList(xs: string[]): string {
+  return xs.length < 2 ? xs.join("") : `${xs.slice(0, -1).join(", ")} or ${xs.at(-1)}`;
+}
+
+/**
+ * The first equipment choice the user can't meet, or null when they can cook it (or haven't said what
+ * they have: no list means no filtering).
+ */
+export function missingEquipment(meal: Meal, appliances: readonly Appliance[] | undefined): Appliance[] | null {
+  if (!appliances?.length) return null;
+  for (const group of meal.equipment ?? []) if (!group.some((a) => appliances.includes(a))) return group;
+  return null;
+}
+
+/** Whether a meal fits a mood tile, for this meal time. */
+export function fitsMood(meal: Meal, mood: Mood, slot: MealType): boolean {
+  switch (mood) {
+    case "quick": return meal.prepMinutes <= 30;
+    case "light": { const [lo, hi] = SLOT_KCAL[slot]; return meal.kcal <= 0.85 * ((lo + hi) / 2); }
+    case "protein": return proteinShare(meal) >= 0.25 || meal.protein >= 30;
+    case "budget": { const high = mealPriceRange(meal)[1]; return high !== null && high <= BUDGET_CAP.low; }
+    case "classic": return meal.cuisine === "Nigerian" || meal.cuisine === "Ghanaian";
+    case "different": return ["International", "Asian", "Mediterranean"].includes(meal.cuisine);
+  }
 }
 
 export interface RecommendContext {
@@ -141,6 +171,8 @@ export interface Factors {
   cuisine: number;
   variety: number;
   saved: number;
+  /** Share of the user's moods this meal fits (1 when no moods are chosen). */
+  mood: number;
 }
 
 export interface Ranked {
@@ -194,6 +226,7 @@ export function factorsFor(meal: Meal, ctx: RecommendContext): Factors {
     cuisine,
     variety,
     saved: ctx.saved?.has(meal.slug) ? 1 : 0,
+    mood: p.moods?.length ? p.moods.filter((m) => fitsMood(meal, m, ctx.slot)).length / p.moods.length : 1,
   };
 }
 
@@ -211,6 +244,8 @@ export function reasonsFor(meal: Meal, f: Factors, ctx: RecommendContext): strin
   if (fit && fit.shift !== "usual" && inBand) {
     r.push(fit.left > 0 ? `Fits the ${fit.left.toLocaleString("en-US")} kcal left today` : "A lighter option for today");
   }
+  const moods = (p.moods ?? []).filter((m) => fitsMood(meal, m, ctx.slot));
+  if (moods.length) r.push(`In the mood for: ${moods.map((m) => MOODS.find((x) => x.value === m)!.label.toLowerCase()).join(", ")}`);
   if (p.goal === "lose") {
     if (ps >= 0.2) r.push("High in protein, which helps you stay full");
     if (inBand) r.push("A lighter portion for your goal");

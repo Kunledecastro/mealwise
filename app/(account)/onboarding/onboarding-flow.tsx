@@ -10,12 +10,12 @@ import { cmToFeetInches, feetInchesToCm, kgToLb, parseWeight, round } from "@/li
 import { useAuth } from "@/lib/auth";
 import { useStore } from "@/lib/prototype-store";
 import { SkeletonRows } from "@/components/ui";
-import { ACTIVITY, ALLERGENS, BUDGET_LABELS, CUISINES, DIETS, GOALS, PREP_LABELS } from "@/lib/options";
-import type { Profile, Units } from "@/lib/types";
+import { ACTIVITY, ALLERGENS, APPLIANCES, BUDGET_LABELS, CUISINES, DIETS, GOALS, MAX_MOODS, MOODS, PREP_LABELS, SHOPS, SHOP_LABEL } from "@/lib/options";
+import type { Appliance, Mood, Profile, Shop, Units } from "@/lib/types";
 import { GuidanceCheck } from "@/components/target-bits";
 import { calculateTarget } from "@/lib/domain/targets";
 
-const STEPS = ["Your goal", "About you", "Activity", "Food you eat", "Budget and time", "Summary"];
+const STEPS = ["Your goal", "About you", "Activity", "Food you eat", "Time, budget and mood", "Your kitchen and shop", "Summary"];
 
 function ChoiceCard({ selected, title, body, onClick }: { selected: boolean; title: string; body: string; onClick: () => void }) {
   return (
@@ -154,7 +154,7 @@ function OnboardingSteps({ initial }: { initial: Profile }) {
     router.replace("/home");
   }
 
-  const skippable = step === 3 || step === 4;
+  const skippable = step === 3 || step === 4 || step === 5;
   const goalLabel = GOALS.find((g) => g.value === p.goal)?.title;
 
   return (
@@ -277,10 +277,29 @@ function OnboardingSteps({ initial }: { initial: Profile }) {
                 options={["15", "30", "45", "60", "0"]} labels={PREP_LABELS}
                 value={p.maxPrepMinutes !== undefined ? [String(p.maxPrepMinutes)] : []}
                 onChange={(v) => update({ maxPrepMinutes: v[0] === undefined ? undefined : Number(v[0]) })} />
+              <ChipGroup label={`What are you in the mood for? (up to ${MAX_MOODS})`} max={MAX_MOODS}
+                options={MOODS.map((m) => m.value)} labels={Object.fromEntries(MOODS.map((m) => [m.value, m.label]))}
+                value={p.moods ?? []} onChange={(v) => update({ moods: v as Mood[] })} />
+              <p className="-mt-3 text-sm text-muted">Meals that match come first. You can change this any time.</p>
             </div>
           )}
 
           {step === 5 && (
+            <div className="flex flex-col gap-6">
+              <ChipGroup label="What do you cook with? Tick all you have" options={APPLIANCES.map((a) => a.value)}
+                labels={Object.fromEntries(APPLIANCES.map((a) => [a.value, a.label]))}
+                value={p.appliances ?? []} onChange={(v) => update({ appliances: v.length ? (v as Appliance[]) : undefined })} />
+              <p className="-mt-3 text-sm text-muted">
+                We won&apos;t suggest meals that need something you don&apos;t have. Most markets grind pepper and beans, so
+                you don&apos;t need a blender for those. Leave it blank to see every meal.
+              </p>
+              <ChipGroup label="Where do you usually shop?" single options={SHOPS.map((x) => x.value)} labels={SHOP_LABEL}
+                value={p.shop ? [p.shop] : []} onChange={(v) => update({ shop: v[0] as Shop | undefined })} />
+              <p className="-mt-3 text-sm text-muted">Your shopping list is planned for this shop.</p>
+            </div>
+          )}
+
+          {step === 6 && (
             <div className="flex flex-col gap-4">
               <dl className="divide-y divide-line rounded-[var(--radius-md)] border border-line bg-surface">
                 {[
@@ -292,6 +311,9 @@ function OnboardingSteps({ initial }: { initial: Profile }) {
                   ["Allergies", p.allergies.join(", ") || "None given"],
                   ["Dislikes", p.dislikes.join(", ") || "None given"],
                   ["Budget", p.budget ? BUDGET_LABELS[p.budget] : "Not given"],
+                  ["Mood", p.moods?.length ? p.moods.map((m) => MOODS.find((x) => x.value === m)!.label).join(", ") : "Anything"],
+                  ["Kitchen", p.appliances?.length ? p.appliances.map((a) => APPLIANCES.find((x) => x.value === a)!.label).join(", ") : "Not given"],
+                  ["Shop", p.shop ? SHOP_LABEL[p.shop] : "Not given"],
                 ].map(([k, v]) => (
                   <div key={String(k)} className="flex justify-between gap-4 px-4 py-3">
                     <dt className="text-muted">{k}</dt>
@@ -348,17 +370,18 @@ function SummaryTarget({ profile: p, year }: { profile: Profile; year: number })
 }
 
 function ChipGroup({
-  label, options, value, onChange, labels, single,
+  label, options, value, onChange, labels, single, max,
 }: {
   label: string; options: string[]; value: string[]; onChange: (v: string[]) => void;
-  labels?: Record<string, string>; single?: boolean;
+  labels?: Record<string, string>; single?: boolean; max?: number;
 }) {
+  const full = max !== undefined && value.length >= max;
   return (
     <fieldset className="flex flex-col gap-3">
       <legend className="mb-3 font-semibold">{label}</legend>
       <div className="flex flex-wrap gap-2">
         {options.map((o) => (
-          <Chip key={o} selected={value.includes(o)}
+          <Chip key={o} selected={value.includes(o)} disabled={full && !value.includes(o)}
             onClick={() => onChange(single ? (value.includes(o) ? [] : [o]) : toggle(value, o))}>
             {labels?.[o] ?? o}
           </Chip>

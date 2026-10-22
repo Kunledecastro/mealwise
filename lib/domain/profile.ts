@@ -1,4 +1,4 @@
-import type { Activity, Goal, Profile, Units } from "../types";
+import type { Activity, Appliance, Goal, Mood, Profile, Shop, Units } from "../types";
 
 /** Shape of a row in public.profiles (see supabase/migrations). */
 export interface ProfileRow {
@@ -19,6 +19,9 @@ export interface ProfileRow {
   max_prep_minutes: number | null;
   sex?: "female" | "male" | null;
   needs_guidance?: boolean;
+  appliances?: Appliance[] | null;
+  moods?: Mood[];
+  shop?: Shop | null;
   consent_version: string | null;
   consent_at: string | null;
   onboarding_completed_at: string | null;
@@ -32,7 +35,7 @@ export type ProfileUpdate = Partial<
     ProfileRow,
     | "display_name" | "birth_year" | "height_cm" | "current_weight_kg" | "target_weight_kg" | "units" | "goal"
     | "activity_level" | "diet" | "allergies" | "dislikes" | "cuisines" | "budget_band" | "max_prep_minutes"
-    | "sex" | "needs_guidance" | "onboarding_completed_at"
+    | "sex" | "needs_guidance" | "appliances" | "moods" | "shop" | "onboarding_completed_at"
   >
 >;
 
@@ -61,6 +64,9 @@ export function rowToProfile(row: ProfileRow): Profile {
     maxPrepMinutes: row.max_prep_minutes ?? undefined,
     sex: row.sex ?? undefined,
     needsGuidance: !!row.needs_guidance,
+    appliances: row.appliances?.length ? row.appliances : undefined,
+    moods: row.moods ?? [],
+    shop: row.shop ?? undefined,
     onboarded: !!row.onboarding_completed_at,
   };
 }
@@ -85,6 +91,9 @@ export function profileToUpdate(p: Profile, opts: { completeOnboarding?: boolean
     max_prep_minutes: p.maxPrepMinutes ?? null,
     sex: p.sex ?? null,
     needs_guidance: !!p.needsGuidance,
+    appliances: p.appliances?.length ? [...new Set(p.appliances)] : null,
+    moods: [...new Set(p.moods ?? [])].slice(0, 3),
+    shop: p.shop ?? null,
   };
   if (opts.completeOnboarding) update.onboarding_completed_at = new Date().toISOString();
   return update;
@@ -98,5 +107,6 @@ export const EMPTY_PROFILE: Profile = {
   allergies: [],
   dislikes: [],
   cuisines: [],
+  moods: [],
   onboarded: false,
 };

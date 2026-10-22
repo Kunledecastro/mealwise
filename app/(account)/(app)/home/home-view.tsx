@@ -106,7 +106,7 @@ export function HomeView() {
         ) : (
           <EmptyState
             title={`No ${MEAL_TYPE_LABEL[slot].toLowerCase()} ideas left`}
-            body="Every meal for this time is ruled out by your allergies, diet, dislikes or “Not for me” choices. Try another meal time or review your preferences."
+            body="Every meal for this time is ruled out by your allergies, diet, dislikes, kitchen or “Not for me” choices. Try another meal time or review your preferences."
             action={<ButtonLink href="/profile" variant="secondary">Review preferences</ButtonLink>}
           />
         )}

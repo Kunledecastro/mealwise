@@ -34,7 +34,7 @@ export function Chip({
     <button
       type="button"
       aria-pressed={selected}
-      className={`press min-h-10 shrink-0 whitespace-nowrap rounded-full border px-4 text-sm font-semibold transition-colors ${
+      className={`press min-h-10 shrink-0 whitespace-nowrap rounded-full border px-4 text-sm font-semibold transition-colors disabled:cursor-not-allowed disabled:opacity-45 ${
         selected
           ? "border-accent bg-accent text-on-accent"
           : "border-line bg-surface text-ink hover:border-accent/60 hover:bg-surface-2"

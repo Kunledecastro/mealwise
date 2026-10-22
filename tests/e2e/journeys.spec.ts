@@ -66,17 +66,23 @@ test.describe("new account", () => {
     await page.getByRole("button", { name: "Continue" }).click();
     await page.getByRole("button", { name: "Skip" }).click();
 
+    await expect(page.getByRole("heading", { name: "Your kitchen and shop" })).toBeVisible();
+    await page.getByRole("button", { name: "Stove or cooker" }).click();
+    await page.getByRole("button", { name: "Shoprite" }).click();
+    await page.getByRole("button", { name: "Continue" }).click();
+
     await expect(page.getByRole("heading", { name: "Summary" })).toBeVisible();
     const main = page.getByRole("main");
     await expect(main.getByText("Gain weight")).toBeVisible();
     await expect(main.getByText("Peanuts")).toBeVisible();
+    await expect(main.getByText("Stove or cooker")).toBeVisible();
     await page.getByRole("button", { name: "Save and show me meals" }).click();
     await expect(page).toHaveURL(/\/home$/);
     await expect(page.getByText(/, Tunde$/)).toBeVisible();
 
     // Saved to the account: consent from sign-up, answers from setup.
     const row = [...mock.profiles.values()].find((r) => r.display_name === "Tunde")!;
-    expect(row).toMatchObject({ goal: "gain", birth_year: 1992, allergies: ["Peanuts"], consent_version: "2026-10-19" });
+    expect(row).toMatchObject({ goal: "gain", birth_year: 1992, allergies: ["Peanuts"], consent_version: "2026-10-19", appliances: ["stove"], shop: "shoprite", moods: [] });
     expect(row.onboarding_completed_at).toBeTruthy();
 
     // Survives a full reload now (Phase 1 kept this only in memory).

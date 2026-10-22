@@ -8,7 +8,7 @@ import { useCallback, useEffect, useState } from "react";
 import { useAuth } from "./auth";
 import { friendlyError } from "./domain/auth-errors";
 import { cleanItems } from "./domain/plan";
-import type { PlanItem, Tick } from "./domain/shopping";
+import { cleanOwnItems, type OwnItem, type PlanItem, type Tick } from "./domain/shopping";
 import { useStore } from "./prototype-store";
 import { getSupabase } from "./supabase/client";
 
@@ -18,6 +18,8 @@ export interface Plan {
   includeSnacks: boolean;
   items: PlanItem[];
   shopping: Record<string, Tick>;
+  /** Items the user added to the shopping list themselves. Kept when a new plan is made. */
+  extras: OwnItem[];
 }
 
 interface PlanRow {
@@ -26,6 +28,7 @@ interface PlanRow {
   include_snacks: boolean;
   items: unknown;
   shopping: unknown;
+  extras?: unknown;
 }
 
 const toPlan = (r: PlanRow): Plan => ({
@@ -37,6 +40,7 @@ const toPlan = (r: PlanRow): Plan => ({
     r.shopping && typeof r.shopping === "object" && !Array.isArray(r.shopping)
       ? Object.fromEntries(Object.entries(r.shopping as Record<string, unknown>).filter(([, v]) => v === "have" || v === "bought")) as Record<string, Tick>
       : {},
+  extras: cleanOwnItems(r.extras),
 });
 
 export function usePlan() {
@@ -51,7 +55,7 @@ export function usePlan() {
     let active = true;
     getSupabase()
       .from("meal_plans")
-      .select("start_date, days, include_snacks, items, shopping")
+      .select("start_date, days, include_snacks, items, shopping, extras")
       .eq("user_id", userId)
       .maybeSingle<PlanRow>()
       .then(({ data, error }) => {
@@ -78,7 +82,7 @@ export function usePlan() {
       const { error } = await getSupabase()
         .from("meal_plans")
         .upsert(
-          { user_id: userId, start_date: next.startDate, days: next.days, include_snacks: next.includeSnacks, items: next.items, shopping: next.shopping },
+          { user_id: userId, start_date: next.startDate, days: next.days, include_snacks: next.includeSnacks, items: next.items, shopping: next.shopping, extras: next.extras },
           { onConflict: "user_id" },
         );
       if (error) {

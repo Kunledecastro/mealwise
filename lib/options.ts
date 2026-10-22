@@ -1,4 +1,4 @@
-import type { Activity, Goal } from "./types";
+import type { Activity, Appliance, Goal, Mood, Shop } from "./types";
 
 export const DIETS = ["Vegetarian", "Vegan", "Pescatarian", "No pork", "Halal"];
 export const ALLERGENS = ["Peanuts", "Tree nuts", "Shellfish", "Fish", "Eggs", "Milk", "Soy", "Wheat", "Sesame"];
@@ -30,3 +30,40 @@ export const PREP_LABELS: Record<string, string> = {
   "60": "1 hour",
   "0": "No limit",
 };
+
+export const APPLIANCES: { value: Appliance; label: string }[] = [
+  { value: "stove", label: "Stove or cooker" },
+  { value: "oven", label: "Oven" },
+  { value: "grill", label: "Charcoal grill" },
+  { value: "airfryer", label: "Air fryer" },
+  { value: "blender", label: "Blender" },
+];
+
+/** Short names for sentences: "Needs an oven or a charcoal grill". */
+export const APPLIANCE_NOUN: Record<Appliance, string> = {
+  stove: "a stove or cooker",
+  oven: "an oven",
+  grill: "a charcoal grill",
+  airfryer: "an air fryer",
+  blender: "a blender",
+};
+
+export const MOODS: { value: Mood; label: string; body: string }[] = [
+  { value: "quick", label: "Quick", body: "Ready in 30 minutes or less" },
+  { value: "light", label: "Light", body: "Smaller portions of energy" },
+  { value: "protein", label: "Protein-packed", body: "Plenty of protein" },
+  { value: "budget", label: "Budget-friendly", body: "Under ₦1,500 a plate" },
+  { value: "classic", label: "West African classics", body: "Nigerian and Ghanaian favourites" },
+  { value: "different", label: "Something different", body: "International, Asian and Mediterranean" },
+];
+
+export const MAX_MOODS = 3;
+
+export const SHOPS: { value: Shop; label: string }[] = [
+  { value: "market", label: "Open market" },
+  { value: "shoprite", label: "Shoprite" },
+  { value: "spar", label: "Spar" },
+  { value: "supermarket", label: "Another supermarket" },
+];
+
+export const SHOP_LABEL: Record<Shop, string> = { market: "Open market", shoprite: "Shoprite", spar: "Spar", supermarket: "Another supermarket" };

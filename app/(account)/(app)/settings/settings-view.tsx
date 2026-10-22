@@ -84,7 +84,7 @@ function YourData() {
       supabase.from("meal_preferences").select("meal_slug, saved_at, rejected_at, reject_reason, updated_at").eq("user_id", user.id),
       supabase.from("meal_logs").select("meal_slug, logged_for, meal_type, portion, kcal, protein_g, carbs_g, fat_g, created_at").eq("user_id", user.id).order("logged_for"),
       supabase.from("weight_entries").select("measured_on, weight_kg, entered_unit, created_at, updated_at").eq("user_id", user.id).order("measured_on"),
-      supabase.from("meal_plans").select("start_date, days, include_snacks, items, shopping, created_at, updated_at").eq("user_id", user.id).maybeSingle(),
+      supabase.from("meal_plans").select("start_date, days, include_snacks, items, shopping, extras, created_at, updated_at").eq("user_id", user.id).maybeSingle(),
     ]);
     setBusy(null);
     const failed = err ?? err2 ?? err3 ?? err4 ?? err5;

@@ -138,5 +138,55 @@ begin
      and not has_function_privilege('anon', 'public.meal_plan_items_valid(jsonb, smallint)', 'execute') into ok;
   res := res || jsonb_build_object('21_least_privilege_grants', ok);
 
+  -- 2026-10-22: the user's own shopping items, and kitchen, mood and shop on profiles.
+  perform set_config('request.jwt.claims', json_build_object('sub', a, 'role', 'authenticated')::text, true);
+  set local role authenticated;
+
+  update public.meal_plans set extras = '[{"id":"own-k3j9","name":"Bread"}]', shopping = '{"own-k3j9":"bought"}' where user_id = a;
+  get diagnostics n = row_count;
+  res := res || jsonb_build_object('22_a_adds_own_items', n = 1);
+
+  begin
+    update public.meal_plans set extras = jsonb_build_array(jsonb_build_object('id', 'own-k3j9', 'name', repeat('x', 61))) where user_id = a;
+    ok := false;
+  exception when check_violation then ok := true;
+  end;
+  res := res || jsonb_build_object('23_long_own_item_rejected', ok);
+
+  begin
+    update public.meal_plans set extras = '[{"id":"Robert drop","name":"x"}]' where user_id = a;
+    ok := false;
+  exception when check_violation then ok := true;
+  end;
+  res := res || jsonb_build_object('24_bad_own_item_id_rejected', ok);
+
+  update public.meal_plans set extras = '[{"id":"own-z","name":"Not yours"}]' where user_id = b;
+  get diagnostics n = row_count;
+  res := res || jsonb_build_object('25_a_cannot_change_b_own_items', n = 0);
+
+  begin
+    update public.profiles set moods = '{quick,light,protein,budget}' where id = a;
+    ok := false;
+  exception when check_violation then ok := true;
+  end;
+  res := res || jsonb_build_object('26_more_than_3_moods_rejected', ok);
+
+  begin
+    update public.profiles set appliances = '{stove,microwave}' where id = a;
+    ok := false;
+  exception when check_violation then ok := true;
+  end;
+  res := res || jsonb_build_object('27_unknown_appliance_rejected', ok);
+
+  update public.profiles set appliances = '{stove,oven}', moods = '{quick}', shop = 'spar' where id = a;
+  get diagnostics n = row_count;
+  res := res || jsonb_build_object('28_a_sets_kitchen_mood_shop', n = 1);
+
+  update public.profiles set shop = 'shoprite' where id = b;
+  get diagnostics n = row_count;
+  res := res || jsonb_build_object('29_a_cannot_change_b_profile', n = 0);
+
+  reset role;
+
   raise exception 'RLS_TEST_RESULTS %', res;
 end $$;

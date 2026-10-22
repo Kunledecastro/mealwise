@@ -88,7 +88,7 @@ export function generatePlan(meals: Meal[], base: Base, opts: PlanOptions): Plan
 /** Meals for one slot of one day, best first, excluding meals already planned that day. */
 export function swapOptions(meals: Meal[], base: Base, items: PlanItem[], day: number, slot: MealType, dailyKcal?: number | null, limit = 8): Meal[] {
   const sameDay = new Set(items.filter((i) => i.day === day).map((i) => i.slug));
-  return rankMeals(meals, { ...base, slot, dailyKcal })
+  return rankMeals(meals, { ...base, slot, dailyKcal, daySoFar: undefined })
     .map((r) => r.meal)
     .filter((m) => !sameDay.has(m.slug))
     .slice(0, limit);

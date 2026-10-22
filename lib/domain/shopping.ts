@@ -35,11 +35,54 @@ export interface ShoppingLine {
   low: number | null;
   high: number | null;
   priceDate: string | null;
+  /** Where the price came from: the chosen shop's own price, or the average market price. */
+  priceFrom: "shop" | "market" | null;
   /** Seasonings in small amounts: listed but not priced. */
   small: boolean;
   optional: boolean;
   /** Meal names that use it. */
   meals: string[];
+}
+
+/** Something the user added to the list themselves (bread, detergent…). Not priced. */
+export interface OwnItem {
+  id: string;
+  name: string;
+}
+
+export const MAX_OWN_ITEMS = 50;
+export const OWN_NAME_MAX = 60;
+const OWN_ID = /^own-[a-z0-9]{1,20}$/;
+
+/** Keeps only well-formed own items (same rules as the database). */
+export function cleanOwnItems(raw: unknown): OwnItem[] {
+  if (!Array.isArray(raw)) return [];
+  const out: OwnItem[] = [];
+  for (const r of raw) {
+    if (!r || typeof r !== "object") continue;
+    const { id, name } = r as Record<string, unknown>;
+    if (typeof id !== "string" || !OWN_ID.test(id) || typeof name !== "string") continue;
+    const n = name.trim();
+    if (!n || n.length > OWN_NAME_MAX || out.some((o) => o.id === id)) continue;
+    out.push({ id, name: n });
+  }
+  return out.slice(0, MAX_OWN_ITEMS);
+}
+
+/** Adds an item, or explains why not. Names are trimmed; a name already on the list isn't added twice. */
+export function addOwnItem(items: OwnItem[], name: string, id: string): { ok: true; items: OwnItem[] } | { ok: false; error: string } {
+  const n = name.trim().replace(/\s+/g, " ");
+  if (!n) return { ok: false, error: "Type what you want to add." };
+  if (n.length > OWN_NAME_MAX) return { ok: false, error: `Keep it under ${OWN_NAME_MAX} characters.` };
+  if (items.length >= MAX_OWN_ITEMS) return { ok: false, error: `You can add up to ${MAX_OWN_ITEMS} items of your own.` };
+  if (items.some((i) => i.name.toLowerCase() === n.toLowerCase())) return { ok: false, error: `${n} is already on your list.` };
+  if (!OWN_ID.test(id)) return { ok: false, error: "Something went wrong. Try again." };
+  return { ok: true, items: [...items, { id, name: n }] };
+}
+
+/** A fresh id for an own item, e.g. "own-k3j9x2a". */
+export function newOwnItemId(): string {
+  return `own-${Math.random().toString(36).slice(2, 9) || "x"}`;
 }
 
 export interface Estimate {
@@ -51,6 +94,8 @@ export interface Estimate {
   unpriced: string[];
   /** Oldest price date used. */
   oldest: string | null;
+  /** Priced lines that used the chosen shop's own price. */
+  shopPriced: number;
 }
 
 /** Totals below this weight for an ingredient with no buying unit show as "a little". */
@@ -93,6 +138,8 @@ export function buildShoppingList(
   units: Record<string, Unit>,
   /** Optional ingredients to leave off (e.g. ones containing the user's allergens). */
   skipOptional: ReadonlySet<string> = new Set(),
+  /** The chosen shop's own prices, where collected; others fall back to the market price. */
+  shopPrices: Readonly<Record<string, IngredientPrice>> = {},
 ): ShoppingLine[] {
   const acc = new Map<string, { grams: number; optional: boolean; meals: Set<string> }>();
   for (const item of items) {
@@ -115,7 +162,7 @@ export function buildShoppingList(
     if (!ing) continue;
     // An optional pinch of something already on the list adds nothing useful.
     if (a.optional && acc.has(id) && !units[id] && !ing.price) continue;
-    const price: IngredientPrice | undefined = ing.price;
+    const price: IngredientPrice | undefined = shopPrices[id] ?? ing.price;
     const unit = price ? { unit: price.unit, grams: price.gramsPerUnit } : units[id];
     const small = !unit && a.grams < SMALL_GRAMS * Math.max(1, a.meals.size);
     lines.push({
@@ -127,6 +174,7 @@ export function buildShoppingList(
       low: price && !small ? (price.low * a.grams) / price.gramsPerUnit : null,
       high: price && !small ? (price.high * a.grams) / price.gramsPerUnit : null,
       priceDate: price?.observedOn ?? null,
+      priceFrom: price ? (shopPrices[id] ? "shop" : "market") : null,
       small,
       optional: a.optional,
       meals: [...a.meals].sort(),
@@ -141,6 +189,7 @@ export function estimateFor(lines: ShoppingLine[], ticks: Readonly<Record<string
   let low = 0;
   let high = 0;
   let priced = 0;
+  let shopPriced = 0;
   let oldest: string | null = null;
   const unpriced: string[] = [];
   for (const l of lines) {
@@ -152,13 +201,14 @@ export function estimateFor(lines: ShoppingLine[], ticks: Readonly<Record<string
     low += l.low;
     high += l.high;
     priced += 1;
+    if (l.priceFrom === "shop") shopPriced += 1;
     if (l.priceDate && (!oldest || l.priceDate < oldest)) oldest = l.priceDate;
   }
-  return { low: Math.floor(low / 100) * 100, high: Math.ceil(high / 100) * 100, priced, unpriced, oldest };
+  return { low: Math.floor(low / 100) * 100, high: Math.ceil(high / 100) * 100, priced, unpriced, oldest, shopPriced };
 }
 
 /** Plain-text list to paste into WhatsApp or notes. Skips what you already have and what you've bought. */
-export function listAsText(lines: ShoppingLine[], ticks: Readonly<Record<string, Tick>>, title = "Mealwise shopping list"): string {
+export function listAsText(lines: ShoppingLine[], ticks: Readonly<Record<string, Tick>>, title = "Mealwise shopping list", own: OwnItem[] = []): string {
   const out = [title];
   let section = "";
   for (const l of lines) {
@@ -170,6 +220,8 @@ export function listAsText(lines: ShoppingLine[], ticks: Readonly<Record<string,
     }
     out.push(`- ${l.name}: ${l.amount}`);
   }
+  const mine = own.filter((o) => !ticks[o.id]);
+  if (mine.length) out.push("", "Your own items", ...mine.map((o) => `- ${o.name}`));
   return out.join("\n");
 }
 

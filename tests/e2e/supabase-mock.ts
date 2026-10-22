@@ -24,7 +24,7 @@ interface MockUser { id: string; email: string; password: string; confirmed: boo
 const EDITABLE = [
   "display_name", "birth_year", "height_cm", "current_weight_kg", "target_weight_kg", "units", "goal", "activity_level",
   "diet", "allergies", "dislikes", "cuisines", "budget_band", "max_prep_minutes", "onboarding_completed_at",
-  "sex", "needs_guidance",
+  "sex", "needs_guidance", "appliances", "moods", "shop",
 ];
 
 const b64url = (s: string) => Buffer.from(s).toString("base64url");
@@ -71,6 +71,7 @@ function profileRow(id: string, consent: string | null, onboarded: boolean, now:
     max_prep_minutes: onboarded ? 45 : null,
     sex: null,
     needs_guidance: false,
+    appliances: null, moods: [], shop: null,
     consent_version: consent, consent_at: consent ? now : null,
     onboarding_completed_at: onboarded ? now : null,
     created_at: now, updated_at: now,
@@ -336,7 +337,10 @@ export class SupabaseMock {
           days >= 1 && days <= 7 && Array.isArray(items) && items.length <= 28 && slots.size === items.length &&
           items.every((i) => Object.keys(i).length === 4 && i.day >= 0 && i.day < days && ["breakfast", "lunch", "dinner", "snack"].includes(i.slot) &&
             /^[a-z0-9]+(-[a-z0-9]+)*$/.test(i.slug) && i.servings >= 0.5 && i.servings <= 8 && Number.isInteger(i.servings * 2)) &&
-          Object.values((r.shopping ?? {}) as Record<string, unknown>).every((v) => v === "have" || v === "bought");
+          Object.values((r.shopping ?? {}) as Record<string, unknown>).every((v) => v === "have" || v === "bought") &&
+          Array.isArray(r.extras ?? []) && ((r.extras ?? []) as { id: string; name: string }[]).length <= 50 &&
+          ((r.extras ?? []) as { id: string; name: string }[]).every((e) => Object.keys(e).length === 2 && /^own-[a-z0-9]{1,20}$/.test(e.id) &&
+            typeof e.name === "string" && e.name.trim().length > 0 && e.name.length <= 60);
         if (!valid) return this.reply(route, 400, { code: "23514", message: "violates check constraint" });
         this.plans.set(u.id, { id: u.id, ...(mine ?? {}), ...r, user_id: u.id, updated_at: new Date().toISOString() });
         return this.reply(route, 201);

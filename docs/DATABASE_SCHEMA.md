@@ -40,6 +40,11 @@ Supabase project `mealwise-dev` (ref `naaoigrhzfivantuysxl`, region eu-west-2 Lo
 
 **Tests** — `supabase/tests/rls_profiles.sql`: 18 checks with two synthetic users, rolled back automatically. Last run 2026-10-18: 18/18 pass, nothing left behind. Supabase security and performance advisors: no warnings.
 
+**2026-10-22** (migration `…20261022090001_kitchen_mood_shop_own_items.sql`, additive only; DECISION_LOG 072–075):
+- `profiles.appliances` text[] (null = not answered; else 1–5 of stove, oven, grill, airfryer, blender), `profiles.moods` text[] (0–3 of quick, light, protein, budget, classic, different; default empty), `profiles.shop` (market | shoprite | spar | supermarket | null).
+- `meal_plans.extras` jsonb, default `[]`: the user's own shopping items `{id: "own-…", name: 1–60 characters}`, at most 50, unique ids, validated by `meal_plan_extras_valid()` (not executable by `anon`). Their ticks use the existing `shopping` object.
+- Database checks: `rls_meal_plans.sql` now 29/29 (new 22–29 cover own items and the new profile columns), run on `mealwise-dev` 2026-10-22. Security advisor: only the known leaked-password warning (I12).
+
 ## 1. Entity overview
 
 ```

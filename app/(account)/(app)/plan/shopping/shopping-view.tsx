@@ -1,13 +1,15 @@
 "use client";
 
 import Link from "next/link";
-import { useMemo } from "react";
-import { ArrowLeft, Share2 } from "lucide-react";
-import { Button, ButtonLink, EmptyState, EstimateTag, PageTitle, SkeletonRows } from "@/components/ui";
+import { useMemo, useState } from "react";
+import { ArrowLeft, Plus, Share2, X } from "lucide-react";
+import { Button, ButtonLink, EmptyState, EstimateTag, PageTitle, SkeletonRows, inputClass } from "@/components/ui";
 import { INGREDIENTS, MEALS_BY_SLUG } from "@/catalogue";
 import { BUYING_UNITS } from "@/catalogue/buying-units";
 import { ALLERGEN_LABEL, PRICE_STALE_DAYS } from "@/lib/domain/catalogue";
-import { allergenIngredients, buildShoppingList, estimateFor, listAsText, type ShoppingLine, type Tick } from "@/lib/domain/shopping";
+import { addOwnItem, allergenIngredients, buildShoppingList, estimateFor, listAsText, newOwnItemId, OWN_NAME_MAX, type OwnItem, type ShoppingLine, type Tick } from "@/lib/domain/shopping";
+import { SHOP_PRICES } from "@/catalogue/shop-prices";
+import { SHOP_LABEL } from "@/lib/options";
 import { addDays } from "@/lib/domain/tracking";
 import { fromISODate } from "@/lib/dates";
 import { useStore } from "@/lib/prototype-store";
@@ -22,8 +24,8 @@ export function ShoppingView() {
   const lines = useMemo(() => {
     if (!plan) return [];
     const skip = allergenIngredients(INGREDIENTS, profile.allergies, ALLERGEN_LABEL);
-    return buildShoppingList(plan.items, MEALS_BY_SLUG, INGREDIENT_MAP, BUYING_UNITS, skip);
-  }, [plan, profile.allergies]);
+    return buildShoppingList(plan.items, MEALS_BY_SLUG, INGREDIENT_MAP, BUYING_UNITS, skip, profile.shop ? SHOP_PRICES[profile.shop] : undefined);
+  }, [plan, profile.allergies, profile.shop]);
   const ticks = useMemo(() => plan?.shopping ?? {}, [plan]);
   const estimate = useMemo(() => estimateFor(lines, ticks), [lines, ticks]);
 
@@ -51,8 +53,20 @@ export function ShoppingView() {
     void save({ ...plan, shopping: next }, "That tick wasn't saved. ");
   };
 
+  const own = plan.extras;
+  async function addOwn(name: string): Promise<string | null> {
+    const r = addOwnItem(own, name, newOwnItemId());
+    if (!r.ok) return r.error;
+    return (await save({ ...plan!, extras: r.items }, "That item wasn't added. ")) ? null : "";
+  }
+  function removeOwn(item: OwnItem) {
+    const next = { ...ticks };
+    delete next[item.id];
+    void save({ ...plan!, extras: own.filter((o) => o.id !== item.id), shopping: next }, "That item wasn't removed. ");
+  }
+
   async function share() {
-    const text = listAsText(lines, ticks);
+    const text = listAsText(lines, ticks, undefined, own);
     try {
       if (navigator.share) {
         await navigator.share({ title: "Shopping list", text });
@@ -71,15 +85,18 @@ export function ShoppingView() {
   const main = lines.filter((l) => !l.optional);
   const extras = lines.filter((l) => l.optional);
   const sections = [...new Set(main.map((l) => l.section))];
-  const left = main.filter((l) => !ticks[l.id]).length;
+  const left = main.filter((l) => !ticks[l.id]).length + own.filter((o) => !ticks[o.id]).length;
+  const total = main.length + own.length;
+  const shop = profile.shop;
 
   return (
     <div className="flex flex-col gap-6">
       <div>
         {back}
-        <PageTitle sub={`For your plan, ${plan.days === 1 ? label(plan.startDate) : `${label(plan.startDate)} to ${label(end)}`}. ${left} of ${main.length} items still to get.`}>
+        <PageTitle sub={`For your plan, ${plan.days === 1 ? label(plan.startDate) : `${label(plan.startDate)} to ${label(end)}`}. ${left} of ${total} items still to get.`}>
           Shopping list
         </PageTitle>
+        {shop && <p className="mt-1 text-sm text-muted">Planned for <span className="font-semibold text-ink">{SHOP_LABEL[shop]}</span>. <Link href="/profile" className="font-semibold text-accent hover:underline">Change</Link></p>}
       </div>
 
       <section aria-labelledby="estimate-title" className="flex flex-col gap-2 rounded-[var(--radius-lg)] border border-line bg-surface p-5">
@@ -97,8 +114,15 @@ export function ShoppingView() {
         <p className="text-sm text-muted">
           For the amounts your plan uses{estimate.oldest ? `, at ${fromISODate(estimate.oldest).toLocaleDateString("en-NG", { month: "long", year: "numeric" })} prices` : ""}
           {stale ? <span className="text-error"> (may be out of date)</span> : null}. You may need to buy whole packs, so the till total can be higher.
-          Items you already have aren&apos;t counted.
+          Items you already have aren&apos;t counted{own.length ? ", and your own items aren't priced" : ""}.
         </p>
+        {shop && shop !== "market" && (
+          <p className="text-sm text-muted">
+            {estimate.shopPriced > 0
+              ? `${estimate.shopPriced} of ${estimate.priced} priced items use ${SHOP_LABEL[shop]} prices; the rest use average market prices.`
+              : `We haven't collected ${shop === "supermarket" ? "supermarket" : SHOP_LABEL[shop]} prices yet, so these are average market prices. Supermarket prices are often higher.`}
+          </p>
+        )}
         {estimate.unpriced.length > 0 && (
           <details className="text-sm">
             <summary className="cursor-pointer font-semibold text-accent">{estimate.unpriced.length} item{estimate.unpriced.length === 1 ? "" : "s"} not priced yet</summary>
@@ -107,13 +131,72 @@ export function ShoppingView() {
         )}
       </section>
 
-      <Button variant="secondary" className="w-fit" onClick={share}><Share2 size={18} aria-hidden="true" /> Share list</Button>
+      <div className="flex flex-wrap gap-2">
+        <Button variant="secondary" onClick={share}><Share2 size={18} aria-hidden="true" /> Share list</Button>
+        <Button variant="ghost" onClick={() => { const el = document.getElementById("own-new"); el?.scrollIntoView({ block: "center" }); el?.focus({ preventScroll: true }); }}>
+          <Plus size={18} aria-hidden="true" /> Add your own item
+        </Button>
+      </div>
 
       {sections.map((s) => (
         <Section key={s} title={s} lines={main.filter((l) => l.section === s)} ticks={ticks} onToggle={toggle} />
       ))}
       {extras.length > 0 && <Section title="Optional extras" note="Not counted in the cost." lines={extras} ticks={ticks} onToggle={toggle} />}
+      <OwnItems items={own} ticks={ticks} onToggle={(id) => toggle(id, "bought")} onAdd={addOwn} onRemove={removeOwn} />
     </div>
+  );
+}
+
+function OwnItems({ items, ticks, onToggle, onAdd, onRemove }: {
+  items: OwnItem[]; ticks: Record<string, Tick>; onToggle: (id: string) => void;
+  onAdd: (name: string) => Promise<string | null>; onRemove: (item: OwnItem) => void;
+}) {
+  const [name, setName] = useState("");
+  const [error, setError] = useState<string | null>(null);
+  const [busy, setBusy] = useState(false);
+  async function submit(e: React.FormEvent) {
+    e.preventDefault();
+    setBusy(true);
+    const err = await onAdd(name);
+    setBusy(false);
+    if (err === null) {
+      setName("");
+      setError(null);
+    } else if (err) setError(err);
+  }
+  return (
+    <section aria-labelledby="own-title" className="flex flex-col gap-3">
+      <div>
+        <h2 id="own-title" className="text-lg">Your own items</h2>
+        <p className="text-sm text-muted">Anything else you need this week. Not counted in the cost.</p>
+      </div>
+      {items.length > 0 && (
+        <ul className="divide-y divide-line">
+          {items.map((o) => {
+            const done = ticks[o.id] === "bought";
+            return (
+              <li key={o.id} className="flex items-center gap-3 py-3">
+                <input type="checkbox" id={`own-${o.id}`} checked={done} onChange={() => onToggle(o.id)} className="size-6 shrink-0 accent-[var(--color-accent)]" />
+                <label htmlFor={`own-${o.id}`} className={`min-w-0 flex-1 cursor-pointer font-semibold ${done ? "line-through opacity-60" : ""}`}>{o.name}</label>
+                <button type="button" onClick={() => onRemove(o)} aria-label={`Remove ${o.name}`}
+                  className="grid size-10 shrink-0 place-items-center rounded-full text-muted hover:bg-surface-2 hover:text-ink">
+                  <X size={18} aria-hidden="true" />
+                </button>
+              </li>
+            );
+          })}
+        </ul>
+      )}
+      <form onSubmit={submit} className="flex flex-col gap-2">
+        <label htmlFor="own-new" className="text-sm font-semibold">Add an item</label>
+        <div className="flex gap-2">
+          <input id="own-new" className={inputClass} value={name} maxLength={OWN_NAME_MAX} placeholder="For example, bread or detergent"
+            onChange={(e) => { setName(e.target.value); setError(null); }} aria-invalid={!!error} aria-describedby={error ? "own-error" : undefined} />
+          <Button type="submit" variant="secondary" disabled={busy}><Plus size={18} aria-hidden="true" /> Add</Button>
+        </div>
+        {error && <p id="own-error" role="alert" className="text-sm font-medium text-error">{error}</p>}
+      </form>
+    </section>
   );
 }
 

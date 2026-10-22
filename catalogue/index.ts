@@ -11,6 +11,7 @@ import { READY_MADE } from "./ready-made";
 import { PRICES } from "./prices";
 import { NUTRITION_SOURCES } from "./sources";
 import { PHOTOS } from "./photos";
+import { equipmentFor } from "./equipment";
 import type { IngredientDef } from "./types";
 
 /** Date of this catalogue edition. Bump when meals, ingredients or prices change. */
@@ -32,7 +33,11 @@ export const MEAL_DEFS = [...BATCH_1, ...ECOOKBOOK_MEALS, ...RECIPE_FILE_MEALS, 
 const compiled = compileCatalogue(MEAL_DEFS, ctx);
 
 /** Every published meal, with its typical ready-made price when collected. Meals with definition errors are left out (see EXCLUDED_MEALS). */
-export const MEALS = compiled.meals.map((m) => (READY_MADE[m.slug] ? { ...m, readyMade: READY_MADE[m.slug] } : m));
+export const MEALS = compiled.meals.map((m) => ({
+  ...m,
+  ...(READY_MADE[m.slug] ? { readyMade: READY_MADE[m.slug] } : {}),
+  equipment: equipmentFor(m.slug),
+}));
 export const EXCLUDED_MEALS = compiled.excluded;
 export const MEALS_BY_SLUG = new Map(MEALS.map((m) => [m.slug, m]));
 export const getMeal = (slug: string) => MEALS_BY_SLUG.get(slug);

@@ -133,7 +133,7 @@ test("P4-11 setup asks the guidance question and shows the target before saving"
   await page.getByRole("button", { name: "Continue" }).click();
   await expect(page.getByRole("checkbox", { name: /pregnant or breastfeeding/ })).toBeVisible();
   await page.getByRole("button", { name: "Female", exact: true }).click();
-  for (const step of ["Continue", "Continue", "Skip", "Skip"]) await page.getByRole("button", { name: step, exact: true }).click();
+  for (const step of ["Continue", "Continue", "Skip", "Skip", "Skip"]) await page.getByRole("button", { name: step, exact: true }).click();
   await expect(page.getByText("Your daily target: about 1,650 kcal")).toBeVisible();
 });
 

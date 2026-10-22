@@ -9,6 +9,15 @@ export const MEAL_TYPE_LABEL: Record<MealType, string> = {
   snack: "Snack",
 };
 
+/** Kitchen equipment a user can say they have (DECISION_LOG 072). */
+export type Appliance = "stove" | "oven" | "grill" | "airfryer" | "blender";
+
+/** "What are you in the mood for?" tiles: soft preferences that lift matching meals (DECISION_LOG 073). */
+export type Mood = "quick" | "light" | "protein" | "budget" | "classic" | "different";
+
+/** Where the user usually shops (DECISION_LOG 075). */
+export type Shop = "market" | "shoprite" | "spar" | "supermarket";
+
 /** Texture used by the plate illustration for one component of a dish. */
 export type PlateTexture = "grains" | "balls" | "smooth" | "leafy" | "chunks" | "slices";
 
@@ -94,6 +103,8 @@ export interface Meal {
   optionalAllergens?: { ingredient: string; allergens: string[] }[];
   /** Typical price to buy one plate ready-made (no vendor names). */
   readyMade?: ReadyMadePrice;
+  /** Equipment needed: every group must be met by at least one appliance in it. Empty = no cooking. */
+  equipment?: Appliance[][];
 }
 
 export interface ReadyMadePrice {
@@ -130,6 +141,12 @@ export interface Profile {
   sex?: "female" | "male";
   /** Pregnant, breastfeeding or a condition that affects diet: no targets shown. Which one is not stored. */
   needsGuidance?: boolean;
+  /** Kitchen equipment the user has. Undefined = not answered (no filtering). */
+  appliances?: Appliance[];
+  /** Up to three moods. */
+  moods?: Mood[];
+  /** Where the user usually shops. Undefined = not answered. */
+  shop?: Shop;
   /** Set once the user finishes setup. Until then the app sends them to /onboarding. */
   onboarded?: boolean;
 }

@@ -7,10 +7,10 @@ import { ChevronRight, LogOut, Settings } from "lucide-react";
 import { Button, Chip, Field, PageTitle, inputClass } from "@/components/ui";
 import { cmToFeetInches, formatWeight } from "@/lib/domain/units";
 import { GuidanceCheck, TargetCard } from "@/components/target-bits";
-import { ACTIVITY, ALLERGENS, BUDGET_LABELS, CUISINES, DIETS, GOALS, PREP_LABELS } from "@/lib/options";
+import { ACTIVITY, ALLERGENS, APPLIANCES, BUDGET_LABELS, CUISINES, DIETS, GOALS, MAX_MOODS, MOODS, PREP_LABELS, SHOPS, SHOP_LABEL } from "@/lib/options";
 import { useAuth } from "@/lib/auth";
 import { useStore } from "@/lib/prototype-store";
-import type { Profile } from "@/lib/types";
+import type { Appliance, Mood, Profile } from "@/lib/types";
 
 function Row({ label, value }: { label: string; value: string }) {
   return (
@@ -93,6 +93,31 @@ export function ProfileView() {
             <Chip key={k} selected={String(draft.maxPrepMinutes) === k} onClick={() => setDraft({ ...draft, maxPrepMinutes: Number(k) })}>{v}</Chip>
           ))}
         </Group>
+        <Group label={`In the mood for (up to ${MAX_MOODS})`}>
+          {MOODS.map((m) => {
+            const on = (draft.moods ?? []).includes(m.value);
+            return (
+              <Chip key={m.value} selected={on} disabled={!on && (draft.moods ?? []).length >= MAX_MOODS}
+                onClick={() => setDraft({ ...draft, moods: on ? (draft.moods ?? []).filter((x) => x !== m.value) : [...(draft.moods ?? []), m.value as Mood] })}>
+                {m.label}
+              </Chip>
+            );
+          })}
+        </Group>
+        <Group label="What you cook with">
+          {APPLIANCES.map((a) => {
+            const have = draft.appliances ?? [];
+            const on = have.includes(a.value);
+            const next = on ? have.filter((x) => x !== a.value) : [...have, a.value as Appliance];
+            return <Chip key={a.value} selected={on} onClick={() => setDraft({ ...draft, appliances: next.length ? next : undefined })}>{a.label}</Chip>;
+          })}
+        </Group>
+        <p className="-mt-3 text-sm text-muted">Meals that need something you don&apos;t have are hidden. Leave all unticked to see every meal.</p>
+        <Group label="Where you usually shop">
+          {SHOPS.map((x) => (
+            <Chip key={x.value} selected={draft.shop === x.value} onClick={() => setDraft({ ...draft, shop: draft.shop === x.value ? undefined : x.value })}>{x.label}</Chip>
+          ))}
+        </Group>
         <div className="sticky bottom-20 flex gap-2 border-t border-line bg-paper py-4 lg:bottom-0">
           <Button onClick={save} disabled={saving}>{saving ? "Saving…" : "Save changes"}</Button>
           <Button variant="ghost" disabled={saving} onClick={() => { setDraft(profile); setDislikes(profile.dislikes.join(", ")); setSaveError(null); setEditing(false); }}>Cancel</Button>
@@ -129,6 +154,9 @@ export function ProfileView() {
           <Row label="Dislikes" value={list(profile.dislikes, "None")} />
           <Row label="Cuisines" value={list(profile.cuisines, "Any")} />
           <Row label="Budget per meal" value={profile.budget ? BUDGET_LABELS[profile.budget] : "Not set"} />
+          <Row label="Mood" value={profile.moods?.length ? profile.moods.map((m) => MOODS.find((x) => x.value === m)!.label).join(", ") : "Anything"} />
+          <Row label="Kitchen" value={profile.appliances?.length ? profile.appliances.map((a) => APPLIANCES.find((x) => x.value === a)!.label).join(", ") : "Not given"} />
+          <Row label="Shop" value={profile.shop ? SHOP_LABEL[profile.shop] : "Not given"} />
           <Row label="Cooking time" value={profile.maxPrepMinutes !== undefined ? PREP_LABELS[String(profile.maxPrepMinutes)] ?? `${profile.maxPrepMinutes} min` : "Not set"} />
         </dl>
       </section>

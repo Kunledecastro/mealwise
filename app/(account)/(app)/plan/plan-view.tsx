@@ -1,5 +1,7 @@
 "use client";
 
+import { SHOP_LABEL } from "@/lib/options";
+
 import Link from "next/link";
 import { useMemo, useRef, useState } from "react";
 import { Check, Minus, Plus, RefreshCw, ShoppingBasket } from "lucide-react";
@@ -45,7 +47,8 @@ export function PlanView() {
           noTarget={target?.status !== "ok"}
           onCancel={plan && !ended && plan.items.length > 0 ? () => setMaking(false) : undefined}
           onMake={async (p) => {
-            if (await save(p, "Your plan wasn't saved. ")) setMaking(false);
+            // Items the user added to the list themselves are kept; their ticks start fresh.
+            if (await save({ ...p, extras: plan?.extras ?? [] }, "Your plan wasn't saved. ")) setMaking(false);
           }}
           dailyKcal={dailyKcal}
         />
@@ -59,7 +62,7 @@ function NewPlanForm({
   today, hasPlan, defaultSnacks, noTarget, onMake, onCancel, dailyKcal,
 }: {
   today: string; hasPlan: boolean; defaultSnacks: boolean; noTarget: boolean; dailyKcal: number | null;
-  onMake: (p: Plan) => Promise<void>; onCancel?: () => void;
+  onMake: (p: Omit<Plan, "extras">) => Promise<void>; onCancel?: () => void;
 }) {
   const [days, setDays] = useState<"1" | "3" | "7">("7");
   const [snacks, setSnacks] = useState(defaultSnacks);
@@ -86,7 +89,7 @@ function NewPlanForm({
         <span>Include a snack each day</span>
       </label>
       <p className="text-sm text-muted">
-        We use your allergies, diet, dislikes, budget and cooking time{noTarget ? "" : ", and fit each day to your daily target"}. You can swap any meal
+        We use your allergies, diet, dislikes, kitchen, mood, budget and cooking time{noTarget ? "" : ", and fit each day to your daily target"}. You can swap any meal
         afterwards.{noTarget ? " Without a daily target, days aren't fitted to a calorie total." : ""}
       </p>
       {hasPlan && <p role="note" className="rounded-[var(--radius-md)] bg-plantain-soft px-4 py-3 text-sm">This replaces your current plan and its shopping list ticks.</p>}
@@ -99,7 +102,8 @@ function NewPlanForm({
 }
 
 function PlanDays({ plan, today, dailyKcal, save, onNew }: { plan: Plan; today: string; dailyKcal: number | null; save: (p: Plan) => Promise<boolean>; onNew: () => void }) {
-  const { addLog, showToast } = useStore();
+  const { addLog, showToast, profile } = useStore();
+  const shop = profile.shop;
   const dates = Array.from({ length: plan.days }, (_, i) => addDays(plan.startDate, i));
   const todayIndex = dates.indexOf(today);
   const [day, setDay] = useState(Math.max(0, todayIndex));
@@ -207,6 +211,7 @@ function PlanDays({ plan, today, dailyKcal, save, onNew }: { plan: Plan; today: 
         </p>
       </section>
 
+      {shop && <p className="-mb-3 text-sm text-muted">Shopping planned for <span className="font-semibold text-ink">{SHOP_LABEL[shop]}</span></p>}
       <div className="flex flex-wrap gap-2">
         <ButtonLink href="/plan/shopping"><ShoppingBasket size={18} aria-hidden="true" /> Shopping list</ButtonLink>
         <Button variant="secondary" onClick={onNew}>New plan</Button>
