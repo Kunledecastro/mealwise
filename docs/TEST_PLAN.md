@@ -1,6 +1,13 @@
 # Mealwise — Testing Strategy and Results
 
 
+
+## Kitchen, mood, shop and own items (run 2026-10-22)
+- Unit **169/169** (new `tests/unit/kitchen-mood-shop.test.ts`: D-15 equipment guard, KM-01 to KM-13).
+- Browser **196/196** (new `tests/e2e/kitchen.spec.ts` P7-01 to P7-05 at phone and desktop size; J1 and P4-11 updated for the new setup step).
+- Database: `rls_meal_plans.sql` **29/29** on `mealwise-dev` (new 22–29). Security advisor: only the known leaked-password warning.
+- Manual checks for you: (1) in Profile, tick only "Stove or cooker" and check Boli disappears from snacks; (2) pick a mood and see "In the mood for" on Home; (3) add your own items to the shopping list, tick one, share the list; (4) choose Shoprite and read the price note on the shopping list.
+
 ## Day-fit suggestions (run 2026-10-21)
 - Unit **155/155** (new DF-01 to DF-07 in `tests/unit/day-fit.test.ts`): no change with nothing logged; heavy lunch → lighter dinner band; small breakfast → bigger lunch, capped at 1.5x; over target → dinner keeps half its share; unlogged meal times keep their share; real catalogue dinner suggestions get lighter with a "Fits the N kcal left today" reason; plans ignore today's log.
 - Browser **186/186** (new P4-12 at phone and desktop size: Home shows "Lighter ideas first: about 350 kcal of today's target is left." after 1,400 of 1,750 kcal is logged). P4-06 now pins the clock (decision 071).
