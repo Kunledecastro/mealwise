@@ -3,7 +3,7 @@
 **Current phase:** None. All build phases (0–6) are complete and approved.
 **Last completed phase:** Phase 6 (approved 2026-10-19)
 **Implementation status:** MVP complete. Next: closed beta preparation (below).
-**Last updated:** 2026-10-22
+**Last updated:** 2026-10-23
 
 ## Completed
 - Phases 0–6 (approved): catalogue of 70 meals, recommendations, accounts, targets, meal log, weights, plans, shopping list.
@@ -51,7 +51,7 @@ I2, I3, I11, I12, I13, I14, I16, I18 (= M6-02), I19, I20, I21, I22, I23, I24. No
 | — | Lawyer or DPCO for privacy review | Before public launch |
 
 ## Where things live
-- Code: GitHub `Kunledecastro/mealwise` (`main`). Test link: https://mealwise-flame.vercel.app (Vercel login). Database: Supabase `mealwise-dev`.
+- Code: GitHub `Kunledecastro/mealwise` (`main`). Test link: https://mealwise-flame.vercel.app (open to anyone with the link since 2026-10-23; previews still behind Vercel login). Database: Supabase `mealwise-dev`.
 - Guides: docs/DEPLOYMENT_GUIDE.md, docs/BACKUP_AND_RESTORE.md, docs/PRIVACY_REVIEW.md, docs/RELEASE_READINESS.md.
 
 ## Exact next step
